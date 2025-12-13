@@ -18,7 +18,7 @@ interface SongViewerProps {
 
 export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit }) => {
     const [transpose, setTranspose] = useState(0);
-    const [fontSize, setFontSize] = useState(18);
+    const [fontSize, setFontSize] = useState(20);
     const [capo, setCapo] = useState(song.capo || 0);
     const [selectedChord, setSelectedChord] = useState<string | null>(null);
     const [autoScroll, setAutoScroll] = useState(false);
@@ -167,12 +167,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
         }
     };
 
-    const cycleDisplayMode = () => {
-        const modes: DisplayMode[] = ['chords', 'tabs', 'notation', 'nashville'];
-        const currentIndex = modes.indexOf(displayMode);
-        const nextIndex = (currentIndex + 1) % modes.length;
-        setDisplayMode(modes[nextIndex]);
-    };
+
 
     const getDisplayModeName = (mode: DisplayMode): string => {
         switch (mode) {
@@ -261,14 +256,38 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
                             </div>
                         </div>
 
-                        <button
-                            className="main-btn"
-                            onClick={cycleDisplayMode}
-                            title="Switch Notation Mode"
-                            style={{ minWidth: '100px' }}
-                        >
-                            {getDisplayModeName(displayMode)}
-                        </button>
+                        <div style={{
+                            display: 'flex',
+                            background: 'var(--surface-color)',
+                            borderRadius: '8px',
+                            padding: '2px', // Tighter padding
+                            border: '1px solid var(--border-color)',
+                            height: '36px', // Fixed height to match other controls
+                            alignItems: 'center'
+                        }}>
+                            {(['chords', 'tabs', 'notation', 'nashville'] as DisplayMode[]).map(mode => (
+                                <button
+                                    key={mode}
+                                    onClick={() => setDisplayMode(mode)}
+                                    title={`Switch to ${getDisplayModeName(mode)}`}
+                                    style={{
+                                        background: displayMode === mode ? 'var(--primary-color)' : 'transparent',
+                                        color: displayMode === mode ? 'white' : 'var(--text-secondary)',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        padding: '0 12px',
+                                        fontSize: '0.85rem',
+                                        height: '100%', // Fill height
+                                        cursor: 'pointer',
+                                        fontWeight: displayMode === mode ? '600' : '400',
+                                        transition: 'all 0.2s ease',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {getDisplayModeName(mode)}
+                                </button>
+                            ))}
+                        </div>
 
                         <div className="control-item">
                             <button className="icon-btn" onClick={() => setFontSize(s => Math.max(12, s - 2))} title="Decrease Text Size">A-</button>
@@ -291,11 +310,34 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
                 <div
                     ref={contentContainerRef}
                     className="song-content-area"
-                    style={{ fontSize: `${fontSize} px` }}
+                    style={{ fontSize: `${fontSize}px` }}
                 >
                     <div className="song-meta">
                         <h1 className="song-title">{song.title}</h1>
                         <h2 className="song-artist">{song.artist}</h2>
+                        {song.tags && song.tags.length > 0 && (
+                            <div style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: '0.5rem',
+                                justifyContent: 'center',
+                                marginTop: '0.5rem'
+                            }}>
+                                {song.tags.map(tag => (
+                                    <span key={tag} style={{
+                                        padding: '2px 8px',
+                                        background: 'var(--surface-hover)',
+                                        borderRadius: '12px',
+                                        fontSize: '0.75rem',
+                                        color: 'var(--text-secondary)',
+                                        textTransform: 'lowercase',
+                                        border: '1px solid var(--border-color)'
+                                    }}>
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {capo > 0 && (
@@ -323,7 +365,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
                                 style={{
                                     display: 'flex',
                                     flexWrap: 'wrap',
-                                    alignItems: 'flex-end',
+                                    alignItems: 'flex-start',
                                     marginBottom: '2rem',
                                     position: 'relative'
                                 }}

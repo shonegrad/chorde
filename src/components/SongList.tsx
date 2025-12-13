@@ -24,7 +24,7 @@ export const SongList: React.FC<SongListProps> = ({ songs, onSelect, onCreate, o
     });
 
     const handleReset = () => {
-        if (confirm('This will reset your library to the default songs (~120 songs including Rock Vol 2!). Any custom changes will be lost. Continue?')) {
+        if (confirm('This will reset your library to the default songs (~170 songs including Jazz Pack!). Any custom changes will be lost. Continue?')) {
             onReset();
         }
     };
