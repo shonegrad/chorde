@@ -35,7 +35,7 @@
     npm run dev
     ```
 
-4.  Open your browser at `http://localhost:5173`
+4.  Open your browser at `http://localhost:5174`
 
 ## 🛠️ Tech Stack
 
@@ -56,3 +56,4 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for de
 ## 📄 License
 
 This project is licensed under the MIT License.
+# chorde
