@@ -9,15 +9,13 @@ interface ChordDiagramProps {
 const STRINGS = 6;
 const VISIBLE_FRETS = 5;
 
-export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName }) => {
+export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName: _chordName }) => {
     const { frets, fingers, barres } = variation;
 
     // Find the min/max fret to determine diagram position
     const numericFrets = frets.filter(f => typeof f === 'number') as number[];
     const minFret = numericFrets.length > 0 ? Math.min(...numericFrets.filter(f => f > 0)) : 1;
-    const maxFret = numericFrets.length > 0 ? Math.max(...numericFrets) : 5;
     const startFret = minFret > 1 ? minFret : 1;
-    const endFret = Math.max(startFret + VISIBLE_FRETS - 1, maxFret);
 
     const stringSpacing = 30;
     const fretHeight = 40;

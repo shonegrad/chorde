@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import '../styles/SongViewer.css';
 import type { Song, SongSection, DisplayMode } from '../types';
 import { parseChordPro } from '../lib/chordPro';
+import { exportToChordPro } from '../lib/export';
 import { transposeChord } from '../lib/music';
 import { chordToNashville } from '../lib/nashville';
 import { ChordStaff } from './ChordStaff';
@@ -274,6 +275,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
                             <button className="icon-btn" onClick={() => setFontSize(s => Math.min(48, s + 2))} title="Increase Text Size">A+</button>
                         </div>
 
+                        <button className="main-btn" onClick={() => exportToChordPro(song)} title="Download Song">⬇️</button>
                         <button className="main-btn" onClick={onEdit}>Edit</button>
                     </div>
                 </div>

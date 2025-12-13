@@ -10,6 +10,7 @@ interface SongImporterProps {
 export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }) => {
     const [content, setContent] = useState('');
     const [preview, setPreview] = useState<{ title: string; artist: string; key?: string; capo?: number } | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
 
     useEffect(() => {
         if (!content.trim()) {
@@ -72,11 +73,79 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
                     Paste your ChordPro formatted song below. We'll automatically extract the title, artist, key, and capo if available.
                 </p>
 
-                <div style={{ display: 'flex', gap: '1rem', flex: 1, minHeight: 0 }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        gap: '1rem',
+                        flex: 1,
+                        minHeight: 0,
+                        position: 'relative',
+                        transition: 'all 0.2s'
+                    }}
+                    onDragOver={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDragging(true);
+                    }}
+                    onDragLeave={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDragging(false);
+                    }}
+                    onDrop={async e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDragging(false);
+
+                        const file = e.dataTransfer.files[0];
+                        if (file) {
+                            let text = await file.text();
+
+                            // inject title from filename if missing
+                            const metadata = extractMetadata(text);
+                            if (!metadata.title || metadata.title === 'Untitled Song') {
+                                const filenameTitle = file.name.replace(/\.(txt|cho|crd|chordpro)$/i, '').replace(/[-_]/g, ' ');
+                                // Add title tag to the beginning
+                                text = `{title: ${filenameTitle}}\n` + text;
+                            }
+
+                            setContent(text);
+                        }
+                    }}
+                >
+                    {isDragging && (
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(var(--primary-color-rgb), 0.1)',
+                            border: '2px dashed var(--primary-color)',
+                            zIndex: 10,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            pointerEvents: 'none',
+                            backdropFilter: 'blur(2px)',
+                            borderRadius: '4px'
+                        }}>
+                            <div style={{
+                                background: 'var(--surface-color)',
+                                padding: '1rem 2rem',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                                fontWeight: 'bold',
+                                color: 'var(--primary-color)'
+                            }}>
+                                Drop file to import!
+                            </div>
+                        </div>
+                    )}
                     <textarea
                         value={content}
                         onChange={e => setContent(e.target.value)}
-                        placeholder="{title: Song Title}\n{artist: Artist Name}\n\n{start_of_verse}\n[C]Verse lyrics..."
+                        placeholder="Paste ChordPro text here... OR Drop a file!"
                         style={{
                             flex: 1,
                             fontFamily: 'var(--font-mono)',
@@ -85,7 +154,8 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
                             borderRadius: '4px',
                             border: '1px solid var(--border-color)',
                             background: 'var(--background-color)',
-                            color: 'var(--text-color)'
+                            color: 'var(--text-color)',
+                            opacity: isDragging ? 0.5 : 1
                         }}
                     />
 
@@ -146,6 +216,6 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };

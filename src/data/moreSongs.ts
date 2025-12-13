@@ -1,6 +1,6 @@
 // Additional 30 popular songs to expand library to 50 total
 
-const MORE_SONGS = [
+export const MORE_SONGS = [
     {
         id: 'eagles-hotel-california',
         title: 'Hotel California',

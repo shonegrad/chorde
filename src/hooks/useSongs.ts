@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import type { Song } from '../types';
 
 import { SEED_SONGS } from '../data/seedSongs';
+import { ROCK_PACK } from '../data/rockPack';
+import { ROCK_PACK_2 } from '../data/rockPack2';
 
 const STORAGE_KEY = 'chorde_songs';
 
@@ -13,9 +15,10 @@ export const useSongs = () => {
         if (stored) {
             setSongs(JSON.parse(stored));
         } else {
-            // Initialize with seed songs
-            setSongs(SEED_SONGS);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED_SONGS));
+            // Initialize with seed songs AND rock pack 1 & 2
+            const allSongs = [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2];
+            setSongs(allSongs);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(allSongs));
         }
     }, []);
 
@@ -38,9 +41,10 @@ export const useSongs = () => {
     };
 
     const resetLibrary = () => {
-        // Directly reload from SEED_SONGS
-        setSongs(SEED_SONGS);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED_SONGS));
+        // Directly reload from SEED_SONGS + ROCK_PACK + ROCK_PACK_2
+        const allSongs = [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2];
+        setSongs(allSongs);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allSongs));
     };
 
     return { songs, saveSong, deleteSong, resetLibrary };

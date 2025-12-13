@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import type { Song } from '../types';
-import { SongImporter } from './SongImporter';
 
 interface SongListProps {
     songs: Song[];
     onSelect: (song: Song) => void;
     onCreate: () => void;
-    onImport: (song: Song) => void;
+    onImportNav: () => void;
     onReset: () => void;
 }
 
-export const SongList: React.FC<SongListProps> = ({ songs, onSelect, onCreate, onImport, onReset }) => {
+export const SongList: React.FC<SongListProps> = ({ songs, onSelect, onCreate, onImportNav, onReset }) => {
     const [search, setSearch] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
-    const [showImporter, setShowImporter] = useState(false);
 
     // Extract all unique tags
     const allTags = Array.from(new Set(songs.flatMap(s => s.tags || []))).sort();
@@ -26,7 +24,9 @@ export const SongList: React.FC<SongListProps> = ({ songs, onSelect, onCreate, o
     });
 
     const handleReset = () => {
-        onReset();
+        if (confirm('This will reset your library to the default songs (~120 songs including Rock Vol 2!). Any custom changes will be lost. Continue?')) {
+            onReset();
+        }
     };
 
     return (
@@ -42,10 +42,10 @@ export const SongList: React.FC<SongListProps> = ({ songs, onSelect, onCreate, o
                         ↻ Reset Library
                     </button>
                     <button
-                        onClick={() => setShowImporter(true)}
-                        style={{ border: '1px solid var(--primary-color)', color: 'var(--primary-color)', padding: '0.5rem 1rem', borderRadius: '4px' }}
+                        onClick={onImportNav}
+                        style={{ background: 'var(--surface-hover)', color: 'var(--text-primary)', padding: '0.5rem 1rem', borderRadius: '4px' }}
                     >
-                        + Import
+                        ☁ Import
                     </button>
                     <button
                         onClick={onCreate}
@@ -55,16 +55,6 @@ export const SongList: React.FC<SongListProps> = ({ songs, onSelect, onCreate, o
                     </button>
                 </div>
             </div>
-
-            {showImporter && (
-                <SongImporter
-                    onImport={(song) => {
-                        onImport(song);
-                        setShowImporter(false);
-                    }}
-                    onCancel={() => setShowImporter(false)}
-                />
-            )}
 
             <input
                 placeholder="Search songs..."

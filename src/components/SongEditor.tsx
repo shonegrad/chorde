@@ -5,9 +5,10 @@ interface SongEditorProps {
     initialSong?: Song;
     onSave: (song: Song) => void;
     onCancel: () => void;
+    onDelete?: (id: string) => void;
 }
 
-export const SongEditor: React.FC<SongEditorProps> = ({ initialSong, onSave, onCancel }) => {
+export const SongEditor: React.FC<SongEditorProps> = ({ initialSong, onSave, onCancel, onDelete }) => {
     const [title, setTitle] = useState(initialSong?.title || '');
     const [artist, setArtist] = useState(initialSong?.artist || '');
     const [content, setContent] = useState(initialSong?.content || '');
@@ -22,6 +23,12 @@ export const SongEditor: React.FC<SongEditorProps> = ({ initialSong, onSave, onC
             createdAt: initialSong?.createdAt || Date.now(),
             updatedAt: Date.now(),
         });
+    };
+
+    const handleDelete = () => {
+        if (initialSong && onDelete && confirm('Are you sure you want to delete this song?')) {
+            onDelete(initialSong.id);
+        }
     };
 
     return (
@@ -54,8 +61,19 @@ export const SongEditor: React.FC<SongEditorProps> = ({ initialSong, onSave, onC
                         resize: 'none'
                     }}
                 />
-                <div className="flex justify-between">
-                    <button type="button" onClick={onCancel}>Cancel</button>
+                <div className="flex justify-between items-center">
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button type="button" onClick={onCancel}>Cancel</button>
+                        {initialSong && onDelete && (
+                            <button
+                                type="button"
+                                onClick={handleDelete}
+                                style={{ color: 'var(--danger-color)', border: '1px solid var(--danger-color)', background: 'transparent' }}
+                            >
+                                Delete
+                            </button>
+                        )}
+                    </div>
                     <button type="submit" style={{ background: 'var(--primary-color)', color: '#000', padding: '0.5rem 1rem', borderRadius: '4px' }}>
                         Save Song
                     </button>

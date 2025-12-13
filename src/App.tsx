@@ -3,18 +3,23 @@ import { useSongs } from './hooks/useSongs';
 import { SongList } from './components/SongList';
 import { SongViewer } from './components/SongViewer';
 import { SongEditor } from './components/SongEditor';
+import { SongImporter } from './components/SongImporter';
 import type { Song } from './types';
 
-type ViewState = 'LIST' | 'PLAY' | 'EDIT';
+type ViewState = 'LIST' | 'PLAY' | 'EDIT' | 'IMPORT';
 
 function App() {
-  const { songs, saveSong, resetLibrary } = useSongs();
+  const { songs, saveSong, resetLibrary, deleteSong } = useSongs();
   const [view, setView] = useState<ViewState>('LIST');
   const [activeSong, setActiveSong] = useState<Song | undefined>(undefined);
 
   const handleCreate = () => {
     setActiveSong(undefined);
     setView('EDIT');
+  };
+
+  const handleImportClick = () => {
+    setView('IMPORT');
   };
 
   const handleSelect = (song: Song) => {
@@ -30,7 +35,7 @@ function App() {
   const handleSave = (song: Song) => {
     saveSong(song);
     setActiveSong(song); // Update active song ref
-    setView('PLAY'); // Go back to play view (or list? Play is better UX)
+    setView('PLAY'); // Go back to play view
   };
 
   const handleBackToList = () => {
@@ -55,6 +60,23 @@ function App() {
         initialSong={activeSong}
         onSave={handleSave}
         onCancel={activeSong ? () => setView('PLAY') : handleBackToList}
+        onDelete={(id) => {
+          deleteSong(id);
+          handleBackToList();
+        }}
+      />
+    );
+  }
+
+  if (view === 'IMPORT') {
+    return (
+      <SongImporter
+        onImport={(song) => {
+          saveSong(song);
+          setActiveSong(song);
+          setView('PLAY');
+        }}
+        onCancel={handleBackToList}
       />
     );
   }
@@ -64,15 +86,12 @@ function App() {
       songs={songs}
       onSelect={handleSelect}
       onCreate={handleCreate}
-      onImport={(song) => {
-        saveSong(song);
-        setActiveSong(song);
-      }}
       onReset={() => {
         if (confirm('Are you sure you want to reset the library to default songs? This will erase all custom songs.')) {
           resetLibrary();
         }
       }}
+      onImportNav={handleImportClick}
     />
   );
 }
