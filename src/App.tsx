@@ -64,7 +64,15 @@ function App() {
       songs={songs}
       onSelect={handleSelect}
       onCreate={handleCreate}
-      onReset={resetLibrary}
+      onImport={(song) => {
+        saveSong(song);
+        setActiveSong(song);
+      }}
+      onReset={() => {
+        if (confirm('Are you sure you want to reset the library to default songs? This will erase all custom songs.')) {
+          resetLibrary();
+        }
+      }}
     />
   );
 }

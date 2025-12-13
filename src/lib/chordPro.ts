@@ -1,5 +1,54 @@
 import type { ParsedSong, ParsedLine, SongSection } from '../types';
 
+export interface SongMetadata {
+    title: string;
+    artist: string;
+    key?: string;
+    capo?: number;
+}
+
+export const extractMetadata = (content: string): SongMetadata => {
+    const lines = content.split('\n');
+    let title = 'Untitled Song';
+    let artist = 'Unknown Artist';
+    let key: string | undefined;
+    let capo: number | undefined;
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+
+        // Title: {title: ...}, {t: ...}
+        const titleMatch = trimmed.match(/\{(?:title|t):\s*([^}]+)\}/i);
+        if (titleMatch) {
+            title = titleMatch[1].trim();
+            continue;
+        }
+
+        // Artist: {artist: ...}, {a: ...}, {subtitle: ...}, {st: ...}
+        const artistMatch = trimmed.match(/\{(?:artist|a|subtitle|st):\s*([^}]+)\}/i);
+        if (artistMatch) {
+            artist = artistMatch[1].trim();
+            continue;
+        }
+
+        // Key: {key: ...}, {k: ...}
+        const keyMatch = trimmed.match(/\{(?:key|k):\s*([^}]+)\}/i);
+        if (keyMatch) {
+            key = keyMatch[1].trim();
+            continue;
+        }
+
+        // Capo: {capo: ...}, {c: ...}
+        const capoMatch = trimmed.match(/\{(?:capo|c):\s*(\d+)\}/i);
+        if (capoMatch) {
+            capo = parseInt(capoMatch[1], 10);
+            continue;
+        }
+    }
+
+    return { title, artist, key, capo };
+};
+
 export const parseChordPro = (content: string): ParsedSong => {
     const lines = content.split('\n');
     const parsedLines: ParsedLine[] = [];

@@ -952,5 +952,487 @@ Your [G]drug is a [D]heartbreaker
 [Am]Say it ain't [C]so
 My [G]love is a [D]life taker`
     }
-];
+    ,
 
+
+    // NEW EXPANSION PACK (20 Songs)
+
+    // CLASSIC ROCK
+    {
+        id: 'queen-bohemian-rhapsody',
+        title: 'Bohemian Rhapsody',
+        artist: 'Queen',
+        tags: ['rock', 'classic', '70s', 'piano'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Bohemian Rhapsody}
+{artist: Queen}
+
+{start_of_verse}
+[Bb6]Is this the real life?
+[C7]Is this just fantasy?
+[F7]Caught in a land[Cm7]slide
+No es[F7]cape from re[Bb]ality
+[Gm]Open your eyes
+Look [Bb7]up to the skies and [Eb]see
+[Cm]I'm just a poor boy, [F7]I need no sympathy
+Because I'm [B]easy [Bb]come, [A]easy [Bb]go
+[B]Little [Bb]high, [A]little [Bb]low
+[Eb]Any way the [Bb/D]wind blows
+[C#dim]Doesn't really [F7/C]matter to [F]me, to me
+{end_of_verse}
+
+{start_of_intro: Piano Ballad Section}
+[Bb]Mama [Gm]just killed a man
+Put a [Cm]gun against his head
+Pulled my [cm]trigger, now he's [F]dead
+[Bb]Mama, [Gm]life had just begun
+But [Cm]now I've gone and [B+]thrown it [Eb/Bb]all [Am7b5]away [D7]
+{end_of_intro}`
+    },
+    {
+        id: 'stones-paint-it-black',
+        title: 'Paint It, Black',
+        artist: 'The Rolling Stones',
+        tags: ['rock', 'classic', '60s'],
+        key: 'Em',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Paint It, Black}
+{artist: The Rolling Stones}
+
+{start_of_verse}
+[Em]I see a red door and I [B7]want it painted black
+[Em]No colors anymore I [B7]want them to turn black
+[Em]I [D]see the [G]girls walk [D]by dressed [Em]in their summer clothes
+[Em]I [D]have to [G]turn my [D]head un[A]til my darkness [B7]goes
+{end_of_verse}`
+    },
+    {
+        id: 'hendrix-hey-joe',
+        title: 'Hey Joe',
+        artist: 'Jimi Hendrix',
+        tags: ['rock', 'blues', '60s'],
+        key: 'E',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Hey Joe}
+{artist: Jimi Hendrix}
+
+{start_of_intro}
+[C] [G] [D] [A] [E]
+{end_of_intro}
+
+{start_of_verse}
+[C]Hey [G]Joe, where you [D]goin' with that [A]gun of your [E]hand?
+[C]Hey [G]Joe, I said where you [D]goin' with that [A]gun of your [E]hand?
+[C]I'm goin' down to [G]shoot my old lady
+[D]You know I caught her [A]messin' 'round with another [E]man
+{end_of_verse}`
+    },
+    {
+        id: 'lynyrd-sweet-home-alabama',
+        title: 'Sweet Home Alabama',
+        artist: 'Lynyrd Skynyrd',
+        tags: ['rock', 'southern', '70s'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Sweet Home Alabama}
+{artist: Lynyrd Skynyrd}
+
+{start_of_verse}
+[D]Big [C]wheels keep on [G]turning
+[D]Carry me [C]home to see my [G]kin
+[D]Singing [C]songs about the [G]Southland
+[D]I miss A[C]labama once a[G]gain and I think it's a sin
+{end_of_verse}
+
+{start_of_chorus}
+[D]Sweet [C]home Ala[G]bama
+[D]Where the [C]skies are so [G]blue
+[D]Sweet [C]home Ala[G]bama
+[D]Lord I'm [C]coming home to [G]you
+{end_of_chorus}`
+    },
+    {
+        id: 'ccr-have-you-ever-seen-rain',
+        title: 'Have You Ever Seen the Rain',
+        artist: 'CCR',
+        tags: ['rock', 'classic', '70s'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Have You Ever Seen the Rain}
+{artist: Creedence Clearwater Revival}
+
+{start_of_verse}
+[C]Someone told me long ago
+[C]There's a calm before the storm
+[G]I know, it's been comin' for some [C]time
+[C]When it's over, so they say
+[C]It'll rain a sunny day
+[G]I know, shinin' down like [C]water
+{end_of_verse}
+
+{start_of_chorus}
+[F]I want to [G]know, have you [C]ever [Em/B]seen the [Am]rain? [Am/G]
+[F]I want to [G]know, have you [C]ever [Em/B]seen the [Am]rain? [Am/G]
+[F]Comin' [G]down on a sunny [C]day
+{end_of_chorus}`
+    },
+
+    // COUNTRY & FOLK
+    {
+        id: 'dolly-jolene',
+        title: 'Jolene',
+        artist: 'Dolly Parton',
+        tags: ['country', 'classic', '70s'],
+        key: 'C#m',
+        capo: 4,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Jolene}
+{artist: Dolly Parton}
+{key: Am}
+{capo: 4}
+
+{start_of_chorus}
+Jo[Am]lene, Jo[C]lene, Jo[G]lene, Jo[Am]lene
+I'm [G]begging of you [Em7]please don't take my [Am]man
+Jo[Am]lene, Jo[C]lene, Jo[G]lene, Jo[Am]lene
+[G]Please don't take him [Em7]just because you [Am]can
+{end_of_chorus}`
+    },
+    {
+        id: 'denver-country-roads',
+        title: 'Take Me Home, Country Roads',
+        artist: 'John Denver',
+        tags: ['folk', 'country', '70s'],
+        key: 'G',
+        capo: 2,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Take Me Home, Country Roads}
+{artist: John Denver}
+
+{start_of_verse}
+[G]Almost heaven, [Em]West Virginia
+[D]Blue Ridge Mountains, [C]Shenandoah [G]River
+[G]Life is old there, [Em]older than the trees
+[D]Younger than the mountains, [C]growin' like a [G]breeze
+{end_of_verse}
+
+{start_of_chorus}
+Country [G]roads, take me [D]home
+To the [Em]place I be[C]long
+West Vir[G]ginia, mountain [D]mama
+Take me [C]home, country [G]roads
+{end_of_chorus}`
+    },
+    {
+        id: 'neil-young-heart-of-gold',
+        title: 'Heart of Gold',
+        artist: 'Neil Young',
+        tags: ['folk', 'rock', '70s'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Heart of Gold}
+{artist: Neil Young}
+
+{start_of_verse}
+[Em]I want to [C]live, [D]I want to [G]give
+[Em]I've been a [C]miner for a [D]heart of [G]gold
+[Em]It's these [C]expressions [D]I never [G]give
+{end_of_verse}
+
+{start_of_chorus}
+[Em]That keep me searching for a [G]heart of gold
+[C]And I'm getting old [G]
+[Em]Keep me searching for a [G]heart of gold
+[C]And I'm getting old [G]
+{end_of_chorus}`
+    },
+    {
+        id: 'cat-stevens-wild-world',
+        title: 'Wild World',
+        artist: 'Cat Stevens',
+        tags: ['folk', 'rock', '70s'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Wild World}
+{artist: Cat Stevens}
+
+{start_of_verse}
+[Am]Now that I've [D7]lost everything to [G]you
+You say you [Cmaj7]wanna start something [F]new
+And it's [Dm]breakin' my heart you're [E]leavin'
+Baby, I'm [E7]grievin'
+{end_of_verse}
+
+{start_of_chorus}
+[Am]Oh, baby, baby, it's a [D7]wild world
+[G]It's hard to get by just upon a [Cmaj7]smile...
+{end_of_chorus}`
+    },
+    {
+        id: 'fleetwood-landslide',
+        title: 'Landslide',
+        artist: 'Fleetwood Mac',
+        tags: ['rock', 'acoustic', '70s'],
+        key: 'Eb',
+        capo: 3,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Landslide}
+{artist: Fleetwood Mac}
+{capo: 3}
+{key: C}
+
+{start_of_verse}
+[C]I took my [G/B]love, I took it [Am7]down [G/B]
+[C]Climbed a [G/B]mountain and I [Am7]turned around [G/B]
+[C]And I [G/B]saw my re[Am7]flection in the [G/B]snow covered [C]hills
+'Til the [G/B]landslide [Am7]brought me [G/B]down
+{end_of_verse}`
+    },
+
+    // POP / SOUL CLASSICS
+    {
+        id: 'ben-e-king-stand-by-me',
+        title: 'Stand By Me',
+        artist: 'Ben E. King',
+        tags: ['soul', 'classic', '60s'],
+        key: 'A',
+        capo: 2,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Stand By Me}
+{artist: Ben E. King}
+{capo: 2}
+{key: G}
+
+{start_of_verse}
+When the [G]night has come
+[Em]And the land is dark
+And the [C]moon is the [D]only light we'll [G]see
+[G]No I won't be afraid, no I [Em]won't be afraid
+Just as [C]long as you [D]stand, stand by [G]me
+{end_of_verse}`
+    },
+    {
+        id: 'elvis-cant-help-falling',
+        title: "Can't Help Falling in Love",
+        artist: 'Elvis Presley',
+        tags: ['pop', 'classic', 'ballad'],
+        key: 'D',
+        capo: 2,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Can't Help Falling in Love}
+{artist: Elvis Presley}
+{capo: 2}
+{key: C}
+
+{start_of_verse}
+[C]Wise [Em]men [Am]say
+Only [F]fools [C]rush [G]in
+But [F]I [G]can't [Am]help [F]falling in [C]love [G]with [C]you
+{end_of_verse}`
+    },
+    {
+        id: 'marley-three-little-birds',
+        title: 'Three Little Birds',
+        artist: 'Bob Marley',
+        tags: ['reggae', 'classic', '70s'],
+        key: 'A',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Three Little Birds}
+{artist: Bob Marley}
+
+{start_of_chorus}
+Don't [A]worry about a thing
+'Cause [D]every little thing gonna be all [A]right
+Singin' don't [A]worry about a thing
+'Cause [D]every little thing gonna be all [A]right
+{end_of_chorus}`
+    },
+    {
+        id: 'chapman-fast-car',
+        title: 'Fast Car',
+        artist: 'Tracy Chapman',
+        tags: ['folk', 'acoustic', '80s'],
+        key: 'A',
+        capo: 2,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Fast Car}
+{artist: Tracy Chapman}
+{capo: 2}
+{key: G}
+
+{start_of_verse}
+[Cmaj7]You got a fast [G]car
+[Em]I want a ticket to [D]anywhere
+[Cmaj7]Maybe we make a [G]deal
+[Em]Maybe together we can [D]get somewhere
+{end_of_verse}`
+    },
+    {
+        id: 'u2-with-or-without-you',
+        title: 'With or Without You',
+        artist: 'U2',
+        tags: ['rock', '80s', 'classic'],
+        key: 'D',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: With or Without You}
+{artist: U2}
+
+{start_of_verse}
+[D]See the stone set in your eyes
+[A]See the thorn twist in your side
+[Bm]I wait for [G]you
+[D]Sleight of hand and twist of fate
+[A]On a bed of nails she makes me wait
+[Bm]And I wait, with[G]out you
+{end_of_verse}
+
+{start_of_chorus}
+With or with[D]out you
+With or with[A]out you
+[Bm]I can't [G]live
+With or with[D]out you
+{end_of_chorus}`
+    },
+    {
+        id: 'rem-losing-my-religion',
+        title: 'Losing My Religion',
+        artist: 'R.E.M.',
+        tags: ['rock', 'alternative', '90s'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Losing My Religion}
+{artist: R.E.M.}
+
+{start_of_verse}
+[G]Oh [Am]life is bigger
+[Em]It's bigger than you
+And you are [Am]not me
+The lengths that I will [Em]go to
+The distance in your [Dm]eyes
+[G]Oh no I've said too [Dm]much
+[G]I set it up
+{end_of_verse}`
+    },
+    {
+        id: 'green-day-good-riddance',
+        title: 'Good Riddance (Time of Your Life)',
+        artist: 'Green Day',
+        tags: ['rock', 'punk', 'acoustic', '90s'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Good Riddance}
+{artist: Green Day}
+
+{start_of_verse}
+[G]Another turning point, a [C]fork stuck in the [D]road
+[G]Time grabs you by the wrist, di[C]rects you where to [D]go
+[Em]So make the [D]best of this [C]test, and don't ask [G]why
+[Em]It's not a [D]question, but a [C]lesson learned in [G]time
+{end_of_verse}
+
+{start_of_chorus}
+[Em]It's something unp[G]redictable, but [Em]in the end is [G]right
+[Em]I hope you [D]had the time of your [G]life
+{end_of_chorus}`
+    },
+    {
+        id: 'rhcp-under-the-bridge',
+        title: 'Under the Bridge',
+        artist: 'Red Hot Chili Peppers',
+        tags: ['rock', 'alternative', '90s'],
+        key: 'E',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Under the Bridge}
+{artist: Red Hot Chili Peppers}
+{key: E}
+
+{start_of_verse}
+[E]Sometimes [B]I feel like I [C#m]don't have a [G#m]partner
+[E]Sometimes [B]I feel like [C#m]my only [A]friend
+[E]Is the city [B]I live in, the [C#m]City of [G#m]Angels
+[E]Lonely as [B]I am, to[C#m]gether we [A]cry
+{end_of_verse}`
+    },
+    {
+        id: 'jeff-buckley-hallelujah',
+        title: 'Hallelujah',
+        artist: 'Jeff Buckley',
+        tags: ['folk', 'ballad', '90s'],
+        key: 'C',
+        capo: 5,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: Hallelujah}
+{artist: Jeff Buckley}
+{capo: 5}
+{key: G}
+
+{start_of_verse}
+I [G]heard there was a [Em]secret chord
+That [G]David played and it [Em]pleased the Lord
+But [C]you don't really [D]care for music, [G]do you? [D]
+It [G]goes like this, the [C]fourth, the [D]fifth
+The [Em]minor fall, the [C]major lift
+The [D]baffled king com[B7]posing Halle[Em]lujah
+{end_of_verse}`
+    },
+    {
+        id: 'don-mclean-american-pie',
+        title: 'American Pie',
+        artist: 'Don McLean',
+        tags: ['folk', 'rock', 'classic', '70s'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{title: American Pie}
+{artist: Don McLean}
+
+{start_of_verse}
+A [G]long, [D]long time a[Em7]go
+[Am]I can still re[C]member how that [Em]music used to make me [D]smile
+And I [G]knew if I had [D]my [Em7]chance
+That [Am]I could make those [C]people dance
+And [Em]maybe they'd be [C]happy for a [D]while
+{end_of_verse}
+
+{start_of_chorus}
+So [G]bye, [D]bye Miss A[Em]merican [C]Pie
+Drove my [G]Chevy to the [C]levee but the [G]levee was [D]dry
+And them [G]good ole [D]boys were drinking [Em]whiskey and [C]rye
+Singin' [G]this'll be the [D]day that I [Em]die [C]
+[Am]This'll be the [D]day that I [G]die
+{end_of_chorus}`
+    }
+];
