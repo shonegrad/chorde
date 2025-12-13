@@ -1,0 +1,956 @@
+import type { Song } from '../types';
+
+export const SEED_SONGS: Song[] = [
+    {
+        id: 'nirvana-about-a-girl',
+        title: 'About a Girl (Unplugged)',
+        artist: 'Nirvana',
+        tags: ['grunge', 'acoustic', '90s'],
+        key: 'Em',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_intro}
+[Em] [G] [Em] [G] [Em] [G] [Em] [G]
+
+{start_of_verse: Verse 1}
+[Em]I need an [G]easy friend
+[Em]I do... with an [G]ear to lend
+[Em]I do... think you [G]fit this shoe
+[Em]I do... but you [G]have a clue
+
+{start_of_chorus}
+[C#m]I'll take advan[C#m/G#]tage while
+[F#]You hang me out to dry
+[E]But I can't see you [A]every night
+[Em]Free [G] [Em] [G]
+[Em]I do [G] [Em] [G]
+
+{start_of_verse: Verse 2}
+[Em]I'm standing [G]in your line
+[Em]I do... hope you [G]have the time
+[Em]I do... pick a [G]number too
+[Em]I do... keep a [G]date with you
+
+{start_of_chorus}
+[C#m]I'll take advan[C#m/G#]tage while
+[F#]You hang me out to dry
+[E]But I can't see you [A]every night
+[Em]Free [G] [Em] [G]
+[Em]I do [G] [Em] [G]`
+    },
+    {
+        id: 'nirvana-man-who-sold',
+        title: 'The Man Who Sold the World',
+        artist: 'Nirvana',
+        tags: ['grunge', 'acoustic', 'cover'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[F] [Dm] [F] [Dm]
+
+[Dm]We passed upon the [A]stair, we spoke of was and [Dm]when
+[A]Although I wasn't [F]there, he said I was his [C]friend
+Which came as a sur[A]prise, I spoke into his [Dm]eyes
+I thought you died a[C]lone, a long long time a[C]go
+
+[C]Oh no, not [F]me
+[C#]We never lost con[F]trol
+[C]You're face to [F]face
+[C#]With the man who sold the [A]world [Dm]
+
+[Dm]I laughed and shook his [A]hand, and made my way back [Dm]home
+[A]I searched for form and [F]land, for years and years I [C]roamed
+I gazed a gazeless [A]stare, we walked a million [Dm]bills
+I must have died a[C]lone, a long long time a[C]go
+
+[C]Oh no, not [F]me
+[C#]We never lost con[F]trol
+[C]You're face to [F]face
+[C#]With the man who sold the [A]world [Dm]`
+    },
+    {
+        id: 'aic-nutshell',
+        title: 'Nutshell',
+        artist: 'Alice in Chains',
+        tags: ['grunge', 'acoustic', '90s'],
+        key: 'Em',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[Em7] [G] [D] [Cadd9]
+
+[Cadd9]We chase mis[Em7]printed lie[G]s [D]
+[Cadd9]We face the [Em7]path of tim[G]e [D]
+[Cadd9]And yet I find, and [Em7]yet I find this [G]battle all a[D]lone
+[Cadd9]No one to cry to, [Em7]no place to call home
+
+[G]Oooh[D]hh [Cadd9] [Em7]
+[G]Oooh[D]hh [Cadd9] [Em7]
+
+[Cadd9]My gift of [Em7]self is rape[G]d [D]
+[Cadd9]My privacy [Em7]is rake[G]d [D]
+[Cadd9]And yet I find, and [Em7]yet I find re[G]peating in my [D]head
+[Cadd9]If I can't be my [Em7]own, I'd feel better dead
+
+[G]Oooh[D]hh [Cadd9] [Em7]
+[G]Oooh[D]hh [Cadd9] [Em7]`
+    },
+    {
+        id: 'jazz-autumn-leaves',
+        title: 'Autumn Leaves',
+        artist: 'Jazz Standard',
+        tags: ['jazz', 'classic'],
+        key: 'Em',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[Am7]The falling [D7]leaves drift by the [Gmaj7]window
+[Cmaj7]The autumn [F#m7b5]leaves of [B7]red and [Em]gold
+[Am7]I see your [D7]lips, the summer [Gmaj7]kisses
+[Cmaj7]The sunburned [F#m7b5]hands I [B7]used to [Em]hold
+
+[F#m7b5]Since you went a[B7]way the days grow [Em]long
+[Am7]And soon I'll [D7]hear old [Gmaj7]winter's song
+[Cmaj7]But I miss you [F#m7b5]most of [B7]all, my [Em]darling
+[Cmaj7]When autumn [F#m7b5]leaves [B7]start to [Em]fall`
+    },
+    {
+        id: 'pearl-jam-black',
+        title: 'Black',
+        artist: 'Pearl Jam',
+        tags: ['grunge', 'rock', '90s'],
+        key: 'E',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[E] [Asus2] [E] [Asus2]
+
+[E]Sheets of empty [Asus2]canvas, untouched sheets of [E]clay [Asus2]
+[E]Were laid spread out be[A]fore me as her body once [E]did
+[E]All five hori[Asus2]zons, revolved around her [E]soul [Asus2]
+[E]Now the air I [A]tasted and breathed, has taken a [E]turn
+
+[C]Ooh, and all I taught her was [Em]everything
+[C]Ooh, I know she gave me all that she [Em]wore
+
+[D]And now my bitter [C]hands
+Chafe beneath the [Em]clouds
+Of what was every[D]thing
+All the pictures [C]have
+All been washed in [Em]black
+Tattooed every[D]thing`
+    },
+    {
+        id: 'soundgarden-black-hole-sun',
+        title: 'Black Hole Sun',
+        artist: 'Soundgarden',
+        tags: ['grunge', '90s'],
+        key: 'G',
+        capo: 4,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[E] [G] [D] [C#m] [C] [B]
+
+[E]In my eyes, indi[G]sposed
+[D]In disguises no one [C#m]knows
+[C]Hides the face, lies the [B]snake
+[E]The sun in my dis[F]grace
+
+[E]Boiling heat, summer [G]stench
+[D]'Neath the black the sky looks [C#m]dead
+[C]Call my name through the [B]cream
+[E]And I'll hear you scream a[F]gain
+
+[C]Black hole [B]sun
+Won't you [E]come [D] [G]
+And wash away the rain
+[C]Black hole [B]sun
+Won't you [A]come, won't you [B]come`
+    },
+    {
+        id: 'jazz-fly-me-to-moon',
+        title: 'Fly Me to the Moon',
+        artist: 'Frank Sinatra',
+        tags: ['jazz', 'classic', 'swing'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[Am7]Fly me to the [Dm7]moon, let me [G7]play among the [Cmaj7]stars
+[Fmaj7]Let me see what [Bm7b5]spring is like on [E7]Jupiter and [Am7]Mars [A7]
+[Dm7]In other [G7]words, [Cmaj7]hold my [F7]hand [Em7] [A7]
+[Dm7]In other [G7]words, [Cmaj7]baby kiss [E7]me
+
+[Am7]Fill my heart with [Dm7]song, and let me [G7]sing forever[Cmaj7]more
+[Fmaj7]You are all I [Bm7b5]long for, all I [E7]worship and a[Am7]dore [A7]
+[Dm7]In other [G7]words, [Em7]please be [A7]true
+[Dm7]In other [G7]words, [Cmaj7]I love you`
+    },
+    {
+        id: 'jazz-summertime',
+        title: 'Summertime',
+        artist: 'George Gershwin',
+        tags: ['jazz', 'classic', 'blues'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[Am]Summertime, [E7]and the [Am]livin' is easy
+[Dm]Fish are jumpin' [F]and the [E7]cotton is [Am]high
+[Am]Oh, your daddy's [E7]rich and your [Am]mama's good lookin'
+[G]So [A7]hush little [B7]baby, don't you [Em]cry
+
+[Am]One of these [E7]mornings [Am]you're goin' to rise up singing
+[Dm]Then you'll spread your [F]wings and you'll [E7]take the [Am]sky
+[Am]But 'til that [E7]morning [Am]there's nothin' can harm you
+[G]With [A7]daddy and [B7]mammy standing [Em]by`
+    },
+    {
+        id: 'beatles-let-it-be',
+        title: 'Let It Be',
+        artist: 'The Beatles',
+        tags: ['rock', 'classic', '60s'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[C]When I find my[G]self in times of [Am]trouble, Mother [F]Mary comes to [C]me
+Speaking [G]words of wisdom, let it [F]be [C]
+[C]And in my [G]hour of darkness she is [Am]standing right in [F]front of [C]me
+Speaking [G]words of wisdom, let it [F]be [C]
+
+[Am]Let it be, let it [G]be, let it [F]be, let it [C]be
+Whisper [G]words of wisdom, let it [F]be [C]`
+    },
+    {
+        id: 'pink-floyd-wish-you-were-here',
+        title: 'Wish You Were Here',
+        artist: 'Pink Floyd',
+        tags: ['rock', 'classic', '70s'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[C]So, so you think you can [D]tell
+Heaven from [Am]Hell, blue skies from [G]pain
+Can you tell a green [D]field from a cold steel [C]rail?
+A smile from a [Am]veil? Do you think you can [G]tell?
+
+[C]Did they get you to [D]trade your heroes for [Am]ghosts?
+Hot ashes for [G]trees? Hot air for a [D]cool breeze?
+Cold comfort for [C]change? Did you ex[Am]change
+A walk on part in the [G]war for a lead role in a cage?
+
+[C]How I wish, how I wish you were [D]here
+We're just [Am]two lost souls swimming in a fish [G]bowl
+Year after [D]year, running over the [C]same old ground
+What have we [Am]found? The same old [G]fears
+Wish you were here`
+    },
+    {
+        id: 'cash-hurt',
+        title: 'Hurt',
+        artist: 'Johnny Cash',
+        tags: ['country', 'acoustic', 'cover'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[Am]I hurt my[C]self to[D]day, to see if I still [Am]feel
+I [C]focus on the [D]pain, the only thing that's [Am]real
+The [C]needle tears a [D]hole, the old familiar [Am]sting
+Try to [C]kill it all a[D]way, but I remember every[Am]thing
+
+[Am]What have I be[F]come, my sweetest [C]friend?
+Everyone I [G]know goes away in the [Am]end
+And you could have it [F]all, my empire of [C]dirt
+I will let you [G]down, I will make you [Am]hurt`
+    },
+    {
+        id: 'stp-plush',
+        title: 'Plush',
+        artist: 'Stone Temple Pilots',
+        tags: ['grunge', 'rock', '90s'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[G]And I [D/F#]feel [F]that time's a [C/G]wasted go
+[D#maj7]So where you [F]going to to[G]morrow?
+And I [D/F#]see [F]that these are [C/G]lies to come
+[D#maj7]Or would you [F]even [D5]care?
+
+And I [C9]feel [D5/B]it [C9] and I [D5]feel [C9]it [D5/B] [C9]
+
+[D#maj7]Where ya going for to[F]morrow?
+[D#maj7]Where ya going with that [F]mask I found?
+[D#maj7]And I feel, and I feel when the [F]dogs begin to smell her
+[D#7]Will she [F]smell alone?`
+    },
+    {
+        id: 'led-zep-stairway',
+        title: 'Stairway to Heaven',
+        artist: 'Led Zeppelin',
+        tags: ['rock', 'classic', '70s'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[Am]There's a [E+]lady who's [C]sure all that [D]glitters is [F]gold
+And she's [G]buying a stairway to [Am]heaven
+[Am]When she [E+]gets there she [C]knows if the [D]stores are all [F]closed
+With a [G]word she can get what she [Am]came for
+
+[C]Ooh [D]ooh [F]ooh [Am]ooh and she's [C]buying a stairway to [G]heaven [D]
+
+[C]There's a [D]sign on the [Fmaj7]wall but she [Am]wants to be sure
+[C]'Cause you know sometimes [D]words have two [Fmaj7]meanings`
+    },
+    {
+        id: 'eagles-hotel-california',
+        title: 'Hotel California',
+        artist: 'Eagles',
+        tags: ['rock', 'classic', '70s'],
+        key: 'Bm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[Bm]On a dark desert [F#]highway, [A]cool wind in my [E]hair
+[G]Warm smell of co[D]litas [Em]rising up through the [F#]air
+[Bm]Up ahead in the [F#]distance, [A]I saw a shimmering [E]light
+[G]My head grew heavy and my [D]sight grew dim
+[Em]I had to stop for the [F#]night
+
+[Bm]Welcome to the Hotel Cali[F#]fornia
+[A]Such a lovely place (such a lovely place)
+[E]Such a lovely face
+[G]Plenty of room at the Hotel Cali[D]fornia
+Any [Em]time of year (any time of year)
+You can [F#]find it here`
+    },
+    {
+        id: 'oasis-wonderwall',
+        title: 'Wonderwall',
+        artist: 'Oasis',
+        tags: ['rock', 'britpop', '90s'],
+        key: 'Em',
+        capo: 2,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[Em7]Today is [G]gonna be the day that they're [Dsus4]gonna throw it back to [Asus4]you
+[Em7]By now you [G]should've somehow re[Dsus4]alized what you gotta [Asus4]do
+[Em7]I don't believe that [G]anybody [Dsus4]feels the way I [Asus4]do
+About you [Cadd9]now [Dsus4] [Asus4]
+
+[Cadd9]Back[D]beat, the [Em7]word is on the street
+That the [D]fire in your heart is [Asus4]out
+[Cadd9]I'm [D]sure you've heard it [Em7]all before
+But you [D]never really had a [Asus4]doubt
+
+[Cadd9]I don't believe that [D]anybody [Em7]feels the way I [Asus4]do
+About you [Em7]now [G] [Dsus4] [Asus4]
+
+And [Cadd9]all the roads we [Em7]have to walk are [G]winding
+And [Cadd9]all the lights that [Em7]lead us there are [G]blinding
+[Cadd9]There are many [D]things that I would [Asus4]like to say to you
+But I don't know [Cadd9]how [Em7] [G] [Em7]
+
+Because [Cadd9]maybe [Em7] [G]
+You're gonna be the one that [Em7]saves me
+[Cadd9] [Em7] [G] [Em7]
+And after [Cadd9]all [Em7] [G] [Em7]
+You're my wonder[Cadd9]wall [Em7] [G] [Em7]`
+    },
+    {
+        id: 'radiohead-creep',
+        title: 'Creep',
+        artist: 'Radiohead',
+        tags: ['rock', 'alternative', '90s'],
+        key: 'G',
+        capo: 7,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[G]When you were here be[B]fore
+Couldn't look you in the [C]eye
+You're just like an [Cm]angel
+Your skin makes me [G]cry
+
+You float like a [B]feather
+In a beautiful [C]world
+I wish I was [Cm]special
+You're so fucking [G]special
+
+But I'm a [B]creep
+I'm a [C]weirdo
+What the hell am I doing [Cm]here?
+I don't be[G]long here
+
+I don't care if it [B]hurts
+I wanna have [C]control
+I want a perfect [Cm]body
+I want a perfect [G]soul`
+    },
+    {
+        id: 'simon-garfunkel-sound-of-silence',
+        title: 'The Sound of Silence',
+        artist: 'Simon & Garfunkel',
+        tags: ['folk', 'classic', '60s'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[Am]Hello darkness, my old [G]friend
+I've come to talk with you [Am]again
+Because a vision [C]softly [F]creeping
+Left its seeds while [C]I was [F]sleeping
+And the [F]vision that was planted in my [C]brain
+Still re[Am]mains [C]within the [G]sound of [Am]silence
+
+[Am]In restless dreams I walked [G]alone
+Narrow streets of [Am]cobblestone
+'Neath the halo [C]of a [F]street lamp
+I turned my collar [C]to the cold and [F]damp
+When my [F]eyes were stabbed by the flash of a neon [C]light
+That split the [Am]night [C]and touched the [G]sound of [Am]silence`
+    },
+    {
+        id: 'dylan-knockin-on-heavens-door',
+        title: "Knockin' on Heaven's Door",
+        artist: 'Bob Dylan',
+        tags: ['folk', 'rock', 'classic'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[G]Mama, take this [D]badge off of [Am]me
+[G]I can't [D]use it any[C]more
+[G]It's gettin' [D]dark, too dark to [Am]see
+[G]I feel I'm [D]knockin' on heaven's [C]door
+
+[G]Knock, knock, [D]knockin' on heaven's [Am]door
+[G]Knock, knock, [D]knockin' on heaven's [C]door
+[G]Knock, knock, [D]knockin' on heaven's [Am]door
+[G]Knock, knock, [D]knockin' on heaven's [C]door`
+    },
+    {
+        id: 'clapton-wonderful-tonight',
+        title: 'Wonderful Tonight',
+        artist: 'Eric Clapton',
+        tags: ['rock', 'ballad', 'classic'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[G]It's late in the [D]evening, [C]she's wondering what clothes to [D]wear
+[G]She puts on her [D]make-up, [C]and brushes her long blonde [D]hair
+[C]And then she asks [D]me, "Do I [G]look all [D/F#]right?"
+[Em]And I say [C]"Yes, you look [D]wonderful to[G]night" [D] [C] [D]
+
+[G]We go to a [D]party, [C]and everyone turns to [D]see
+[G]This beautiful [D]lady [C]that's walking around with [D]me
+[C]And then she asks [D]me, "Do you [G]feel all [D/F#]right?"
+[Em]And I say [C]"Yes, I [D]feel wonderful to[G]night"`
+    },
+    {
+        id: 'tom-petty-free-fallin',
+        title: "Free Fallin'",
+        artist: 'Tom Petty',
+        tags: ['rock', 'americana', '80s'],
+        key: 'F',
+        capo: 1,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `[F]She's a good [Fsus2]girl, loves her [C]mama
+Loves [Bb]Jesus and America [F]too
+She's a good [Fsus2]girl, crazy 'bout [C]Elvis
+Loves [Bb]horses and her boyfriend [F]too
+
+And I'm [F]free, [Fsus2] [C]free [Bb]fallin'
+Yeah I'm [F]free, [Fsus2] [C]free [Bb]fallin'
+
+[F]All the vampires [Fsus2]walkin' through the [C]valley
+Move [Bb]west down Ventura Boule[F]vard
+And all the bad [Fsus2]boys are standing in the [C]shadows
+        And the [Bb] good girls are home with broken [F]hearts`
+    },
+
+    // PUBLIC DOMAIN & TRADITIONAL SONGS
+    {
+        id: 'traditional-amazing-grace',
+        title: 'Amazing Grace',
+        artist: 'Traditional Hymn',
+        tags: ['hymn', 'traditional', 'easy'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[G]Amazing [G7]grace how [C]sweet the [G]sound
+That saved a wretch like [D7]me
+[G]I once was [G7]lost but [C]now I'm [G]found
+Was [Em]blind but [D7]now I [G]see
+
+{start_of_verse: Verse 2}
+[G]'Twas [G7]grace that [C]taught my [G]heart to fear
+And grace my fears re[D7]lieved
+[G]How [G7]precious [C]did that [G]grace appear
+The [Em]hour I [D7]first be[G]lieved`
+    },
+    {
+        id: 'traditional-kumbaya',
+        title: 'Kumbaya',
+        artist: 'Traditional Spiritual',
+        tags: ['spiritual', 'campfire', 'easy'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[C]Kumbaya my Lord, [F]Kumba[C]ya
+Kumbaya my Lord, [G7]Kumba[C]ya
+Kumbaya my Lord, [F]Kumba[C]ya
+[F]Oh [C]Lord, [G7]Kumba[C]ya
+
+{start_of_verse: Verse 2}
+[C]Someone's singing Lord, [F]Kumba[C]ya
+Someone's singing Lord, [G7]Kumba[C]ya
+Someone's singing Lord, [F]Kumba[C]ya
+[F]Oh [C]Lord, [G7]Kumba[C]ya`
+    },
+    {
+        id: 'traditional-oh-susanna',
+        title: 'Oh Susanna',
+        artist: 'Stephen Foster',
+        tags: ['folk', 'traditional', 'easy'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[C]I come from Alabama with my [G7]banjo on my knee
+I'm [C]going to Louisiana, my [G7]true love for to [C]see
+It [C]rained all night the day I left, the [G7]weather it was dry
+The [C]sun so hot I froze to death, Su[G7]sanna don't you [C]cry
+
+{start_of_chorus}
+[C]Oh Susanna, oh [F]don't you cry for [C]me
+I come from Alabama with my [G7]banjo on my [C]knee`
+    },
+    {
+        id: 'traditional-will-the-circle-be-unbroken',
+        title: 'Will the Circle Be Unbroken',
+        artist: 'Traditional Bluegrass',
+        tags: ['bluegrass', 'gospel', 'traditional'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[G]I was standing [G7]by my [C]window
+On a [G]cold and cloudy [D7]day
+When I [G]saw the hearse come [G7]rolling
+For to [C]carry my [G]mother [D7]a[G]way
+
+{start_of_chorus}
+Will the [G]circle [G7]be un[C]broken
+By and [G]by Lord by and [D7]by
+There's a [G]better [G7]home a[C]waiting
+In the [G]sky Lord [D7]in the [G]sky`
+    },
+    {
+        id: 'traditional-clementine',
+        title: 'Oh My Darling Clementine',
+        artist: 'Traditional Folk',
+        tags: ['folk', 'traditional', 'campfire'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[C]In a cavern, in a canyon
+Excavating for a [G7]mine
+Dwelt a miner, forty-[C]niner
+And his daughter Clemen[G7]tine[C]
+
+{start_of_chorus}
+[C]Oh my darling, oh my darling
+Oh my darling Clemen[G7]tine
+You are lost and gone for[C]ever
+Dreadful sorry, Clemen[G7]tine[C]`
+    },
+    {
+        id: 'traditional-greensleeves',
+        title: 'Greensleeves',
+        artist: 'Traditional English',
+        tags: ['classical', 'traditional', 'fingerstyle'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Am]Alas my [G]love you [Am]do me wrong
+To [Am]cast me [E7]off dis[Am]courteously
+And [Am]I have [G]loved you [Am]oh so long
+De[Am]lighting [E7]in your [Am]company
+
+{start_of_chorus}
+[C]Greensleeves was [G]all my joy
+[Am]Greensleeves was [E7]my delight
+[C]Greensleeves was my [G]heart of gold
+And [Am]who but my [E7]lady [Am]Greensleeves`
+    },
+    {
+        id: 'traditional-house-of-the-rising-sun',
+        title: 'House of the Rising Sun',
+        artist: 'Traditional Folk',
+        tags: ['folk', 'traditional', 'blues'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+There [Am]is a [C]house in [D]New Or[F]leans
+They [Am]call the [C]Rising [E7]Sun
+And it's [Am]been the [C]ruin of [D]many a poor [F]boy
+And [Am]God I [E7]know I'm [Am]one
+
+{start_of_verse: Verse 2}
+My [Am]mother [C]was a [D]tailor [F]
+She [Am]sewed my [C]new blue [E7]jeans
+My [Am]father [C]was a [D]gamblin' [F]man
+[Am]Down in [E7]New Or[Am]leans`
+    },
+    {
+        id: 'traditional-down-in-the-valley',
+        title: 'Down in the Valley',
+        artist: 'Traditional American Folk',
+        tags: ['folk', 'traditional', 'easy'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[C]Down in the valley, valley so [G7]low
+Hang your head over, hear the wind [C]blow
+Hear the wind blow, dear, hear the wind [G7]blow
+Hang your head over, hear the wind [C]blow
+
+{start_of_verse: Verse 2}
+[C]Roses love sunshine, violets love [G7]dew
+Angels in heaven know I love [C]you
+Know I love you, dear, know I love [G7]you
+Angels in heaven know I love [C]you`
+    },
+
+    // 90s GRUNGE CLASSICS
+    {
+        id: 'pearl-jam-black',
+        title: 'Black',
+        artist: 'Pearl Jam',
+        tags: ['grunge', '90s', 'alternative'],
+        key: 'E',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[E]Sheets of empty [D]canvas
+[A]Untouched sheets of [E]clay
+[E]Were laid spread out be[D]fore me
+[A]As her body once [E]did
+
+[E]All five hori[D]zons
+[A]Revolved around her [E]soul
+[E]As the earth to the [D]sun
+[A]Now the air I [E]tasted and breathed has taken a [A]turn
+
+{start_of_chorus}
+[E]Oh and all I [D]taught her was [A]every[E]thing
+[E]Oh I know she [D]gave me all [A]that she [E]wore
+And [E]now my bitter [D]hands
+Chafe beneath the [A]clouds of what was [E]everything
+[D]Oh the pictures have [A]all been washed in [E]black
+Tattooed [A]everything`
+    },
+    {
+        id: 'pearl-jam-alive',
+        title: 'Alive',
+        artist: 'Pearl Jam',
+        tags: ['grunge', '90s', 'rock'],
+        key: 'A',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_intro}
+[A] [Asus4] [A] [Asus4]
+
+{start_of_verse}
+[A]Son, she said, have I [Asus4]got a little [A]story for you
+[Asus4]What [A]you thought was your [Asus4]daddy was [A]nothin' but a
+[Asus4]While [A]you were sittin' home a[Asus4]lone at age thir[A]teen
+Your [Asus4]real daddy was [A]dyin'
+Sorry [Asus4]you didn't see him, but I'm [G]glad we talked
+
+{start_of_chorus}
+[A]Oh I, [G]oh I'm still a[D]live [Dsus4] [D] [Dsus4]
+[A]Hey I, [G]oh I'm still a[D]live [Dsus4] [D] [Dsus4]
+[A]Hey I, [G]oh I'm still a[D]live [Dsus4] [D]
+[E]Hey [D] [A] oh oh`
+    },
+    {
+        id: 'soundgarden-black-hole-sun',
+        title: 'Black Hole Sun',
+        artist: 'Soundgarden',
+        tags: ['grunge', '90s', 'alternative'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[G]In my eyes
+[Bb]Indisposed
+[F]In disguises no one [Eb]knows
+[G]Hides the face
+[Bb]Lies the snake
+[F]And the sun in my dis[Eb]grace
+
+{start_of_verse: Verse 2}
+[G]Boiling heat
+[Bb]Summer stench
+[F]'Neath the black the sky looks [Eb]dead
+[G]Call my name
+[Bb]Through the cream
+[F]And I'll hear you scream a[Eb]gain
+
+{start_of_chorus}
+[Bb]Black hole [F]sun, won't you [Eb]come
+And [Bb]wash away the [F]rain
+Black hole [Eb]sun, won't you [Bb]come
+Won't you [C]come, won't you [G]come`
+    },
+    {
+        id: 'alice-in-chains-man-in-the-box',
+        title: 'Man in the Box',
+        artist: 'Alice in Chains',
+        tags: ['grunge', '90s', 'metal'],
+        key: 'Em',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_intro}
+[Em] [D] [Em] [G] [A]
+
+{start_of_verse}
+[Em]I'm the [D]man in the [Em]box
+[G]Buried [A]in my [Em]shit
+[D]Won't you [Em]come and [G]save [A]me
+[Em]Save [D]me
+
+{start_of_chorus}
+[Em]Feed my eyes, can you [D]sew them shut?
+[Em]Jesus Christ, [G]deny your [A]maker
+[Em]He who tries, will be [D]wasted
+[Em]Feed my eyes now [G]you've sewn them [A]shut`
+    },
+    {
+        id: 'stone-temple-pilots-plush',
+        title: 'Plush',
+        artist: 'Stone Temple Pilots',
+        tags: ['grunge', '90s', 'alternative'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+And I [G]feel that time's a [F]wasted [C]go
+So where ya [G]going to tomor[F]row? [C]
+And I [G]see that these are [F]lies to [C]come
+So would you [G]even [F]care? [C]
+
+{start_of_chorus}
+And I [G]feel it
+And I [F]feel it [C]
+[G]Where ya going for tomor[F]row? [C]
+[G]Where ya going with the [F]mask I [C]found?
+And I [G]feel, and I [F]feel
+When the [C]dogs begin to smell her
+[G]Will she smell a[F]lone? [C]`
+    },
+    {
+        id: 'smashing-pumpkins-today',
+        title: 'Today',
+        artist: 'Smashing Pumpkins',
+        tags: ['grunge', '90s', 'alternative'],
+        key: 'E',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Emaj7]Today is the [G6]greatest
+[Emaj7]Day I've ever [G6]known
+[Emaj7]Can't live for to[G6]morrow
+[Emaj7]Tomorrow's much too [G6]long
+
+{start_of_verse: Verse 2}
+[Emaj7]I'll burn my [G6]eyes out
+[Emaj7]Before I get [G6]out
+
+{start_of_chorus}
+[A]I wanted [Asus4]more than [A]life could [Asus4]ever grant me
+[A]Bored by the [Asus4]chore of [A]saving [Asus4]face
+
+{start_of_bridge}
+[Emaj7]Today is the [G6]greatest
+Day I've ever [Emaj7]known [G6]`
+    },
+    {
+        id: 'foo-fighters-everlong',
+        title: 'Everlong',
+        artist: 'Foo Fighters',
+        tags: ['rock', '90s', 'alternative'],
+        key: 'D',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_intro}
+[D] [Bm] [G] [D]
+
+{start_of_verse}
+[D]Hello, I've waited here for [Bm]you
+Ever[G]long [D]
+[D]Tonight, I throw myself in[Bm]to
+And [G]out of the red, out of her head she [D]sang
+
+{start_of_chorus}
+[D]Come down and [Bm]waste away with [G]me
+Down with [D]me
+[D]Slow how you [Bm]wanted it to [G]be
+I'm over my [D]head
+Out of her [Bm]head she [G]sang`
+    },
+    {
+        id: 'bush-glycerine',
+        title: 'Glycerine',
+        artist: 'Bush',
+        tags: ['grunge', '90s', 'alternative'],
+        key: 'F#',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[F#]Must be your skin I'm sinking [B]in
+[F#]Must be for real 'cause now I can [B]feel
+And I [F#]didn't mind, it's not my [B]kind
+Not my [F#]time to [B]wonder why
+
+{start_of_chorus}
+[B]Everything's gonna be [F#]fine
+[B]Everything's gonna be all[F#]right
+[B]Everything's gonna be al[F#]right
+
+[F#]Glycerine [B]
+[F#]Glycerine [B]`
+    },
+    {
+        id: 'silverchair-tomorrow',
+        title: 'Tomorrow',
+        artist: 'Silverchair',
+        tags: ['grunge', '90s', 'alternative'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_intro}
+[Am] [C] [G] [F]
+
+{start_of_verse}
+It's [Am]twelve o'clock and it's a [C]wonderful day
+I [G]know you hate me but I'll [F]ask anyway
+[Am]Won't you come with me to a [C]place in a little town
+The [G]only way to get there's to [F]go straight down
+
+{start_of_chorus}
+There's no [Am]pathway no [C]lights to [G]see the [F]day
+[Am]Blinding white [C]you know that's the [G]only [F]way`
+    },
+    {
+        id: 'temple-of-the-dog-hunger-strike',
+        title: 'Hunger Strike',
+        artist: 'Temple of the Dog',
+        tags: ['grunge', '90s', 'rock'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Am]I don't mind stealing [C]bread
+From the mouths of deca[G]dence
+[Am]But I can't feed on the [C]powerless
+When my cup's already over[G]filled
+[Am]But it's on the table
+The [C]fire's cooking
+[G]And they're farming babies, the slaves are all working
+
+{start_of_chorus}
+[Fmaj7]Blood is on the table, the mouths are all choking
+[Am]I'm going hungry [G]
+[Am]I'm going hungry [G]`
+    },
+    {
+        id: 'rage-against-the-machine-killing-in-the-name',
+        title: 'Killing in the Name',
+        artist: 'Rage Against the Machine',
+        tags: ['rock', '90s', 'alternative', 'metal'],
+        key: 'Dm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_intro}
+[Dm] [Dm] [Dm] [Dm]
+
+{start_of_verse}
+Killing in the name of
+[Dm]Some of those that work forces
+Are the same that burn crosses
+[Dm]Some of those that work forces
+Are the same that burn crosses
+
+{start_of_chorus}
+[Dm]Now you do what they told ya
+Now you do what they told ya
+Now you do what they told ya
+Now you do what they told ya
+
+{start_of_bridge}
+And now you do what they told ya
+[F]Those who died are justified
+For [G]wearing the badge, they're the [Dm]chosen whites`
+    },
+    {
+        id: 'weezer-say-it-aint-so',
+        title: "Say It Ain't So",
+        artist: 'Weezer',
+        tags: ['alternative', '90s', 'rock'],
+        key: 'Am',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Am]Oh yeah, [F]all right
+[C]Feels good, [G]inside
+[Am]Flip on the [F]tele, [C]wrestle with [G]Jimmy
+
+{start_of_verse: Verse 2}
+[Am]Something is [F]bubbling
+[C]Behind my [G]back
+The [Am]bottle is [F]ready to [C]blow [G]
+
+{start_of_chorus}
+[Am]Say it ain't [C]so
+Your [G]drug is a [D]heartbreaker
+[Am]Say it ain't [C]so
+My [G]love is a [D]life taker`
+    }
+];
+
