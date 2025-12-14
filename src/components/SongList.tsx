@@ -221,14 +221,13 @@ export const SongList: React.FC<SongListProps> = ({
                                         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
                                             {song.artist}
                                         </Typography>
-
                                         <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
                                             {song.key && (
                                                 <Typography variant="body2" color="text.secondary">
                                                     Key: <strong>{song.key}</strong>
                                                 </Typography>
                                             )}
-                                            {song.capo && song.capo > 0 && (
+                                            {(song.capo || 0) > 0 && (
                                                 <Typography variant="body2" color="primary">
                                                     Capo: {song.capo}
                                                 </Typography>
@@ -280,7 +279,7 @@ export const SongList: React.FC<SongListProps> = ({
                                             {song.key && (
                                                 <Chip label={song.key} size="small" variant="outlined" />
                                             )}
-                                            {song.capo && song.capo > 0 && (
+                                            {(song.capo || 0) > 0 && (
                                                 <Chip label={`Capo ${song.capo}`} size="small" color="primary" variant="outlined" />
                                             )}
                                             {song.tags?.slice(0, 3).map(tag => (

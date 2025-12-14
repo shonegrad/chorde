@@ -6,6 +6,8 @@
 
 When the user says "commit+push", execute the following steps in order:
 
+- **Before commit+push, make sure to update the documentation comprehensively**
+
 1. **Increment the version number** (following semantic versioning)
 2. **Stage all changes**: `git add -A`
 3. **Commit with descriptive message**: Include what changed and why
