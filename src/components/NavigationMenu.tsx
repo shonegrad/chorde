@@ -133,7 +133,27 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
             )}
 
             {/* Navigation Items */}
-            <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+            <Box sx={{
+                flexGrow: 1,
+                overflowY: 'auto',
+                // Custom scrollbar styling - subtle and doesn't affect width
+                '&::-webkit-scrollbar': {
+                    width: '8px',
+                },
+                '&::-webkit-scrollbar-track': {
+                    background: 'transparent',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                    background: 'rgba(0, 0, 0, 0.2)',
+                    borderRadius: '4px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                    background: 'rgba(0, 0, 0, 0.3)',
+                },
+                // Firefox
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'rgba(0, 0, 0, 0.2) transparent',
+            }}>
                 <List sx={{ py: 0 }}>
                     {/* All Songs */}
                     <ListItem disablePadding>
