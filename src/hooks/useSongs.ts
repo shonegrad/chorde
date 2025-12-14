@@ -9,7 +9,7 @@ import { MIX_PACK } from '../data/mixPack';
 
 const STORAGE_KEY = 'chorde_songs';
 const VERSION_KEY = 'chorde_version';
-const CURRENT_VERSION = '2.3'; // Bumped for Mix Pack
+const CURRENT_VERSION = '2.3'; // Data schema version for migrations (separate from APP_VERSION)
 
 export const useSongs = () => {
     const [songs, setSongs] = useState<Song[]>([]);

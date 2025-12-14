@@ -96,7 +96,7 @@
     overflow-y: auto;
     padding: var(--spacing-xl) max(2rem, 15vw);
     /* Centered reading view */
-    scroll-behavior: smooth;
+    /* scroll-behavior removed - handled programmatically for smooth auto-scroll */
 }
 
 .song-meta {

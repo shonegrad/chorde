@@ -56,7 +56,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
     const [capo, setCapo] = useState(song.capo || 0);
     const [selectedChord, setSelectedChord] = useState<string | null>(null);
     const [autoScroll, setAutoScroll] = useState(false);
-    const [scrollSpeed, setScrollSpeed] = useState(50); // initial speed faster as requested
+    const [scrollSpeed, setScrollSpeed] = useState(40); // comfortable default based on teleprompter best practices
+    const scrollSpeedRef = useRef(40); // ref to track scroll speed without triggering effect reset
     const [loopMode, setLoopMode] = useState(false);
     const [loopSection, setLoopSection] = useState<number | null>(null); // Index of section to loop
     const [displayMode, setDisplayMode] = useState<DisplayMode>('chords');
@@ -64,6 +65,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
     const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
     const animationFrameRef = useRef<number | null>(null);
     const lastScrollTimeRef = useRef<number>(Date.now());
+    const scrollAccumulatorRef = useRef<number>(0); // accumulate fractional pixels for smooth slow scrolling
 
     const parsedContent = useMemo(() => {
         const parsed = parseChordPro(song.content);
@@ -105,8 +107,16 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
             const deltaTime = (now - lastScrollTimeRef.current) / 1000; // seconds
             lastScrollTimeRef.current = now;
 
-            const scrollAmount = scrollSpeed * deltaTime;
-            contentContainerRef.current.scrollTop += scrollAmount;
+            // Calculate scroll amount and accumulate fractional pixels
+            const scrollAmount = scrollSpeedRef.current * deltaTime;
+            scrollAccumulatorRef.current += scrollAmount;
+
+            // Only scroll when we have at least 1 pixel accumulated (fixes slow speed scrolling)
+            const pixelsToScroll = Math.floor(scrollAccumulatorRef.current);
+            if (pixelsToScroll > 0) {
+                contentContainerRef.current.scrollTop += pixelsToScroll;
+                scrollAccumulatorRef.current -= pixelsToScroll; // keep the fractional remainder
+            }
 
             // Check if we've reached the loop end
             if (loopMode && loopSection !== null && sections.length > 0) {
@@ -142,6 +152,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
         };
 
         lastScrollTimeRef.current = Date.now();
+        scrollAccumulatorRef.current = 0; // reset accumulator on start
         animationFrameRef.current = requestAnimationFrame(scroll);
 
         return () => {
@@ -149,7 +160,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
                 cancelAnimationFrame(animationFrameRef.current);
             }
         };
-    }, [autoScroll, scrollSpeed, loopMode, loopSection, sections, parsedContent.length]);
+    }, [autoScroll, loopMode, loopSection, sections, parsedContent.length]);
 
     const toggleAutoScroll = () => {
         setAutoScroll(!autoScroll);
@@ -219,15 +230,32 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
                                 </IconButton>
                             </Tooltip>
                             {autoScroll && (
-                                <Box sx={{ width: 100, mx: 1 }}>
-                                    <Slider
-                                        size="small"
-                                        value={scrollSpeed}
-                                        min={10}
-                                        max={250}
-                                        onChange={(_, val) => setScrollSpeed(val as number)}
-                                        aria-label="Scroll speed"
-                                    />
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ width: 120, mx: 1 }}>
+                                        <Slider
+                                            size="small"
+                                            value={scrollSpeed}
+                                            min={15}
+                                            max={80}
+                                            onChange={(_, val) => {
+                                                const newSpeed = val as number;
+                                                setScrollSpeed(newSpeed);
+                                                scrollSpeedRef.current = newSpeed;
+                                            }}
+                                            aria-label="Scroll speed"
+                                        />
+                                    </Box>
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            minWidth: 45,
+                                            color: 'text.secondary',
+                                            fontFamily: 'monospace',
+                                            fontSize: '0.75rem'
+                                        }}
+                                    >
+                                        {scrollSpeed} px/s
+                                    </Typography>
                                 </Box>
                             )}
                         </Paper>
@@ -318,7 +346,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
                     flexGrow: 1,
                     overflowY: 'auto',
                     p: 4,
-                    scrollBehavior: 'smooth',
+                    scrollBehavior: autoScroll ? 'auto' : 'smooth', // auto for programmatic, smooth for manual
                     fontSize: `${fontSize}px`
                 }}
             >
