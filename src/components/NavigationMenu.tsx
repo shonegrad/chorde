@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import type { Song } from '../types';
+import { APP_VERSION } from '../version';
 import {
     Drawer,
     Box,
@@ -250,6 +251,18 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                         </List>
                     </Collapse>
                 </List>
+            </Box>
+
+            {/* Version Footer */}
+            <Box sx={{
+                p: 2,
+                borderTop: 1,
+                borderColor: 'divider',
+                textAlign: 'center'
+            }}>
+                <Typography variant="caption" color="text.secondary">
+                    v{APP_VERSION}
+                </Typography>
             </Box>
         </Box>
     );

@@ -2,6 +2,8 @@
 
 First off, thanks for taking the time to contribute! 🎉
 
+For development guidelines and best practices, see [DEVELOPMENT.md](./DEVELOPMENT.md).
+
 ## How to Contribute
 
 1.  **Fork the repository** on GitHub.
