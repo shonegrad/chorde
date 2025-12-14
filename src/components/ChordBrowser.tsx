@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { CHORD_LIBRARY } from '../data/chordLibrary';
 import { ChordDiagram } from './ChordDiagram';
 import { ChordModal } from './ChordModal';
-import { playChord, resumeAudioContext } from '../lib/audio';
+import { playStrummedChord, resumeAudioContext } from '../lib/audio';
 import { noteToFrequency } from '../lib/scales';
 import {
     Container,
@@ -102,6 +102,7 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
             { note: 'E', octave: 4 },
         ];
         const frequencies: number[] = [];
+        const stringIndices: number[] = [];
 
         variation.frets.forEach((fret, stringIndex) => {
             if (fret === 'x') return; // Muted string
@@ -115,9 +116,10 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
             const frequency = openStringFreq * Math.pow(2, fretNumber / 12);
 
             frequencies.push(frequency);
+            stringIndices.push(stringIndex); // Track which string this note belongs to
         });
 
-        playChord(frequencies, 1.5);
+        playStrummedChord(frequencies, stringIndices, 1.5);
 
         // Clear playing state after audio finishes
         setTimeout(() => setPlayingChord(null), 1500);

@@ -29,4 +29,6 @@ export interface SongSection {
 
 export type DisplayMode = 'chords' | 'tabs' | 'notation' | 'nashville';
 
+export type ViewMode = 'grid' | 'list';
+
 export type ParsedSong = ParsedLine[];

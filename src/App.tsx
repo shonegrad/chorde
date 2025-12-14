@@ -1,19 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSongs } from './hooks/useSongs';
 import { SongList } from './components/SongList';
 import { SongViewer } from './components/SongViewer';
 import { SongEditor } from './components/SongEditor';
 import { SongImporter } from './components/SongImporter';
+import { NavigationMenu } from './components/NavigationMenu';
 import ChordBrowser from './components/ChordBrowser';
-import type { Song } from './types';
+import type { Song, ViewMode } from './types';
+import { Box, IconButton, useTheme, useMediaQuery } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 
 type ViewState = 'LIST' | 'PLAY' | 'EDIT' | 'IMPORT' | 'CHORDS';
 
+const VIEW_MODE_KEY = 'chorde_view_mode';
+
 function App() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { songs, saveSong, deleteSong } = useSongs();
   const [view, setView] = useState<ViewState>('LIST');
   const [activeSong, setActiveSong] = useState<Song | undefined>(undefined);
   const [filter, setFilter] = useState<{ type: 'tag' | 'artist' | 'key'; value: string } | null>(null);
+  const [navOpen, setNavOpen] = useState(!isMobile); // Open by default on desktop
+
+  // Initialize view mode from localStorage
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const stored = localStorage.getItem(VIEW_MODE_KEY);
+    return (stored === 'list' || stored === 'grid') ? stored : 'grid';
+  });
+
+  // Persist view mode changes to localStorage
+  useEffect(() => {
+    localStorage.setItem(VIEW_MODE_KEY, viewMode);
+  }, [viewMode]);
+
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+  };
 
   const filteredSongs = filter
     ? songs.filter((song) => {
@@ -38,6 +61,7 @@ function App() {
   const handleChordsClick = () => {
     setView('CHORDS');
     setFilter(null);
+    if (isMobile) setNavOpen(false);
   };
 
   const handleSelect = (song: Song) => {
@@ -71,18 +95,19 @@ function App() {
     setFilter({ type: 'artist', value: artist });
     setActiveSong(undefined);
     setView('LIST');
+    if (isMobile) setNavOpen(false);
   };
 
-  const handleKeySelect = (key: string) => {
-    if (key === 'All') {
-      setFilter(null);
-    } else {
-      setFilter({ type: 'key', value: key });
-    }
+  const handleFilterChange = (newFilter: { type: 'tag' | 'artist' | 'key'; value: string } | null) => {
+    setFilter(newFilter);
   };
 
   const handleClearFilter = () => {
     setFilter(null);
+  };
+
+  const toggleNav = () => {
+    setNavOpen(!navOpen);
   };
 
   // Router switch
@@ -129,17 +154,37 @@ function App() {
     return <ChordBrowser onBack={handleBackToList} />;
   }
 
+  // Main list view with navigation
   return (
-    <SongList
-      songs={filteredSongs}
-      onSelect={handleSelect}
-      onCreate={handleCreate}
-      onImportNav={handleImportClick}
-      onChordsNav={handleChordsClick}
-      activeFilter={filter}
-      onClearFilter={handleClearFilter}
-      onKeySelect={handleKeySelect}
-    />
+    <Box sx={{ display: 'flex', height: '100vh' }}>
+      <NavigationMenu
+        songs={songs}
+        activeFilter={filter}
+        onFilterChange={handleFilterChange}
+        open={navOpen}
+        onClose={isMobile ? toggleNav : undefined}
+      />
+      <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+        {isMobile && (
+          <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={toggleNav}>
+              <MenuIcon />
+            </IconButton>
+          </Box>
+        )}
+        <SongList
+          songs={filteredSongs}
+          onSelect={handleSelect}
+          onCreate={handleCreate}
+          onImportNav={handleImportClick}
+          onChordsNav={handleChordsClick}
+          activeFilter={filter}
+          onClearFilter={handleClearFilter}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
+        />
+      </Box>
+    </Box>
   );
 }
 

@@ -154,6 +154,66 @@ export function playChord(
 }
 
 /**
+ * Play multiple notes in strumming succession (guitar strum effect)
+ * Notes are played in order of their string indices, from low to high
+ */
+export function playStrummedChord(
+    frequencies: number[],
+    stringIndices: number[], // Which string each frequency belongs to (0-5)
+    duration: number = 1.5,
+    options?: Partial<AudioPreferences> & { timePerString?: number }
+): void {
+    const { timePerString = 0.03, ...audioOpts } = options || {}; // 30ms between strings by default
+    const prefs = { ...getAudioPreferences(), ...audioOpts };
+    if (!prefs.enabled || frequencies.length === 0) return;
+
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+
+    // Adjust volume for multiple notes
+    const adjustedVolume = prefs.volume / Math.sqrt(frequencies.length);
+
+    // Create pairs of [frequency, stringIndex] and sort by string index
+    const noteData = frequencies.map((freq, i) => ({
+        frequency: freq,
+        stringIndex: stringIndices[i]
+    })).sort((a, b) => a.stringIndex - b.stringIndex);
+
+    noteData.forEach((note, playOrder) => {
+        // Calculate start time based on play order (strum effect)
+        const strumDelay = playOrder * timePerString;
+
+        const oscillator = ctx.createOscillator();
+        oscillator.type = prefs.waveform;
+        oscillator.frequency.value = note.frequency;
+
+        const gainNode = ctx.createGain();
+        gainNode.gain.value = 0;
+
+        // ADSR envelope - notes ring out for the full duration
+        const attackTime = 0.02;
+        const decayTime = 0.15;
+        const sustainLevel = adjustedVolume * 0.7;
+        const releaseTime = 0.2;
+
+        const noteStart = now + strumDelay;
+        const noteEnd = now + duration;
+
+        gainNode.gain.setValueAtTime(0, noteStart);
+        gainNode.gain.linearRampToValueAtTime(adjustedVolume, noteStart + attackTime);
+        gainNode.gain.linearRampToValueAtTime(sustainLevel, noteStart + attackTime + decayTime);
+        gainNode.gain.setValueAtTime(sustainLevel, noteEnd - releaseTime);
+        gainNode.gain.linearRampToValueAtTime(0, noteEnd);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.start(noteStart);
+        oscillator.stop(noteEnd);
+    });
+}
+
+/**
  * Play a sequence of notes (scale or melody)
  */
 export function playScale(
