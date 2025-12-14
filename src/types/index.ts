@@ -3,9 +3,12 @@ export interface Song {
     title: string;
     artist: string;
     content: string; // The raw ChordPro string
-    key?: string;
     capo?: number;
     tags?: string[];
+    isCustom?: boolean;
+    sections?: SongSection[];
+    key?: string; // Musical key, e.g., "C", "Am", "F#m"
+    tempo?: number; // BPM (beats per minute)
     createdAt: number;
     updatedAt: number;
 }

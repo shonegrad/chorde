@@ -5,9 +5,15 @@
 ## ✨ Features
 
 - **ChordPro Support**: Parse and render songs with chord embedding.
+- **Interactive Chord Library**: Browse chords, listen to audio previews, and view multiple finger positions (variations).
 - **Dynamic Transposition**: Instantly change the key of any song.
+- **Smart Song Viewer**: 
+    - Auto-scroll with adjustable speed.
+    - Multiple display modes: Chords, Tabs, and Notation.
+    - Loop sections for practice.
 - **Local Storage**: Your library is saved locally in your browser.
 - **Nashville Number System**: View songs in numbers for universal playability.
+- **Performance**: Lazy loading for large song libraries.
 - **Responsive Design**: Works great on desktop and tablets.
 
 ## 🚀 Getting Started

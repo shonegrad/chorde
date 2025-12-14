@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import type { Song } from '../types';
 import { extractMetadata } from '../lib/chordPro';
+import {
+    Container,
+    Paper,
+    Typography,
+    Box,
+    TextField,
+    Button,
+    Stack,
+    Divider,
+    IconButton
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 interface SongImporterProps {
     onImport: (song: Song) => void;
@@ -41,46 +54,28 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
     };
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-        }}>
-            <div style={{
-                background: 'var(--surface-color)',
-                padding: '2rem',
-                borderRadius: 'var(--radius-lg)',
-                width: '90%',
-                maxWidth: '800px',
-                height: '80vh',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem'
-            }}>
-                <div className="flex justify-between items-center">
-                    <h2>Import Song</h2>
-                    <button onClick={onCancel} style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
-                </div>
+        <Container maxWidth="lg" sx={{ py: 4, height: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h4" component="h1" fontWeight="bold">
+                    Import Song
+                </Typography>
+                <IconButton onClick={onCancel} size="large">
+                    <CloseIcon />
+                </IconButton>
+            </Box>
 
-                <p style={{ color: 'var(--text-secondary)' }}>
-                    Paste your ChordPro formatted song below. We'll automatically extract the title, artist, key, and capo if available.
-                </p>
+            <Typography variant="body1" color="text.secondary" paragraph>
+                Paste your ChordPro formatted song below or drop a file. We'll automatically extract metadata.
+            </Typography>
 
-                <div
-                    style={{
-                        display: 'flex',
-                        gap: '1rem',
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ flex: 1, minHeight: 0 }}>
+                {/* Input Area */}
+                <Box
+                    sx={{
                         flex: 1,
-                        minHeight: 0,
                         position: 'relative',
-                        transition: 'all 0.2s'
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}
                     onDragOver={e => {
                         e.preventDefault();
@@ -100,122 +95,102 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
                         const file = e.dataTransfer.files[0];
                         if (file) {
                             let text = await file.text();
-
-                            // inject title from filename if missing
                             const metadata = extractMetadata(text);
                             if (!metadata.title || metadata.title === 'Untitled Song') {
                                 const filenameTitle = file.name.replace(/\.(txt|cho|crd|chordpro)$/i, '').replace(/[-_]/g, ' ');
-                                // Add title tag to the beginning
                                 text = `{title: ${filenameTitle}}\n` + text;
                             }
-
                             setContent(text);
                         }
                     }}
                 >
+                    <TextField
+                        multiline
+                        fullWidth
+                        placeholder="Paste ChordPro text here... OR Drop a file!"
+                        value={content}
+                        onChange={e => setContent(e.target.value)}
+                        sx={{
+                            flex: 1,
+                            '& .MuiInputBase-root': {
+                                height: '100%',
+                                alignItems: 'flex-start',
+                                fontFamily: 'monospace',
+                                bgcolor: 'background.paper'
+                            }
+                        }}
+                    />
+
                     {isDragging && (
-                        <div style={{
+                        <Box sx={{
                             position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: 'rgba(var(--primary-color-rgb), 0.1)',
-                            border: '2px dashed var(--primary-color)',
+                            inset: 0,
+                            bgcolor: 'rgba(234, 179, 8, 0.1)', // amber-500 with opacity
+                            border: '2px dashed',
+                            borderColor: 'primary.main',
                             zIndex: 10,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            pointerEvents: 'none',
                             backdropFilter: 'blur(2px)',
-                            borderRadius: '4px'
+                            borderRadius: 1
                         }}>
-                            <div style={{
-                                background: 'var(--surface-color)',
-                                padding: '1rem 2rem',
-                                borderRadius: '8px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                                fontWeight: 'bold',
-                                color: 'var(--primary-color)'
-                            }}>
-                                Drop file to import!
-                            </div>
-                        </div>
+                            <Paper sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                                <CloudUploadIcon color="primary" sx={{ fontSize: 48 }} />
+                                <Typography variant="h6" color="primary">
+                                    Drop file to import!
+                                </Typography>
+                            </Paper>
+                        </Box>
                     )}
-                    <textarea
-                        value={content}
-                        onChange={e => setContent(e.target.value)}
-                        placeholder="Paste ChordPro text here... OR Drop a file!"
-                        style={{
-                            flex: 1,
-                            fontFamily: 'var(--font-mono)',
-                            padding: '1rem',
-                            resize: 'none',
-                            borderRadius: '4px',
-                            border: '1px solid var(--border-color)',
-                            background: 'var(--background-color)',
-                            color: 'var(--text-color)',
-                            opacity: isDragging ? 0.5 : 1
-                        }}
-                    />
+                </Box>
 
-                    <div style={{
-                        width: '300px',
-                        background: 'var(--background-color)',
-                        padding: '1rem',
-                        borderRadius: '4px',
-                        border: '1px solid var(--border-color)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '1rem'
-                    }}>
-                        <h3>Preview</h3>
-                        {preview ? (
-                            <div className="flex flex-col gap-2">
-                                <div>
-                                    <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Title</label>
-                                    <div style={{ fontWeight: 'bold' }}>{preview.title}</div>
-                                </div>
-                                <div>
-                                    <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Artist</label>
-                                    <div>{preview.artist}</div>
-                                </div>
-                                <div className="flex gap-4">
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Key</label>
-                                        <div>{preview.key || '-'}</div>
-                                    </div>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Capo</label>
-                                        <div>{preview.capo || '-'}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                                Start typing to see preview...
-                            </div>
-                        )}
-                    </div>
-                </div>
+                {/* Preview Panel */}
+                <Paper variant="outlined" sx={{ width: { xs: '100%', md: 320 }, p: 3, height: 'fit-content' }}>
+                    <Typography variant="h6" gutterBottom fontWeight="bold">
+                        Preview
+                    </Typography>
+                    <Divider sx={{ mb: 2 }} />
 
-                <div className="flex justify-end gap-2 pt-4">
-                    <button onClick={onCancel}>Cancel</button>
-                    <button
-                        onClick={handleImport}
-                        disabled={!content.trim()}
-                        style={{
-                            background: 'var(--primary-color)',
-                            color: '#000',
-                            padding: '0.5rem 2rem',
-                            borderRadius: '4px',
-                            opacity: !content.trim() ? 0.5 : 1
-                        }}
-                    >
-                        Import Song
-                    </button>
-                </div>
-            </div>
-        </div >
+                    {preview ? (
+                        <Stack spacing={2}>
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">Title</Typography>
+                                <Typography variant="subtitle1" fontWeight="bold">{preview.title}</Typography>
+                            </Box>
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">Artist</Typography>
+                                <Typography variant="body1">{preview.artist}</Typography>
+                            </Box>
+                            <Stack direction="row" spacing={4}>
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">Key</Typography>
+                                    <Typography variant="body1">{preview.key || '-'}</Typography>
+                                </Box>
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">Capo</Typography>
+                                    <Typography variant="body1">{preview.capo || '-'}</Typography>
+                                </Box>
+                            </Stack>
+                        </Stack>
+                    ) : (
+                        <Typography variant="body2" color="text.secondary" fontStyle="italic">
+                            Start typing to see preview...
+                        </Typography>
+                    )}
+
+                    <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                        <Button onClick={onCancel}>Cancel</Button>
+                        <Button
+                            variant="contained"
+                            onClick={handleImport}
+                            disabled={!content.trim()}
+                        >
+                            Import Song
+                        </Button>
+                    </Box>
+                </Paper>
+            </Stack>
+        </Container>
     );
 };

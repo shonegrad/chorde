@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import '../styles/SongViewer.css';
 import type { Song, SongSection, DisplayMode } from '../types';
 import { parseChordPro } from '../lib/chordPro';
 import { exportToChordPro } from '../lib/export';
@@ -9,6 +8,38 @@ import { ChordStaff } from './ChordStaff';
 import { ChordModal } from './ChordModal';
 import { SectionNav } from './SectionNav';
 import { ChordTab } from './ChordTab';
+import {
+    AppBar,
+    Toolbar,
+    Typography,
+    IconButton,
+    Box,
+    Button,
+    Slider,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Stack,
+    Chip,
+    Paper,
+    Container,
+    Tooltip,
+    ToggleButton,
+    ToggleButtonGroup
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
+import LoopIcon from '@mui/icons-material/Loop';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
+import TextDecreaseIcon from '@mui/icons-material/TextDecrease';
+import TextIncreaseIcon from '@mui/icons-material/TextIncrease';
+import DownloadIcon from '@mui/icons-material/Download';
+import EditIcon from '@mui/icons-material/Edit';
+import '../styles/SongViewer.css';
 
 interface SongViewerProps {
     song: Song;
@@ -17,12 +48,13 @@ interface SongViewerProps {
 }
 
 export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit }) => {
+    const theme = useTheme();
     const [transpose, setTranspose] = useState(0);
     const [fontSize, setFontSize] = useState(20);
     const [capo, setCapo] = useState(song.capo || 0);
     const [selectedChord, setSelectedChord] = useState<string | null>(null);
     const [autoScroll, setAutoScroll] = useState(false);
-    const [scrollSpeed, setScrollSpeed] = useState(30); // pixels per second
+    const [scrollSpeed, setScrollSpeed] = useState(50); // initial speed faster as requested
     const [loopMode, setLoopMode] = useState(false);
     const [loopSection, setLoopSection] = useState<number | null>(null); // Index of section to loop
     const [displayMode, setDisplayMode] = useState<DisplayMode>('chords');
@@ -167,229 +199,166 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
         }
     };
 
-
-
-    const getDisplayModeName = (mode: DisplayMode): string => {
-        switch (mode) {
-            case 'chords': return 'Chords';
-            case 'tabs': return 'Tabs';
-            case 'notation': return 'Notation';
-            case 'nashville': return 'Nashville';
-            default: return 'Chords';
-        }
-    };
-
     return (
-        <>
-            <div className="song-viewer-container">
-                <div className="song-viewer-header">
-                    <div className="header-controls-group">
-                        <button className="icon-btn" onClick={onClose} title="Back to Library">
-                            ←
-                        </button>
+        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+            {/* Header Controls */}
+            <AppBar position="static" color="default" elevation={1}>
+                <Toolbar>
+                    <IconButton edge="start" onClick={onClose} sx={{ mr: 2 }}>
+                        <ArrowBackIcon />
+                    </IconButton>
 
-                        <div className="control-item">
-                            <span className="control-label">Scroll</span>
-                            <button
-                                className={`icon - btn ${autoScroll ? 'active' : ''} `}
-                                onClick={toggleAutoScroll}
-                                title={autoScroll ? 'Stop Auto-Scroll' : 'Start Auto-Scroll'}
-                            >
-                                {autoScroll ? '⏸' : '▶'}
-                            </button>
+                    <Stack direction="row" spacing={2} alignItems="center" sx={{ flexGrow: 1, overflowX: 'auto' }}>
+                        {/* Scroll Controls */}
+                        <Paper variant="outlined" sx={{ p: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Tooltip title={autoScroll ? 'Stop Auto-Scroll' : 'Start Auto-Scroll'}>
+                                <IconButton onClick={toggleAutoScroll} color={autoScroll ? "primary" : "default"}>
+                                    {autoScroll ? <PauseIcon /> : <PlayArrowIcon />}
+                                </IconButton>
+                            </Tooltip>
                             {autoScroll && (
-                                <div className="control-item" style={{ marginLeft: '8px' }}>
-                                    <input
-                                        type="range"
-                                        min="10"
-                                        max="100"
+                                <Box sx={{ width: 100, mx: 1 }}>
+                                    <Slider
+                                        size="small"
                                         value={scrollSpeed}
-                                        onChange={e => setScrollSpeed(Number(e.target.value))}
+                                        min={10}
+                                        max={250}
+                                        onChange={(_, val) => setScrollSpeed(val as number)}
+                                        aria-label="Scroll speed"
                                     />
-                                    <span style={{ fontSize: '0.75rem', width: '40px', textAlign: 'right', color: 'var(--text-secondary)' }}>
-                                        {Math.round(scrollSpeed)}px/s
-                                    </span>
-                                </div>
+                                </Box>
                             )}
-                        </div>
+                        </Paper>
 
+                        {/* Loop Control */}
                         {sections.length > 0 && (
-                            <button
-                                className={`main - btn ${loopMode ? 'active' : ''} `}
-                                onClick={toggleLoopMode}
-                                title="Loop selected section repeatedly"
-                            >
-                                🔁 {loopMode && loopSection !== null ? `Looping: ${sections[loopSection].label} ` : 'Loop Section'}
-                            </button>
+                            <Tooltip title="Loop Section">
+                                <ToggleButton
+                                    value="check"
+                                    selected={loopMode}
+                                    onChange={toggleLoopMode}
+                                    size="small"
+                                    color="primary"
+                                >
+                                    <LoopIcon fontSize="small" sx={{ mr: 1 }} />
+                                    {loopMode && loopSection !== null ? sections[loopSection].label : 'Loop'}
+                                </ToggleButton>
+                            </Tooltip>
                         )}
-                    </div>
 
-                    <div className="header-controls-group">
-                        <div className="control-item">
-                            <span className="control-label">Capo</span>
-                            <select
+                        {/* Capo Control */}
+                        <FormControl size="small" variant="outlined" sx={{ minWidth: 80 }}>
+                            <InputLabel>Capo</InputLabel>
+                            <Select
                                 value={capo}
                                 onChange={(e) => setCapo(Number(e.target.value))}
-                                style={{
-                                    background: 'var(--surface-hover)',
-                                    color: 'var(--text-primary)',
-                                    border: '1px solid var(--border-color)',
-                                    padding: '4px 8px',
-                                    borderRadius: '4px',
-                                    fontSize: '0.875rem'
-                                }}
+                                label="Capo"
                             >
-                                {Array.from({ length: 13 }, (_, i) => (
-                                    <option key={i} value={i}>{i === 0 ? 'None' : i}</option>
+                                <MenuItem value={0}>None</MenuItem>
+                                {Array.from({ length: 12 }, (_, i) => (
+                                    <MenuItem key={i + 1} value={i + 1}>{i + 1}</MenuItem>
                                 ))}
-                            </select>
-                        </div>
+                            </Select>
+                        </FormControl>
 
-                        <div className="control-item">
-                            <span className="control-label">Key</span>
-                            <div style={{ display: 'flex', gap: '2px' }}>
-                                <button className="icon-btn" onClick={() => setTranspose(t => t - 1)}>−</button>
-                                <span style={{ width: '30px', textAlign: 'center', lineHeight: '32px', fontSize: '0.9rem' }}>
-                                    {transpose > 0 ? `+ ${transpose} ` : (transpose < 0 ? transpose : '0')}
-                                </span>
-                                <button className="icon-btn" onClick={() => setTranspose(t => t + 1)}>+</button>
-                            </div>
-                        </div>
+                        {/* Key Transpose */}
+                        <Paper variant="outlined" sx={{ p: 0.5, display: 'flex', alignItems: 'center' }}>
+                            <IconButton size="small" onClick={() => setTranspose(t => t - 1)}><RemoveIcon fontSize="small" /></IconButton>
+                            <Typography variant="body2" sx={{ mx: 1, minWidth: 20, textAlign: 'center' }}>
+                                {transpose > 0 ? `+${transpose}` : (transpose < 0 ? transpose : '0')}
+                            </Typography>
+                            <IconButton size="small" onClick={() => setTranspose(t => t + 1)}><AddIcon fontSize="small" /></IconButton>
+                        </Paper>
 
-                        <div style={{
-                            display: 'flex',
-                            background: 'var(--surface-color)',
-                            borderRadius: '8px',
-                            padding: '2px', // Tighter padding
-                            border: '1px solid var(--border-color)',
-                            height: '36px', // Fixed height to match other controls
-                            alignItems: 'center'
-                        }}>
-                            {(['chords', 'tabs', 'notation', 'nashville'] as DisplayMode[]).map(mode => (
-                                <button
-                                    key={mode}
-                                    onClick={() => setDisplayMode(mode)}
-                                    title={`Switch to ${getDisplayModeName(mode)}`}
-                                    style={{
-                                        background: displayMode === mode ? 'var(--primary-color)' : 'transparent',
-                                        color: displayMode === mode ? 'white' : 'var(--text-secondary)',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        padding: '0 12px',
-                                        fontSize: '0.85rem',
-                                        height: '100%', // Fill height
-                                        cursor: 'pointer',
-                                        fontWeight: displayMode === mode ? '600' : '400',
-                                        transition: 'all 0.2s ease',
-                                        whiteSpace: 'nowrap'
-                                    }}
-                                >
-                                    {getDisplayModeName(mode)}
-                                </button>
+                        {/* Display Mode */}
+                        <ToggleButtonGroup
+                            value={displayMode}
+                            exclusive
+                            onChange={(_, newMode) => newMode && setDisplayMode(newMode)}
+                            size="small"
+                        >
+                            <ToggleButton value="chords">Chords</ToggleButton>
+                            <ToggleButton value="tabs">Tabs</ToggleButton>
+                            <ToggleButton value="notation">Notes</ToggleButton>
+                        </ToggleButtonGroup>
+
+                        {/* Font Size */}
+                        <Box>
+                            <IconButton size="small" onClick={() => setFontSize(s => Math.max(12, s - 2))}>
+                                <TextDecreaseIcon />
+                            </IconButton>
+                            <IconButton size="small" onClick={() => setFontSize(s => Math.min(48, s + 2))}>
+                                <TextIncreaseIcon />
+                            </IconButton>
+                        </Box>
+
+                        <IconButton onClick={() => exportToChordPro(song)} title="Download">
+                            <DownloadIcon />
+                        </IconButton>
+                        <Button variant="contained" startIcon={<EditIcon />} onClick={onEdit} size="small">
+                            Edit
+                        </Button>
+                    </Stack>
+                </Toolbar>
+            </AppBar>
+
+            {/* Section Navigation */}
+            {sections.length > 0 && (
+                <Box sx={{ px: 2, py: 1, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+                    <SectionNav sections={sections} onJumpToSection={handleSectionClick} />
+                </Box>
+            )}
+
+            {/* Song Content */}
+            <Box
+                ref={contentContainerRef}
+                sx={{
+                    flexGrow: 1,
+                    overflowY: 'auto',
+                    p: 4,
+                    scrollBehavior: 'smooth',
+                    fontSize: `${fontSize}px`
+                }}
+            >
+                <Container maxWidth="md">
+                    <Box sx={{ textAlign: 'center', mb: 4 }}>
+                        <Typography variant="h3" fontWeight="bold" gutterBottom>{song.title}</Typography>
+                        <Typography variant="h5" color="text.secondary" gutterBottom>{song.artist}</Typography>
+                        <Stack direction="row" spacing={1} justifyContent="center" sx={{ mt: 2 }}>
+                            {song.tags?.map(tag => (
+                                <Chip key={tag} label={`#${tag}`} variant="outlined" size="small" />
                             ))}
-                        </div>
-
-                        <div className="control-item">
-                            <button className="icon-btn" onClick={() => setFontSize(s => Math.max(12, s - 2))} title="Decrease Text Size">A-</button>
-                            <button className="icon-btn" onClick={() => setFontSize(s => Math.min(48, s + 2))} title="Increase Text Size">A+</button>
-                        </div>
-
-                        <button className="main-btn" onClick={() => exportToChordPro(song)} title="Download Song">⬇️</button>
-                        <button className="main-btn" onClick={onEdit}>Edit</button>
-                    </div>
-                </div>
-
-                {/* Section Navigation */}
-                {sections.length > 0 && (
-                    <div style={{ padding: '0.5rem 1rem', background: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)' }}>
-                        <SectionNav sections={sections} onJumpToSection={handleSectionClick} />
-                    </div>
-                )}
-
-                {/* Play View Area */}
-                <div
-                    ref={contentContainerRef}
-                    className="song-content-area"
-                    style={{ fontSize: `${fontSize}px` }}
-                >
-                    <div className="song-meta">
-                        <h1 className="song-title">{song.title}</h1>
-                        <h2 className="song-artist">{song.artist}</h2>
-                        {song.tags && song.tags.length > 0 && (
-                            <div style={{
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                gap: '0.5rem',
-                                justifyContent: 'center',
-                                marginTop: '0.5rem'
-                            }}>
-                                {song.tags.map(tag => (
-                                    <span key={tag} style={{
-                                        padding: '2px 8px',
-                                        background: 'var(--surface-hover)',
-                                        borderRadius: '12px',
-                                        fontSize: '0.75rem',
-                                        color: 'var(--text-secondary)',
-                                        textTransform: 'lowercase',
-                                        border: '1px solid var(--border-color)'
-                                    }}>
-                                        #{tag}
-                                    </span>
-                                ))}
-                            </div>
+                        </Stack>
+                        {capo > 0 && (
+                            <Chip
+                                label={`CAPO ${capo}`}
+                                color="primary"
+                                variant="outlined"
+                                sx={{ mt: 2, fontWeight: 'bold' }}
+                            />
                         )}
-                    </div>
+                    </Box>
 
-                    {capo > 0 && (
-                        <div style={{
-                            color: 'var(--primary-color)',
-                            marginBottom: '2rem',
-                            textAlign: 'center',
-                            fontWeight: '600',
-                            border: '1px solid var(--primary-color)',
-                            display: 'inline-block',
-                            padding: '0.25rem 1rem',
-                            borderRadius: '999px',
-                            fontSize: '0.9rem'
-                        }}>
-                            CAPO {capo}
-                        </div>
-                    )}
-
-                    <div className="song-content">
+                    <Box>
                         {parsedContent.map((line, i) => (
                             <div
                                 key={i}
-                                ref={el => { lineRefs.current[i] = el; }}
-                                className="song-line"
-                                style={{
-                                    display: 'flex',
-                                    flexWrap: 'wrap',
-                                    alignItems: 'flex-start',
-                                    marginBottom: '2rem',
-                                    position: 'relative'
-                                }}
+                                ref={(el: HTMLDivElement | null) => { lineRefs.current[i] = el; }}
+                                className={`song-line ${(displayMode === 'tabs' || displayMode === 'notation') ? 'expanded-spacing' : ''}`}
                             >
                                 {line.section && (
-                                    <div className="section-label" style={{
-                                        width: '100%',
-                                        flexBasis: '100%',
-                                        fontFamily: 'var(--font-mono)',
-                                        fontSize: '0.85rem',
-                                        color: 'var(--text-muted)',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.1em',
-                                        marginBottom: '0.5rem',
-                                        marginTop: '1rem',
-                                        paddingTop: '1rem',
-                                        borderTop: line.section.label !== 'Intro' ? '1px dashed var(--surface-hover)' : 'none'
-                                    }}>
+                                    <div
+                                        className={`section-label ${(displayMode === 'tabs' || displayMode === 'notation') ? 'expanded-spacing' : ''}`}
+                                        style={{
+                                            borderTop: line.section.label !== 'Intro' ? `1px dashed ${theme.palette.divider}` : 'none',
+                                            paddingTop: line.section.label !== 'Intro' ? theme.spacing(6) : theme.spacing(2),
+                                        }}
+                                    >
                                         {line.section.label}
                                     </div>
                                 )}
 
                                 {line.items.map((item, j) => {
-                                    // Skip entirely empty items (whitespace lyrics with no chord) to prevent layout ghosts
                                     if (!item.chord && (!item.lyric || item.lyric.trim() === '')) {
                                         return null;
                                     }
@@ -398,19 +367,11 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
 
                                     return (
                                         <div key={j} className="chord-lyric-pair" style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            marginRight: isLyricEmpty ? '0.8rem' : '0px',
-                                            minWidth: '1ch',
-                                            alignItems: 'flex-start'
+                                            marginRight: isLyricEmpty ? (line.section?.label === 'Intro' ? theme.spacing(6) : theme.spacing(2)) : undefined,
                                         }}>
                                             <div
-                                                className={`chord-display ${item.chord ? 'clickable' : ''} ${(displayMode === 'notation' || displayMode === 'tabs') ? 'notation-mode' : ''}`}
                                                 onClick={item.chord ? () => setSelectedChord(item.chord!) : undefined}
-                                                style={{
-                                                    height: (displayMode === 'notation' || displayMode === 'tabs') ? 'auto' : '1.5em',
-                                                    marginBottom: displayMode === 'tabs' ? '0.6rem' : (displayMode === 'notation' ? '0.2rem' : '0.2em')
-                                                }}
+                                                className={`chord-display ${item.chord ? 'clickable' : ''} ${(displayMode === 'notation' || displayMode === 'tabs') ? 'notation-mode' : ''}`}
                                             >
                                                 {item.chord ? (
                                                     displayMode === 'notation' ? (
@@ -423,19 +384,27 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
                                                 ) : '\u00A0'}
                                             </div>
                                             {!isLyricEmpty && item.lyric && (
-                                                <div className="lyric" style={{ whiteSpace: 'pre-wrap' }}>{item.lyric}</div>
+                                                <span style={{
+                                                    whiteSpace: 'pre-wrap',
+                                                    fontFamily: 'inherit',
+                                                    fontSize: 'inherit',
+                                                    lineHeight: 1.5,
+                                                    color: theme.palette.text.primary
+                                                }} className="lyric">
+                                                    {item.lyric}
+                                                </span>
                                             )}
                                         </div>
                                     );
                                 })}
                             </div>
                         ))}
-                    </div>
+                    </Box>
 
                     {/* Spacer for scrolling to bottom */}
-                    <div style={{ height: '30vh' }}></div>
-                </div>
-            </div>
+                    <Box sx={{ height: '30vh' }} />
+                </Container>
+            </Box>
 
             {selectedChord && (
                 <ChordModal
@@ -443,6 +412,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
                     onClose={() => setSelectedChord(null)}
                 />
             )}
-        </>
+        </Box>
     );
 };

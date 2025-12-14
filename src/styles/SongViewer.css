@@ -121,31 +121,28 @@
     font-weight: 400;
 }
 
-.song-line {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 2em;
-    position: relative;
-}
-
-.section-label {
-    width: 100%;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.5rem;
-    padding-top: 1rem;
-    border-top: 1px dashed var(--surface-hover);
-    margin-top: 1rem;
-}
-
 .chord-lyric-pair {
     display: flex;
     flex-direction: column;
     margin-right: 0.25rem;
     min-width: 1ch;
+    position: relative;
+    justify-content: flex-start;
+}
+
+.song-line {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 2em;
+    /* Standard spacing */
+    position: relative;
+    /* Align chords to top */
+    align-items: flex-start;
+}
+
+.song-line.expanded-spacing {
+    margin-bottom: 5rem;
+    /* Increased to accommodate absolute tabs/notation */
 }
 
 .chord-display {
@@ -155,17 +152,26 @@
     margin-bottom: 0.2em;
     display: flex;
     align-items: flex-end;
-    height: 1.5em;
-    /* Fixed height for consistency */
+    /* Static positioning to prevent overlap */
+    position: relative;
+    white-space: nowrap;
+
+    min-height: 1.5em;
+    /* Reserve height to prevent shift */
     border-radius: 4px;
     padding: 0 2px;
     transition: background 0.2s;
+    pointer-events: auto;
+    /* Ensure clickable */
 }
 
 .chord-display.notation-mode {
     height: 60px;
     /* Taller for staff */
     margin-bottom: 0.5em;
+    /* Adjust bottom for taller elements if needed, or let them grow up */
+    transform: translateY(-10px);
+    /* Fine tune position */
 }
 
 .chord-display.clickable:hover {
@@ -177,6 +183,25 @@
     white-space: pre;
     color: var(--text-primary);
     line-height: 1.4;
+}
+
+.section-label {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 2.5rem;
+    /* Default for chords */
+    padding-top: 2rem;
+    border-top: 1px dashed var(--surface-hover);
+    margin-top: 1rem;
+}
+
+.section-label.expanded-spacing {
+    margin-bottom: 6rem;
+    /* Increased for tabs/notation overlap */
 }
 
 /* Range Input Styling */

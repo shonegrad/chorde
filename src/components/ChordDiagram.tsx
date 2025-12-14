@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from '@mui/material/styles';
 import type { ChordVariation } from '../data/chordLibrary';
 
 interface ChordDiagramProps {
@@ -9,7 +10,8 @@ interface ChordDiagramProps {
 const STRINGS = 6;
 const VISIBLE_FRETS = 5;
 
-export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName: _chordName }) => {
+export const ChordDiagram: React.FC<ChordDiagramProps> = React.memo(({ variation, chordName: _chordName }) => {
+    const theme = useTheme();
     const { frets, fingers, barres } = variation;
 
     // Find the min/max fret to determine diagram position
@@ -19,7 +21,8 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName
 
     const stringSpacing = 30;
     const fretHeight = 40;
-    const width = (STRINGS - 1) * stringSpacing + 40;
+    const paddingX = 40; // Increased from 20 to 40 to accommodate fret numbers
+    const width = (STRINGS - 1) * stringSpacing + (paddingX * 2);
     const height = VISIBLE_FRETS * fretHeight + 60;
 
     const renderDot = (stringIndex: number, fret: number | 'x') => {
@@ -28,15 +31,15 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName
         const relFret = fret - startFret + 1;
         if (relFret < 1 || relFret > VISIBLE_FRETS) return null;
 
-        const x = 20 + stringIndex * stringSpacing;
+        const x = paddingX + stringIndex * stringSpacing;
         const y = 30 + (relFret - 0.5) * fretHeight;
         const finger = fingers[stringIndex];
 
         return (
             <g key={`dot-${stringIndex}`}>
-                <circle cx={x} cy={y} r="10" fill="var(--primary-color)" />
+                <circle cx={x} cy={y} r="10" fill={theme.palette.primary.main} />
                 {typeof finger === 'number' && finger > 0 && (
-                    <text x={x} y={y + 4} textAnchor="middle" fill="#000" fontSize="12" fontWeight="bold">
+                    <text x={x} y={y + 4} textAnchor="middle" fill={theme.palette.primary.contrastText} fontSize="12" fontWeight="bold">
                         {finger}
                     </text>
                 )}
@@ -48,16 +51,16 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName
         <svg width={width} height={height} style={{ display: 'block', margin: '0 auto' }}>
             {/* String markers at top (O for open, X for muted) */}
             {frets.map((fret, i) => {
-                const x = 20 + i * stringSpacing;
+                const x = paddingX + i * stringSpacing;
                 if (fret === 'x') {
                     return (
-                        <text key={`marker-${i}`} x={x} y={15} textAnchor="middle" fill="var(--text-primary)" fontSize="18" fontWeight="bold">
+                        <text key={`marker-${i}`} x={x} y={15} textAnchor="middle" fill={theme.palette.text.primary} fontSize="18" fontWeight="bold">
                             X
                         </text>
                     );
                 } else if (fret === 0) {
                     return (
-                        <circle key={`marker-${i}`} cx={x} cy={10} r="6" fill="none" stroke="var(--text-primary)" strokeWidth="2" />
+                        <circle key={`marker-${i}`} cx={x} cy={10} r="6" fill="none" stroke={theme.palette.text.primary} strokeWidth="2" />
                     );
                 }
                 return null;
@@ -65,13 +68,13 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName
 
             {/* Fret position indicator */}
             {startFret > 1 && (
-                <text x={5} y={30 + fretHeight * 0.5} textAnchor="start" fill="var(--text-secondary)" fontSize="14">
+                <text x={5} y={30 + fretHeight * 0.5} textAnchor="start" fill={theme.palette.text.secondary} fontSize="14">
                     {startFret}fr
                 </text>
             )}
 
             {/* Fretboard */}
-            <g transform="translate(20, 30)">
+            <g transform={`translate(${paddingX}, 30)`}>
                 {/* Vertical lines (strings) */}
                 {Array.from({ length: STRINGS }).map((_, i) => (
                     <line
@@ -80,7 +83,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName
                         y1={0}
                         x2={i * stringSpacing}
                         y2={VISIBLE_FRETS * fretHeight}
-                        stroke="var(--text-secondary)"
+                        stroke={theme.palette.text.secondary}
                         strokeWidth="1.5"
                     />
                 ))}
@@ -93,8 +96,8 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName
                         y1={i * fretHeight}
                         x2={(STRINGS - 1) * stringSpacing}
                         y2={i * fretHeight}
-                        stroke="var(--text-primary)"
-                        strokeWidth={i === 0 ? '4' : '2'}
+                        stroke={theme.palette.text.primary}
+                        strokeWidth={i === 0 && startFret === 1 ? '4' : '2'}
                     />
                 ))}
 
@@ -115,7 +118,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName
                             width={(lastString - firstString) * stringSpacing + 16}
                             height={16}
                             rx={8}
-                            fill="var(--primary-color)"
+                            fill={theme.palette.primary.main}
                         />
                     );
                 })}
@@ -127,4 +130,4 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ variation, chordName
             </g>
         </svg>
     );
-};
+});

@@ -4,12 +4,13 @@ import { SongList } from './components/SongList';
 import { SongViewer } from './components/SongViewer';
 import { SongEditor } from './components/SongEditor';
 import { SongImporter } from './components/SongImporter';
+import ChordBrowser from './components/ChordBrowser';
 import type { Song } from './types';
 
-type ViewState = 'LIST' | 'PLAY' | 'EDIT' | 'IMPORT';
+type ViewState = 'LIST' | 'PLAY' | 'EDIT' | 'IMPORT' | 'CHORDS';
 
 function App() {
-  const { songs, saveSong, resetLibrary, deleteSong } = useSongs();
+  const { songs, saveSong, deleteSong } = useSongs();
   const [view, setView] = useState<ViewState>('LIST');
   const [activeSong, setActiveSong] = useState<Song | undefined>(undefined);
 
@@ -20,6 +21,10 @@ function App() {
 
   const handleImportClick = () => {
     setView('IMPORT');
+  };
+
+  const handleChordsClick = () => {
+    setView('CHORDS');
   };
 
   const handleSelect = (song: Song) => {
@@ -81,17 +86,17 @@ function App() {
     );
   }
 
+  if (view === 'CHORDS') {
+    return <ChordBrowser onBack={handleBackToList} />;
+  }
+
   return (
     <SongList
       songs={songs}
       onSelect={handleSelect}
       onCreate={handleCreate}
-      onReset={() => {
-        if (confirm('Are you sure you want to reset the library to default songs? This will erase all custom songs.')) {
-          resetLibrary();
-        }
-      }}
       onImportNav={handleImportClick}
+      onChordsNav={handleChordsClick}
     />
   );
 }

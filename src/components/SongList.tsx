@@ -1,155 +1,205 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { Song } from '../types';
+import {
+    Container,
+    Typography,
+    Button,
+    TextField,
+    Grid,
+    Card,
+    CardActionArea,
+    CardContent,
+    Chip,
+    Stack,
+    Box,
+    InputAdornment
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import DownloadIcon from '@mui/icons-material/Download';
+import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
 
 interface SongListProps {
     songs: Song[];
     onSelect: (song: Song) => void;
     onCreate: () => void;
     onImportNav: () => void;
-    onReset: () => void;
+    onChordsNav: () => void;
 }
 
-export const SongList: React.FC<SongListProps> = ({ songs, onSelect, onCreate, onImportNav, onReset }) => {
+export const SongList: React.FC<SongListProps> = ({ songs, onSelect, onCreate, onImportNav, onChordsNav }) => {
     const [search, setSearch] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
     // Extract all unique tags
-    const allTags = Array.from(new Set(songs.flatMap(s => s.tags || []))).sort();
+    const allTags = useMemo(() =>
+        Array.from(new Set(songs.flatMap(s => s.tags || []))).sort(),
+        [songs]);
 
-    const filtered = songs.filter(s => {
+    const filtered = useMemo(() => songs.filter(s => {
         const matchesSearch = s.title.toLowerCase().includes(search.toLowerCase()) ||
             s.artist.toLowerCase().includes(search.toLowerCase());
-        const matchesTag = !selectedTag || s.tags?.includes(selectedTag);
+        const matchesTag = !selectedTag || (s.tags && s.tags.includes(selectedTag));
         return matchesSearch && matchesTag;
-    });
+    }), [songs, search, selectedTag]);
 
-    const handleReset = () => {
-        if (confirm('This will reset your library to the default songs (~170 songs including Jazz Pack!). Any custom changes will be lost. Continue?')) {
-            onReset();
+    const [visibleCount, setVisibleCount] = useState(12);
+    const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setVisibleCount(12);
+    }, [search, selectedTag]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                setVisibleCount(prev => prev + 12);
+            }
+        });
+
+        if (loadMoreRef.current) {
+            observer.observe(loadMoreRef.current);
         }
-    };
+
+        return () => observer.disconnect();
+    }, [filtered.length]); // Re-attach if list changes
+
+    const visibleSongs = filtered.slice(0, visibleCount);
 
     return (
-        <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto' }}>
-            <div className="flex justify-between items-center" style={{ marginBottom: '2rem' }}>
-                <h1>My Songs ({filtered.length})</h1>
-                <div className="flex gap-2">
-                    <button
-                        onClick={handleReset}
-                        title="Reset to default 40 songs"
-                        style={{ border: '1px solid var(--danger-color)', color: 'var(--danger-color)', padding: '0.5rem 1rem', borderRadius: '4px' }}
-                    >
-                        ↻ Reset Library
-                    </button>
-                    <button
-                        onClick={onImportNav}
-                        style={{ background: 'var(--surface-hover)', color: 'var(--text-primary)', padding: '0.5rem 1rem', borderRadius: '4px' }}
-                    >
-                        ☁ Import
-                    </button>
-                    <button
-                        onClick={onCreate}
-                        style={{ background: 'var(--primary-color)', color: '#000', padding: '0.5rem 1rem', borderRadius: '4px' }}
-                    >
-                        + New Song
-                    </button>
-                </div>
-            </div>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
+                <Typography variant="h3" component="h1" fontWeight="bold">
+                    My Songs ({filtered.length})
+                </Typography>
 
-            <input
-                placeholder="Search songs..."
+                <Stack direction="row" spacing={1}>
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        startIcon={<DownloadIcon />}
+                        onClick={onImportNav}
+                    >
+                        Import
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        startIcon={<LibraryMusicIcon />}
+                        onClick={onChordsNav}
+                    >
+                        Chord Library
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AddIcon />}
+                        onClick={onCreate}
+                        sx={{ fontWeight: 'bold' }}
+                    >
+                        New Song
+                    </Button>
+                </Stack>
+            </Box>
+
+            <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="Search songs, artists..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{ width: '100%', marginBottom: '1rem', padding: '1rem' }}
+                sx={{ mb: 3 }}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon color="action" />
+                        </InputAdornment>
+                    ),
+                    sx: { borderRadius: 2 }
+                }}
             />
 
             {/* Tag filter */}
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-                <button
+            <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: 4, gap: 1 }} useFlexGap>
+                <Chip
+                    label="All"
                     onClick={() => setSelectedTag(null)}
-                    style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '1rem',
-                        background: !selectedTag ? 'var(--primary-color)' : 'var(--surface-hover)',
-                        color: !selectedTag ? '#000' : 'var(--text-secondary)',
-                        fontWeight: !selectedTag ? 'bold' : 'normal',
-                        fontSize: '0.875rem'
-                    }}
-                >
-                    All
-                </button>
+                    color={!selectedTag ? "primary" : "default"}
+                    variant={!selectedTag ? "filled" : "outlined"}
+                    clickable
+                />
                 {allTags.map(tag => (
-                    <button
+                    <Chip
                         key={tag}
-                        onClick={() => setSelectedTag(tag)}
-                        style={{
-                            padding: '0.5rem 1rem',
-                            borderRadius: '1rem',
-                            background: selectedTag === tag ? 'var(--primary-color)' : 'var(--surface-hover)',
-                            color: selectedTag === tag ? '#000' : 'var(--text-secondary)',
-                            fontWeight: selectedTag === tag ? 'bold' : 'normal',
-                            fontSize: '0.875rem'
-                        }}
-                    >
-                        {tag}
-                    </button>
+                        label={tag}
+                        onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                        color={selectedTag === tag ? "primary" : "default"}
+                        variant={selectedTag === tag ? "filled" : "outlined"}
+                        clickable
+                    />
                 ))}
-            </div>
+            </Stack>
 
-            <div className="song-grid" style={{ display: 'grid', gap: '1rem' }}>
-                {filtered.map(song => (
-                    <div
-                        key={song.id}
-                        onClick={() => onSelect(song)}
-                        style={{
-                            background: 'var(--surface-color)',
-                            padding: '1.5rem',
-                            borderRadius: 'var(--radius-md)',
-                            cursor: 'pointer',
-                            transition: 'transform 0.1s',
-                            border: '1px solid transparent'
-                        }}
-                        onMouseEnter={e => {
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.borderColor = 'var(--primary-color)';
-                        }}
-                        onMouseLeave={e => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.borderColor = 'transparent';
-                        }}
-                    >
-                        <div style={{ fontWeight: 'bold', fontSize: '1.2em', marginBottom: '0.25rem' }}>{song.title}</div>
-                        <div style={{ color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>{song.artist}</div>
+            <Grid container spacing={3}>
+                {visibleSongs.map(song => (
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={song.id}>
+                        <Card sx={{
+                            height: '100%',
+                            transition: 'all 0.2s',
+                            '&:hover': { transform: 'translateY(-4px)' }
+                        }}>
+                            <CardActionArea onClick={() => onSelect(song)} sx={{ height: '100%', display: 'flex', alignItems: 'start', justifyContent: 'start', flexDirection: 'column' }}>
+                                <CardContent sx={{ width: '100%' }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                                        <Typography variant="h5" component="h2" fontWeight="bold">
+                                            {song.title}
+                                        </Typography>
+                                        <MusicNoteIcon color="action" fontSize="small" />
+                                    </Box>
 
-                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                            {song.key && <span>Key: {song.key}</span>}
-                            {song.capo && song.capo > 0 && <span>Capo: {song.capo}</span>}
-                        </div>
+                                    <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+                                        {song.artist}
+                                    </Typography>
 
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                            {song.tags?.map(tag => (
-                                <span
-                                    key={tag}
-                                    style={{
-                                        padding: '0.25rem 0.5rem',
-                                        borderRadius: '0.25rem',
-                                        background: 'var(--surface-hover)',
-                                        fontSize: '0.75rem',
-                                        color: 'var(--text-secondary)'
-                                    }}
-                                >
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
+                                    <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+                                        {song.key && (
+                                            <Typography variant="body2" color="text.secondary">
+                                                Key: <strong>{song.key}</strong>
+                                            </Typography>
+                                        )}
+                                        {song.capo && song.capo > 0 && (
+                                            <Typography variant="body2" color="primary">
+                                                Capo: {song.capo}
+                                            </Typography>
+                                        )}
+                                    </Stack>
+
+                                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ gap: 0.5 }}>
+                                        {song.tags?.map(tag => (
+                                            <Chip key={tag} label={tag} size="small" variant="filled" sx={{ borderRadius: 1, bgcolor: 'action.hover' }} />
+                                        ))}
+                                    </Stack>
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+                    </Grid>
                 ))}
-                {filtered.length === 0 && (
-                    <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem' }}>
-                        No songs found. Try adjusting your search or filters.
-                    </div>
+
+                {visibleSongs.length < filtered.length && (
+                    <div ref={loadMoreRef} style={{ width: '100%', height: '20px', margin: '20px 0' }} />
                 )}
-            </div>
-        </div>
+
+                {filtered.length === 0 && (
+                    <Grid size={{ xs: 12 }}>
+                        <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
+                            <MusicNoteIcon sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
+                            <Typography variant="h6">No songs found</Typography>
+                            <Typography>Try adjusting your search query or filters.</Typography>
+                        </Box>
+                    </Grid>
+                )}
+            </Grid>
+        </Container>
     );
 };

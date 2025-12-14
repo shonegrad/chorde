@@ -1,0 +1,252 @@
+.chord-browser {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.chord-browser-header {
+    margin-bottom: 2rem;
+}
+
+.chord-browser-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    color: var(--text-primary);
+}
+
+.chord-count {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Controls */
+.chord-browser-controls {
+    margin-bottom: 2rem;
+}
+
+.chord-search {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: border-color 0.2s;
+}
+
+.chord-search:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.chord-type-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    border-color: var(--accent-color);
+    background: var(--bg-hover);
+}
+
+.filter-btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* Chord Grid */
+.chord-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.chord-card {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.chord-card:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chord-card.selected {
+    border-color: var(--accent-color);
+    background: var(--bg-hover);
+}
+
+.chord-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.chord-name-section {
+    flex: 1;
+}
+
+.chord-name {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.chord-full-name {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.play-btn {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--accent-color);
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.play-btn:hover:not(:disabled) {
+    background: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.play-btn.playing {
+    animation: pulse 0.5s ease-in-out infinite;
+}
+
+.play-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.chord-diagram-preview {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+}
+
+/* Variations */
+.chord-variations {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.variations-label {
+    margin: 0 0 1rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.variations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.variation-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.variation-suffix {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+.no-results p {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.no-results button {
+    padding: 0.5rem 1.5rem;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: opacity 0.2s;
+}
+
+.no-results button:hover {
+    opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chord-browser {
+        padding: 1rem;
+    }
+
+    .chord-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    .chord-type-filters {
+        gap: 0.4rem;
+    }
+
+    .filter-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+}

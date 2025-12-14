@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTheme } from '@mui/material/styles';
 import { getChordNotes } from '../lib/staffNotation';
 
 interface ChordStaffProps {
@@ -8,6 +9,8 @@ interface ChordStaffProps {
 }
 
 export const ChordStaff: React.FC<ChordStaffProps> = React.memo(({ chord, width = 60 }) => {
+    const theme = useTheme();
+
     // Memoize notes calculation to prevent unnecessary recalculations
     const notes = useMemo(() => {
         if (!chord) return [];
@@ -23,11 +26,10 @@ export const ChordStaff: React.FC<ChordStaffProps> = React.memo(({ chord, width 
     if (!notes || notes.length === 0) return null;
 
     // Staff metrics
-    // Formula: Y = Line1_Y - ( (Pos - 2) * (Spacing / 2) )
-    const lineSpacing = 8; // Tighter, but still readable (compromise)
+    const lineSpacing = 8;
     const staffTop = 10;
-    const staffBottom = staffTop + (lineSpacing * 4); // 10 + 32 = 42
-    const totalHeight = staffBottom + 10; // 52px total height
+    const staffBottom = staffTop + (lineSpacing * 4);
+    const totalHeight = staffBottom + 10;
 
     // Y position calculation
     const getNoteY = (pos: number): number => {
@@ -40,7 +42,7 @@ export const ChordStaff: React.FC<ChordStaffProps> = React.memo(({ chord, width 
             width={width}
             height={totalHeight}
             viewBox={`0 0 ${width} ${totalHeight}`}
-            style={{ overflow: 'visible', verticalAlign: 'bottom' }} // align bottom
+            style={{ overflow: 'visible', verticalAlign: 'bottom' }}
         >
             {/* Staff Lines */}
             {[0, 1, 2, 3, 4].map(i => (
@@ -50,7 +52,7 @@ export const ChordStaff: React.FC<ChordStaffProps> = React.memo(({ chord, width 
                     y1={staffBottom - (i * lineSpacing)}
                     x2={width}
                     y2={staffBottom - (i * lineSpacing)}
-                    stroke="#666"
+                    stroke={theme.palette.text.secondary}
                     strokeWidth="1.5"
                 />
             ))}
@@ -58,7 +60,7 @@ export const ChordStaff: React.FC<ChordStaffProps> = React.memo(({ chord, width 
             {/* Notes */}
             {notes.map((note, idx) => {
                 const y = getNoteY(note.position);
-                const x = width / 2; // Center in the width provided
+                const x = width / 2;
 
                 if (isNaN(y) || isNaN(x)) return null;
 
@@ -73,7 +75,7 @@ export const ChordStaff: React.FC<ChordStaffProps> = React.memo(({ chord, width 
                                 y1={y}
                                 x2={x + 9}
                                 y2={y}
-                                stroke="#888"
+                                stroke={theme.palette.text.secondary}
                                 strokeWidth="1.5"
                             />
                         )}
@@ -82,7 +84,7 @@ export const ChordStaff: React.FC<ChordStaffProps> = React.memo(({ chord, width 
                             cy={y}
                             rx={3.5}
                             ry={2.5}
-                            fill="var(--text-primary)"
+                            fill={theme.palette.text.primary}
                             stroke="none"
                         />
 
@@ -91,7 +93,7 @@ export const ChordStaff: React.FC<ChordStaffProps> = React.memo(({ chord, width 
                                 x={x - 12}
                                 y={y + 4}
                                 fontSize={12}
-                                fill="var(--primary-color)"
+                                fill={theme.palette.primary.main}
                                 fontWeight="bold"
                             >{accSymbol}</text>
                         )}

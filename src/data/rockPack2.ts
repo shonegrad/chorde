@@ -6,7 +6,7 @@ export const ROCK_PACK_2: Song[] = [
         id: 'sg-black-hole-sun',
         title: 'Black Hole Sun',
         artist: 'Soundgarden',
-        tags: ['grunge', '90s', 'psychedelic'],
+        tags: ['Grunge', '90s'],
         key: 'G', // Actually Drop D usually, but G works for acoustic
         capo: 0,
         createdAt: Date.now(),
@@ -25,7 +25,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'sg-fell-on-black-days',
         title: 'Fell On Black Days',
         artist: 'Soundgarden',
-        tags: ['grunge', '90s', 'dark'],
+        tags: ['Grunge', '90s'],
         key: 'Em',
         capo: 0,
         createdAt: Date.now(),
@@ -40,7 +40,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'sg-spoonman',
         title: 'Spoonman',
         artist: 'Soundgarden',
-        tags: ['grunge', '90s', 'rock'],
+        tags: ['Grunge', '90s'],
         key: 'D', // Drop D
         capo: 0,
         createdAt: Date.now(),
@@ -57,7 +57,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'sg-burden-in-my-hand',
         title: 'Burden In My Hand',
         artist: 'Soundgarden',
-        tags: ['grunge', '90s', 'alternative'],
+        tags: ['Grunge', '90s'],
         key: 'C', // Open C tuning usually
         capo: 0,
         createdAt: Date.now(),
@@ -72,7 +72,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'sg-outshined',
         title: 'Outshined',
         artist: 'Soundgarden',
-        tags: ['grunge', '90s', 'heavy'],
+        tags: ['Grunge', '90s'],
         key: 'Dm', // Drop D
         capo: 0,
         createdAt: Date.now(),
@@ -86,25 +86,10 @@ And [D]I'll hear you [D7]scream again`
 
     // STONE TEMPLE PILOTS
     {
-        id: 'stp-plush',
-        title: 'Plush',
-        artist: 'Stone Temple Pilots',
-        tags: ['grunge', '90s', 'rock'],
-        key: 'G',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{start_of_verse}
-[G]And I [D]feel that [C]time's a [C/B]wasted [C/A]go
-[G]So where [D]ya going to [C]tomorrow?
-[G]And I [D]see that [C]these are [C/B]lies to [C/A]come
-[G]So would [D]you even [C]care?`
-    },
-    {
         id: 'stp-interstate-love-song',
         title: 'Interstate Love Song',
         artist: 'Stone Temple Pilots',
-        tags: ['grunge', '90s', 'road-trip'],
+        tags: ['Grunge', '90s'],
         key: 'E', // C#m / E
         capo: 0,
         createdAt: Date.now(),
@@ -121,7 +106,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'stp-creep',
         title: 'Creep',
         artist: 'Stone Temple Pilots',
-        tags: ['grunge', '90s', 'acoustic'],
+        tags: ['Grunge', '90s', 'Acoustic'],
         key: 'Em', // G / Em
         capo: 0,
         createdAt: Date.now(),
@@ -137,7 +122,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'stp-vasoline',
         title: 'Vasoline',
         artist: 'Stone Temple Pilots',
-        tags: ['grunge', '90s', 'rock'],
+        tags: ['Grunge', '90s'],
         key: 'A',
         capo: 0,
         createdAt: Date.now(),
@@ -152,7 +137,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'stp-big-empty',
         title: 'Big Empty',
         artist: 'Stone Temple Pilots',
-        tags: ['grunge', '90s', 'bluesy'],
+        tags: ['Grunge', '90s'],
         key: 'Em',
         capo: 0,
         createdAt: Date.now(),
@@ -169,7 +154,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'foo-everlong',
         title: 'Everlong',
         artist: 'Foo Fighters',
-        tags: ['rock', '90s', 'classic'],
+        tags: ['Rock', '90s'],
         key: 'D', // Drop D
         capo: 0,
         createdAt: Date.now(),
@@ -186,7 +171,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'foo-my-hero',
         title: 'My Hero',
         artist: 'Foo Fighters',
-        tags: ['rock', '90s', 'anthem'],
+        tags: ['Rock', '90s'],
         key: 'E',
         capo: 0,
         createdAt: Date.now(),
@@ -199,7 +184,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'foo-best-of-you',
         title: 'Best of You',
         artist: 'Foo Fighters',
-        tags: ['rock', '00s', 'anthem'],
+        tags: ['Rock', '00s'],
         key: 'C#m',
         capo: 4, // Am shapes
         createdAt: Date.now(),
@@ -214,7 +199,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'foo-learn-to-fly',
         title: 'Learn to Fly',
         artist: 'Foo Fighters',
-        tags: ['rock', '90s', 'pop-rock'],
+        tags: ['Rock', '90s'],
         key: 'B',
         capo: 4, // G shapes
         createdAt: Date.now(),
@@ -230,7 +215,7 @@ And [D]I'll hear you [D7]scream again`
         id: 'foo-times-like-these',
         title: 'Times Like These',
         artist: 'Foo Fighters',
-        tags: ['rock', '00s', 'uplifting'],
+        tags: ['Rock', '00s'],
         key: 'D',
         capo: 0,
         createdAt: Date.now(),
@@ -247,7 +232,7 @@ I'm a wild light [C]blinding bright, burning off a[Em]lone [D]`
         id: 'gd-basket-case',
         title: 'Basket Case',
         artist: 'Green Day',
-        tags: ['punk', '90s', 'rock'],
+        tags: ['Rock', '90s', 'Punk'],
         key: 'Eb', // Usually Eb tuning, play in E
         capo: 0,
         createdAt: Date.now(),
@@ -266,7 +251,7 @@ No doubt a[B]bout it`
         id: 'gd-good-riddance',
         title: 'Good Riddance (Time of Your Life)',
         artist: 'Green Day',
-        tags: ['punk', '90s', 'acoustic'],
+        tags: ['Rock', '90s', 'Acoustic'],
         key: 'G',
         capo: 0,
         createdAt: Date.now(),
@@ -281,7 +266,7 @@ No doubt a[B]bout it`
         id: 'gd-when-i-come-around',
         title: 'When I Come Around',
         artist: 'Green Day',
-        tags: ['punk', '90s', 'rock'],
+        tags: ['Rock', '90s', 'Punk'],
         key: 'Gb',
         capo: 2, // Play in E likely, or G shapes
         createdAt: Date.now(),
@@ -296,7 +281,7 @@ No doubt a[B]bout it`
         id: 'gd-boulevard',
         title: 'Boulevard of Broken Dreams',
         artist: 'Green Day',
-        tags: ['punk', '00s', 'ballad'],
+        tags: ['Rock', '00s'],
         key: 'Fm',
         capo: 1, // Em shapes
         createdAt: Date.now(),
@@ -311,7 +296,7 @@ Don't know [G]where it goes
         id: 'gd-wake-me-up',
         title: 'Wake Me Up When September Ends',
         artist: 'Green Day',
-        tags: ['punk', '00s', 'acoustic'],
+        tags: ['Rock', '00s', 'Acoustic'],
         key: 'G',
         capo: 0,
         createdAt: Date.now(),
@@ -324,25 +309,10 @@ Don't know [G]where it goes
 
     // WEEZER
     {
-        id: 'weezer-say-it-aint-so',
-        title: 'Say It Ain\'t So',
-        artist: 'Weezer',
-        tags: ['rock', '90s', 'alternative'],
-        key: 'Eb', // Half step down
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{start_of_verse}
-[Cm]Oh [G]yeah. [Ab]Alright [Eb]
-[Cm]Someone's [G]Heine' [Ab]is crowdin' my [Eb]icebox
-[Cm]Somebody's [G]cold [Ab]one is givin' me [Eb]chills
-[Cm]Guess I'll just [G]close my [Ab]eyes [Eb]`
-    },
-    {
         id: 'weezer-island-in-the-sun',
         title: 'Island in the Sun',
         artist: 'Weezer',
-        tags: ['rock', '00s', 'pop'],
+        tags: ['Rock', '00s'],
         key: 'Em',
         capo: 0,
         createdAt: Date.now(),
@@ -359,7 +329,7 @@ Don't know [G]where it goes
         id: 'weezer-buddy-holly',
         title: 'Buddy Holly',
         artist: 'Weezer',
-        tags: ['rock', '90s', 'power-pop'],
+        tags: ['Rock', '90s'],
         key: 'F#',
         capo: 2, // E shapes
         createdAt: Date.now(),
@@ -374,7 +344,7 @@ Don't know [G]where it goes
         id: 'weezer-undone',
         title: 'Undone - The Sweater Song',
         artist: 'Weezer',
-        tags: ['rock', '90s', 'alternative'],
+        tags: ['Rock', '90s'],
         key: 'F#', // Half step down G
         capo: 0,
         createdAt: Date.now(),
@@ -388,25 +358,10 @@ Don't know [G]where it goes
 
     // RADIOHEAD
     {
-        id: 'radiohead-creep',
-        title: 'Creep',
-        artist: 'Radiohead',
-        tags: ['rock', '90s', 'classic'],
-        key: 'G',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{start_of_verse}
-[G]When you were here be[B]fore
-Couldn't look you in the [C]eye
-You're just like an [Cm]angel
-Your skin makes me cry`
-    },
-    {
         id: 'radiohead-karma-police',
         title: 'Karma Police',
         artist: 'Radiohead',
-        tags: ['rock', '90s', 'alternative'],
+        tags: ['Rock', '90s'],
         key: 'Am', // Starts Am D F G
         capo: 0,
         createdAt: Date.now(),
@@ -421,7 +376,7 @@ He's [Em]like a de[G]tuned ra[Am]dio`
         id: 'radiohead-high-and-dry',
         title: 'High and Dry',
         artist: 'Radiohead',
-        tags: ['rock', '90s', 'acoustic'],
+        tags: ['Rock', '90s', 'Acoustic'],
         key: 'E', // F#m11 A E
         capo: 0,
         createdAt: Date.now(),
@@ -437,7 +392,7 @@ Don't you [E]boy?
         id: 'radiohead-fake-plastic-trees',
         title: 'Fake Plastic Trees',
         artist: 'Radiohead',
-        tags: ['rock', '90s', 'acoustic'],
+        tags: ['Rock', '90s', 'Acoustic'],
         key: 'A',
         capo: 0,
         createdAt: Date.now(),
@@ -451,7 +406,7 @@ In the [A]fake [F#m]plas[D]tic earth`
         id: 'radiohead-no-surprises',
         title: 'No Surprises',
         artist: 'Radiohead',
-        tags: ['rock', '90s', 'lullaby'],
+        tags: ['Rock', '90s'],
         key: 'F', // Capo 1 E
         capo: 1,
         createdAt: Date.now(),
@@ -464,25 +419,10 @@ A job that [A]slowly kills you
 
     // OASIS (Requested 90s context usually implies britpop too)
     {
-        id: 'oasis-wonderwall',
-        title: 'Wonderwall',
-        artist: 'Oasis',
-        tags: ['rock', '90s', 'britpop'],
-        key: 'F#m',
-        capo: 2, // Em shapes
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{start_of_verse}
-[Em7]Today is [G]gonna be the day
-That they're [D]gonna throw it back to [A7sus4]you
-[Em7]By now you [G]should've somehow
-Rea[D]lized what you gotta [A7sus4]do`
-    },
-    {
         id: 'oasis-dont-look-back',
         title: 'Don\'t Look Back in Anger',
         artist: 'Oasis',
-        tags: ['rock', '90s', 'britpop'],
+        tags: ['Rock', '90s'],
         key: 'C',
         capo: 0,
         createdAt: Date.now(),
@@ -499,7 +439,7 @@ But all the [E]things that you've [F]seen
         id: 'oasis-champagne-supernova',
         title: 'Champagne Supernova',
         artist: 'Oasis',
-        tags: ['rock', '90s', 'britpop'],
+        tags: ['Rock', '90s'],
         key: 'A',
         capo: 0,
         createdAt: Date.now(),
@@ -516,7 +456,7 @@ But all the [E]things that you've [F]seen
         id: 'oasis-live-forever',
         title: 'Live Forever',
         artist: 'Oasis',
-        tags: ['rock', '90s', 'britpop'],
+        tags: ['Rock', '90s'],
         key: 'G',
         capo: 0,
         createdAt: Date.now(),
@@ -530,7 +470,7 @@ How your garden [C]grows
         id: 'oasis-supersonic',
         title: 'Supersonic',
         artist: 'Oasis',
-        tags: ['rock', '90s', 'britpop'],
+        tags: ['Rock', '90s'],
         key: 'F#m',
         capo: 2,
         createdAt: Date.now(),

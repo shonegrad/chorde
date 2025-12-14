@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
 import type { Song } from '../types';
+import {
+    TextField,
+    Button,
+    Stack,
+    Typography,
+    Container,
+    Paper
+} from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 interface SongEditorProps {
     initialSong?: Song;
@@ -32,53 +43,97 @@ export const SongEditor: React.FC<SongEditorProps> = ({ initialSong, onSave, onC
     };
 
     return (
-        <div style={{ padding: '2rem', height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <h2 style={{ marginBottom: '1rem' }}>{initialSong ? 'Edit Song' : 'New Song'}</h2>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
-                <div className="flex gap-4">
-                    <input
-                        placeholder="Title"
+        <Container maxWidth="lg" sx={{ py: 4, height: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="h4" component="h2" gutterBottom fontWeight="bold">
+                {initialSong ? 'Edit Song' : 'New Song'}
+            </Typography>
+
+            <Paper
+                component="form"
+                onSubmit={handleSubmit}
+                variant="outlined"
+                sx={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    p: 3,
+                    gap: 3,
+                    bgcolor: 'background.paper'
+                }}
+            >
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                    <TextField
+                        label="Title"
                         value={title}
                         onChange={e => setTitle(e.target.value)}
                         required
-                        style={{ flex: 1 }}
+                        fullWidth
+                        variant="outlined"
                     />
-                    <input
-                        placeholder="Artist"
+                    <TextField
+                        label="Artist"
                         value={artist}
                         onChange={e => setArtist(e.target.value)}
                         required
-                        style={{ flex: 1 }}
+                        fullWidth
+                        variant="outlined"
                     />
-                </div>
-                <textarea
+                </Stack>
+
+                <TextField
+                    label="song content"
                     placeholder="[Am]Type your song [C]here..."
                     value={content}
                     onChange={e => setContent(e.target.value)}
-                    style={{
+                    multiline
+                    fullWidth
+                    sx={{
                         flex: 1,
-                        fontFamily: 'var(--font-mono)',
-                        resize: 'none'
+                        '& .MuiInputBase-root': {
+                            height: '100%',
+                            alignItems: 'flex-start',
+                            fontFamily: 'monospace'
+                        }
                     }}
+                    InputProps={{
+                        sx: { fontFamily: 'monospace' }
+                    }}
+                    required
                 />
-                <div className="flex justify-between items-center">
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button type="button" onClick={onCancel}>Cancel</button>
+
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="outlined"
+                            startIcon={<CancelIcon />}
+                            onClick={onCancel}
+                        >
+                            Cancel
+                        </Button>
+
                         {initialSong && onDelete && (
-                            <button
-                                type="button"
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                startIcon={<DeleteIcon />}
                                 onClick={handleDelete}
-                                style={{ color: 'var(--danger-color)', border: '1px solid var(--danger-color)', background: 'transparent' }}
                             >
                                 Delete
-                            </button>
+                            </Button>
                         )}
-                    </div>
-                    <button type="submit" style={{ background: 'var(--primary-color)', color: '#000', padding: '0.5rem 1rem', borderRadius: '4px' }}>
+                    </Stack>
+
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        startIcon={<SaveIcon />}
+                    >
                         Save Song
-                    </button>
-                </div>
-            </form>
-        </div>
+                    </Button>
+                </Stack>
+            </Paper>
+        </Container>
     );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from '@mui/material/styles';
 import { CHORD_LIBRARY } from '../data/chordLibrary';
 
 interface ChordTabProps {
@@ -8,6 +9,7 @@ interface ChordTabProps {
 }
 
 export const ChordTab: React.FC<ChordTabProps> = React.memo(({ chord, width = 80, showLabels = false }) => {
+    const theme = useTheme();
     // Find chord data from the Record
     const chordData = CHORD_LIBRARY[chord];
 
@@ -39,8 +41,8 @@ export const ChordTab: React.FC<ChordTabProps> = React.memo(({ chord, width = 80
                                 x={2}
                                 y={y + 3.5}
                                 fontSize={8}
-                                fill="var(--text-muted)"
-                                fontFamily="var(--font-mono)"
+                                fill={theme.palette.text.secondary}
+                                fontFamily={theme.typography.mono.fontFamily}
                                 fontWeight="600"
                             >
                                 {stringName}
@@ -53,7 +55,7 @@ export const ChordTab: React.FC<ChordTabProps> = React.memo(({ chord, width = 80
                             y1={y}
                             x2={width + leftMargin}
                             y2={y}
-                            stroke="#555"
+                            stroke={theme.palette.divider}
                             strokeWidth="1"
                         />
 
@@ -62,10 +64,10 @@ export const ChordTab: React.FC<ChordTabProps> = React.memo(({ chord, width = 80
                             x={leftMargin + (width / 2)}
                             y={y + 4}
                             fontSize={11}
-                            fill={fret === 'x' ? '#888' : 'var(--primary-color)'}
+                            fill={fret === 'x' ? theme.palette.text.disabled : theme.palette.primary.main}
                             textAnchor="middle"
                             fontWeight="bold"
-                            fontFamily="var(--font-mono)"
+                            fontFamily={theme.typography.mono.fontFamily}
                         >
                             {fretDisplay}
                         </text>
