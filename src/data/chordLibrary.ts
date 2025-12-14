@@ -483,6 +483,14 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
             { frets: [5, 5, 7, 7, 8, 5], fingers: [1, 1, 2, 3, 4, 1], barres: [5], suffix: 'barre' },
         ]
     },
+    'D7sus4': {
+        name: 'D7sus4',
+        fullName: 'D7 Suspended 4th',
+        variations: [
+            { frets: ['x', 'x', 0, 2, 1, 3], fingers: ['x', 'x', 0, 2, 1, 3], suffix: 'open' },
+            { frets: [5, 5, 7, 5, 8, 5], fingers: [1, 1, 3, 1, 4, 1], barres: [5], suffix: 'barre' },
+        ]
+    },
     'Db': {
         name: 'Db',
         fullName: 'D♭ Major',

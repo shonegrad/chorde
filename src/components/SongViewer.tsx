@@ -45,9 +45,11 @@ interface SongViewerProps {
     song: Song;
     onClose: () => void;
     onEdit: () => void;
+    onTagClick?: (tag: string) => void;
+    onArtistClick?: (artist: string) => void;
 }
 
-export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit }) => {
+export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, onTagClick, onArtistClick }) => {
     const theme = useTheme();
     const [transpose, setTranspose] = useState(0);
     const [fontSize, setFontSize] = useState(20);
@@ -323,10 +325,30 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit })
                 <Container maxWidth="md">
                     <Box sx={{ textAlign: 'center', mb: 4 }}>
                         <Typography variant="h3" fontWeight="bold" gutterBottom>{song.title}</Typography>
-                        <Typography variant="h5" color="text.secondary" gutterBottom>{song.artist}</Typography>
+                        <Tooltip title="View all songs by this artist">
+                            <Typography
+                                variant="h5"
+                                color="text.secondary"
+                                gutterBottom
+                                sx={{
+                                    cursor: onArtistClick ? 'pointer' : 'default',
+                                    '&:hover': onArtistClick ? { color: 'primary.main', textDecoration: 'underline' } : {}
+                                }}
+                                onClick={() => onArtistClick && onArtistClick(song.artist)}
+                            >
+                                {song.artist}
+                            </Typography>
+                        </Tooltip>
                         <Stack direction="row" spacing={1} justifyContent="center" sx={{ mt: 2 }}>
                             {song.tags?.map(tag => (
-                                <Chip key={tag} label={`#${tag}`} variant="outlined" size="small" />
+                                <Chip
+                                    key={tag}
+                                    label={`#${tag}`}
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={onTagClick ? () => onTagClick(tag) : undefined}
+                                    sx={{ cursor: onTagClick ? 'pointer' : 'default' }}
+                                />
                             ))}
                         </Stack>
                         {capo > 0 && (

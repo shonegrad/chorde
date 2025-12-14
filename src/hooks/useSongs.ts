@@ -5,10 +5,11 @@ import { SEED_SONGS } from '../data/seedSongs';
 import { ROCK_PACK } from '../data/rockPack';
 import { ROCK_PACK_2 } from '../data/rockPack2';
 import { JAZZ_PACK } from '../data/jazzPack';
+import { MIX_PACK } from '../data/mixPack';
 
 const STORAGE_KEY = 'chorde_songs';
 const VERSION_KEY = 'chorde_version';
-const CURRENT_VERSION = '2.2'; // Bumped to trigger refresh after adding more jazz songs
+const CURRENT_VERSION = '2.3'; // Bumped for Mix Pack
 
 export const useSongs = () => {
     const [songs, setSongs] = useState<Song[]>([]);
@@ -18,12 +19,13 @@ export const useSongs = () => {
         const storedVersion = localStorage.getItem(VERSION_KEY);
 
         // Get all default songs from source
-        const defaultSongs = [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2, ...JAZZ_PACK];
+        const defaultSongs = [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2, ...JAZZ_PACK, ...MIX_PACK];
         console.log('DEBUG: Pack lengths:', {
             SEED: SEED_SONGS.length,
             ROCK: ROCK_PACK.length,
             ROCK2: ROCK_PACK_2.length,
             JAZZ: JAZZ_PACK.length,
+            MIX: MIX_PACK.length,
             TOTAL: defaultSongs.length
         });
         const defaultSongIds = new Set(defaultSongs.map(s => s.id));

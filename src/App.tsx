@@ -13,18 +13,31 @@ function App() {
   const { songs, saveSong, deleteSong } = useSongs();
   const [view, setView] = useState<ViewState>('LIST');
   const [activeSong, setActiveSong] = useState<Song | undefined>(undefined);
+  const [filter, setFilter] = useState<{ type: 'tag' | 'artist' | 'key'; value: string } | null>(null);
+
+  const filteredSongs = filter
+    ? songs.filter((song) => {
+      if (filter.type === 'tag') return song.tags?.includes(filter.value);
+      if (filter.type === 'artist') return song.artist === filter.value;
+      if (filter.type === 'key') return song.key === filter.value;
+      return true;
+    })
+    : songs;
 
   const handleCreate = () => {
     setActiveSong(undefined);
     setView('EDIT');
+    setFilter(null);
   };
 
   const handleImportClick = () => {
     setView('IMPORT');
+    setFilter(null);
   };
 
   const handleChordsClick = () => {
     setView('CHORDS');
+    setFilter(null);
   };
 
   const handleSelect = (song: Song) => {
@@ -48,6 +61,30 @@ function App() {
     setView('LIST');
   };
 
+  const handleTagClick = (tag: string) => {
+    setFilter({ type: 'tag', value: tag });
+    setActiveSong(undefined);
+    setView('LIST');
+  };
+
+  const handleArtistClick = (artist: string) => {
+    setFilter({ type: 'artist', value: artist });
+    setActiveSong(undefined);
+    setView('LIST');
+  };
+
+  const handleKeySelect = (key: string) => {
+    if (key === 'All') {
+      setFilter(null);
+    } else {
+      setFilter({ type: 'key', value: key });
+    }
+  };
+
+  const handleClearFilter = () => {
+    setFilter(null);
+  };
+
   // Router switch
   if (view === 'PLAY' && activeSong) {
     return (
@@ -55,6 +92,8 @@ function App() {
         song={activeSong}
         onClose={handleBackToList}
         onEdit={handleEdit}
+        onTagClick={handleTagClick}
+        onArtistClick={handleArtistClick}
       />
     );
   }
@@ -92,11 +131,14 @@ function App() {
 
   return (
     <SongList
-      songs={songs}
+      songs={filteredSongs}
       onSelect={handleSelect}
       onCreate={handleCreate}
       onImportNav={handleImportClick}
       onChordsNav={handleChordsClick}
+      activeFilter={filter}
+      onClearFilter={handleClearFilter}
+      onKeySelect={handleKeySelect}
     />
   );
 }
