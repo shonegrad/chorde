@@ -724,5 +724,895 @@ Oh [F]you can [C7]see what [F]love has done to me`
 | [E7] | [E7] | [Am6] | [Am6] |
 | [Dm6] | [Dm6] | [Am6] | [Am6] |
 | [Bb7] | [E7] | [Am6] | [E7] |`
-    }
+    },
+    {
+        id: 'jazz-stella-by-starlight',
+        title: 'Stella by Starlight',
+        artist: 'Victor Young',
+        tags: ['Jazz', 'Standard'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Em7b5]The song [A7]a robin [Cm7]sings [F7]
+[Fm7]Through years [Bb7]of endless [Ebmaj7]springs [Ab7]
+[Bbmaj7]The murmur [Em7b5]of a [A7]brook at [Dm7]even[Bb7]tide
+[Ebmaj7]That ripples [Ab7]by a [Bb]nook [Em7]where [A7]two lovers [Dm7]hide [F7]
+
+[Em7b5]That great [A7]symphonic [Cm7]theme [F7]
+[Fm7]That's Stella [Bb7]by star[Ebmaj7]light [Ab7]
+[Bbmaj7]And not a [Em7b5]dream [A7]
+[Dm7]My [Bb7]heart and [Ebmaj7]I agree
+[Ebmaj7]She's [Em7b5]every[A7]thing on [Dm7]earth [Bdim7]to [Bbmaj7]me`
+    },
+    {
+        id: 'jazz-there-will-never-be',
+        title: 'There Will Never Be Another You',
+        artist: 'Harry Warren',
+        tags: ['Jazz', 'Standard'],
+        key: 'Eb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [Ebmaj7]There will be many[D7alt]other nights like this
+    [Gm7]And I'll be standing [C7]here with someone [Fm7]new
+    [Bb7]There will be other songs to[Ebmaj7]sing, another[Ab7]fall, another[G7]spring
+    [C7]But there will[F7]never be a[Fm7]nother[Bb7]you
+
+    [Ebmaj7]There will be other[D7alt]lips that I may kiss
+    [Gm7]But they won't thrill me [C7]like yours used to [Fm7]do [Abm7] [Db7]
+    [Ebmaj7]Yes, I may[Gm7]dream a[C7]million[Fm7]dreams
+But[Abm7]how can[Db7]they come[Ebmaj7]true
+If there will[Fm7]never[Bb7]be a[Ebmaj7]nother you`
+    },
+    {
+        id: 'jazz-have-you-met-miss-jones',
+        title: 'Have You Met Miss Jones?',
+        artist: 'Rodgers & Hart',
+        tags: ['Jazz', 'Standard', 'Swing'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Fmaj7]Have you [D7]met Miss [Gm7]Jones? [C7]
+[Am7]Someone [Dm7]said as we [Gm7]shook [C7]hands
+[Am7]She was [Dm7]just Miss [Gm7]Jones [C7]to [Fmaj7]me [E7]
+
+[Am7]Then I [D7]said Miss [Gm7]Jones [C7]
+[Am7]You're a [Dm7]girl who [Gm7]under[C7]stands
+[Am7]I'm a [Abm7]man who [Gm7]must [C7]be [Fmaj7]free
+
+[Cm7]And [F7]all at [Bbmaj7]once I lost my [Gm7]breath
+And [Cm7]all at [F7]once was [Bbmaj7]scared to [Dm7]death
+And [G7]all at [Cmaj7]once I [Am7]owned the [Dm7]earth and [G7]sky
+
+[Am7]Now I've [D7]met Miss [Gm7]Jones [C7]
+[Am7]And we'll [Dm7]keep on [Gm7]meeting [C7]till we [Fmaj7]die`
+    },
+    {
+        id: 'jazz-green-dolphin-street',
+        title: 'On Green Dolphin Street',
+        artist: 'Bronislau Kaper',
+        tags: ['Jazz', 'Standard'],
+        key: 'Eb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Ebmaj7]On Green [Ebmaj7]Dolphin Street
+[Gbmaj7]The world [Gbmaj7]is filled with love
+[Fmaj7]For near [Fmaj7]or far apart
+[Emaj7]I keep [Emaj7]you in my heart
+
+[Ebmaj7]And when [Cm7]I recall
+[Fm7]The love [Bb7]we found on
+[Ebmaj7]I could [Cm7]kiss the ground on
+[Fm7]Green [Bb7]Dolphin [Ebmaj7]Street`
+    },
+    {
+        id: 'jazz-softly-morning-sunrise',
+        title: 'Softly, as in a Morning Sunrise',
+        artist: 'Romberg/Hammerstein',
+        tags: ['Jazz', 'Standard'],
+        key: 'Cm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [Cm]Softly, [Am7b5] as in a[D7]morning[Gm]sunrise[G7]
+    [Cm]The light of[Am7b5]love comes[D7]stealing
+    [Gmaj7]Into a[Am7]newborn[D7]day
+
+    [Cm]Oh, softly, [Am7b5]brings in a[D7]morning[Gm]sunrise[G7]
+    [Cm]A golden[Am7b5]glow is[D7]waking
+    [Gmaj7]Into a[Am7]newborn[D7]day
+
+    [Cm7]And for the[F7]glow may[Bbmaj7]fade
+    [Cm7]Within the[F7]noon day[Bbmaj7]sun
+    [Am7]And unto[D7]evening[Gmaj7]shade[Am7]
+    [A7]Will wither[D7]when the day is done
+
+    [Cm]Softly, [Am7b5] as in a[D7]morning[Gm]sunrise[G7]
+    [Cm]The light of[Am7b5]love comes[D7]stealing
+    [Gmaj7]Into a[Am7]newborn[D7]day`
+    },
+    {
+        id: 'jazz-just-friends',
+        title: 'Just Friends',
+        artist: 'John Klenner',
+        tags: ['Jazz', 'Standard'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [Cmaj7]Just friends, [Cm7]lovers no[F7]more
+    [Gmaj7]Just friends, [Bbm7]but not like be[Eb7]fore
+    [Am7]To think of what we've [D7]been, and [Bm7]not to kiss a[E7]gain
+    [Am7]Seems like pretending, [D7]it isn't the ending
+
+    [Cmaj7]Two friends, [Cm7]drifting a[F7]part
+    [Gmaj7]Two friends, [Bbm7]but one broken[Eb7]heart
+    [Am7]We loved, we laughed, we[D7]cried
+    [Bm7]And suddenly love[E7]died
+    [Am7]The story ends, [D7]and we're just [Gmaj7]friends`
+    },
+    {
+        id: 'jazz-alone-together',
+        title: 'Alone Together',
+        artist: 'Arthur Schwartz',
+        tags: ['Jazz', 'Standard'],
+        key: 'Dm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Em7b5]Alone [A7]together, [Dm6]beyond the crowd
+[Em7b5]Above [A7]the world, [Dm6]we're not too proud
+[Bm7b5]To cling [E7]together, [Am6]we're strong
+[Em7b5]As long [A7]as we're [Dm6]together
+
+[Em7b5]Alone [A7]together, [Dm6]the blinding rain
+[Em7b5]The star [A7]scattered night, [Dm6]were made for vain
+[Bm7b5]For us [E7]together, [Am6]I pray
+[Em7b5]For us [A7]together, [Dm6]to stay
+
+[Am7]But our [D7]love is as [Gm7]deep as the [C7]sea
+[Gm7]Our love is as [C7]great as a [Fmaj7]love can be
+[Em7b5]And we can [A7]weather the [Dm]great un[Dm/C]known
+[Bm7b5]If we're a[E7]lone to[Am6]gether`
+    },
+    {
+        id: 'jazz-night-and-day',
+        title: 'Night and Day',
+        artist: 'Cole Porter',
+        tags: ['Jazz', 'Standard'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [Abmaj7]Night and day, [G7]you are the[Cmaj7]one
+    [Abmaj7]Only you beneath the[G7]moon and under the[Cmaj7]sun
+    [Fm7]Whether near to me or[Bb7]far, no matter[Cmaj7]where you are
+    [D7]I think of you[G7]night and[C]day
+
+    [Abmaj7]Day and night, [G7]why is it[Cmaj7]so
+    [Abmaj7]That this longing for you[G7]follows wherever I[Cmaj7]go
+    [Fm7]In the roaring traffic's [Bb7]boom, in the silence [Cmaj7]of my lonely room
+    [D7]I think of you[G7]night and[C]day
+
+    [Ebmaj7]Night and day, [G7]under the[Cmaj7]hide of me
+    [Ebmaj7]There's an oh such a hungry [G7]yearning burning in[Cmaj7]side of me
+    [Fm7]And its torment won't be [Bb7]through
+    [Fm7]Until you let me spend my [Bb7]life making love to [Em7]you [A7] [Dm7] [G7]
+Day and[C]night, night and day`
+    },
+    {
+        id: 'jazz-how-high-the-moon',
+        title: 'How High the Moon',
+        artist: 'Morgan Lewis',
+        tags: ['Jazz', 'Standard'],
+        key: 'G',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Gmaj7]Somewhere there's music, [Gmaj7]how faint the tune
+[Gm7]Somewhere there's heaven, [C7]how high the [Fmaj7]moon
+[Fm7]There is no [Bb7]moon above, [Ebmaj7]when love is far away too
+[Am7b5]Til it comes [D7]true, [Gmaj7]that you love me as I love you
+
+[Gmaj7]Somewhere there's music, [Gmaj7]it's where you are
+[Gm7]Somewhere there's heaven, [C7]how near, how [Fmaj7]far
+[Fm7]The darkest [Bb7]night would shine, [Ebmaj7]if you would come to me soon
+[Am7b5]Until you [D7]will, how still [Bm7]my [E7]heart, [Am7]how high [D7]the [Gmaj7]moon`
+    },
+    {
+        id: 'jazz-i-fall-in-love',
+        title: 'I Fall in Love Too Easily',
+        artist: 'Jule Styne',
+        tags: ['Jazz', 'Standard', 'Ballad'],
+        key: 'Eb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [Fm7]I fall in [Bb7]love too[Ebmaj7]easily
+    [Fm7]I fall in [Bb7]love too[Ebmaj7]fast
+    [Fm7]I fall in [Bb7]love too[Ebmaj7]terribly[Ab7]hard
+    [Gm7]For love to[C7]ever[Fm7]last[Bb7]
+
+    [Fm7]My heart should[Bb7]be well - [Ebmaj7]schooled
+    'Cause I've been[Am7b5]fooled[D7] in the[Gm7]past
+    [Abm7]But still[Db7]I fall in [Gm7]love so[C7]easily
+    [Fm7]I fall in [Bb7]love too[Ebmaj7]fast`
+    },
+    {
+        id: 'jazz-my-romance',
+        title: 'My Romance',
+        artist: 'Rodgers & Hart',
+        tags: ['Jazz', 'Standard'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [Bbmaj7]My romance[Cm7]doesn't have to [F7]have a [Bbmaj7]moon in the sky
+    [Bbmaj7]My romance[Cm7]doesn't need a [F7]blue la[Bbmaj7]goon standing by
+    [Gm7]No month of[C7]May, [Fmaj7]no twinkling[Bbmaj7]stars
+    [Am7b5]No hide a[D7]way, [Gm7]no soft gui[C7]tars[F7]
+
+    [Bbmaj7]My romance[Cm7]doesn't need a [F7]castle [Bbmaj7]rising in Spain
+    [Bbmaj7]Nor a dance[Cm7]to a constantly[F7]surprising[Dm7b5]refrain[G7]
+    [Cm7]Wide awake I can[C#dim7]make my most[Dm7]fantastic dreams come[G7]true
+    [Cm7]My romance[F7]doesn't need a [Bb]thing but you`
+    },
+    {
+        id: 'jazz-days-of-wine',
+        title: 'Days of Wine and Roses',
+        artist: 'Henry Mancini',
+        tags: ['Jazz', 'Standard'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Fmaj7]The days of [Eb7]wine and [D7]roses
+[Gm7]Laugh and run a[Bbm7]way [Eb7]like a [Am7]child at [D7]play
+[Gm7]Through the meadow [C7]land towards a [Am7]closing [D7]door
+[Gm7]A door marked never[C7]more
+
+[Fmaj7]The lonely [Eb7]night dis[D7]closes
+[Gm7]Just a passing [Bbm7]breeze [Eb7]filled with [Am7]memories [D7]
+[Gm7]Of the golden [Bbm7]smile [Eb7]that intro[Am7]duced me [D7]to
+[Gm7]The days of [C7]wine and [Fmaj7]roses and you`
+    },
+    {
+        id: 'jazz-corcovado',
+        title: 'Corcovado (Quiet Nights)',
+        artist: 'Jobim',
+        tags: ['Jazz', 'Bossa Nova'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [Am6]Quiet nights of quiet stars
+    [Abdim7]Quiet chords from my guitar
+    [Gm7]Floating on the[C7]silence that sur[Fmaj7]rounds us
+
+    [Fm7]Quiet thoughts and[Bb7]quiet dreams
+    [Em7]Quiet walks by[A7]quiet streams
+    [Am7]And a window[D7]looking on the[Dm7]mountains and the[G7]sea, how lovely
+
+    [Am6]This is where I want to be
+    [Abdim7]Here with you so close to me
+    [Gm7]Until the[C7]final flicker[Fmaj7]of life's ember
+
+    [Fm7]I who was[Bb7]lost and[Em7]lonely
+    [Am7]Believing[Dm7]life was[G7]only
+    [Em7]A bitter[Am7]tragic[Dm7]joke, have[G7]found with [C]you
+    [Dm7]The meaning[G7]of ex[C]istence, oh my love`
+    },
+    {
+        id: 'jazz-desafinado',
+        title: 'Desafinado',
+        artist: 'Jobim',
+        tags: ['Jazz', 'Bossa Nova'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Fmaj7]Se você disser que eu desa[G7]fino amor
+[Gm7]Saiba que isso em mim provoca [C7]imensa dor
+[Am7b5]Só privilegia[D7]dos têm ou[Gm7]vido igual ao [C7]seu
+[Fmaj7]Eu possuo apenas o que [G7]Deus me deu
+
+[Fmaj7]Se você insiste em classi[G7]ficar
+[Gm7]Meu comportamento de anti-[C7]musical
+[Am7b5]Eu, mesmo men[D7]tindo devo [Gm7]argu[C7]mentar
+[Fmaj7]Que isto é bossa nova, isto é [G7]muito natural
+
+[Bbmaj7]O que você não sabe nem se[Bbm7]quer pressente
+[Am7]É que os desafina[D7]dos também [Abm7]têm um cora[Db7]ção
+[Gm7]Fotografei você na [C7]minha Rolleiflex
+[Am7]Revelou-se a [D7]sua enorme in[G7]gratidão [C7]
+
+[Fmaj7]Só não poderá falar as[G7]sim do meu amor
+[Gm7]Ele é o maior [C7]que você [Am7b5]pode encon[D7]trar, viu?
+[Gm7]Você com a sua [Bbm6]música es[Am7]queceu o princi[D7]pal
+[Gm7]Que no peito dos [G7]desafinados
+[Gm7]No fundo do peito [C7]bate calado
+[Am7b5]Que no peito dos [D7]desafinados
+[Gm7]Também bate [C7]um cora[Fmaj7]ção`
+    },
+    {
+        id: 'jazz-wave',
+        title: 'Wave',
+        artist: 'Jobim',
+        tags: ['Jazz', 'Bossa Nova'],
+        key: 'D',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [Dmaj7]Vou te con[B7b13]tar
+    Os[Emaj7]olhos já não podem[Bb7]ver
+    [Am7]Coisas que[D7]só o co[Gmaj7]ração pode en[Gm6]tender
+    [F#7]Fundamental é[B7b9]mesmo o amor
+    [E7]É impos[Bb7]sível ser fe[A7]liz so[Dmaj7]zinho
+
+    [Dmaj7]O resto é[B7b13]mar
+    É[Emaj7]tudo que eu não sei[Bb7]contar
+    [Am7]São coisas[D7]lindas que eu[Gmaj7]tenho pra te[Gm6]dar
+    [F#7]Vem de man[B7b9]sinho à bri[E7]sa e me[A7]diz
+    [Am7]É impos[D7]sível ser fe[Gmaj7]liz so[C7]zinho
+
+    [F#m7]Da primeira[Fdim7]vez era a ci[Em7]dade[A7]
+    [F#m7]Da segunda, o[Fdim7]cais e a eterni[Em7]dade[A7]
+    [F#m7]Agora eu já[B7]sei
+    [E7]Da onda que se ergueu no mar
+    [E7]E das estrelas que esquecemos de contar
+
+    [Dmaj7]O amor se[B7b13]deixa sur[Emaj7]preen[Bb7]der
+    [Am7]Enquanto a[D7]noite vem nos[Gmaj7]envol[Gm6]ver
+    [F#7]Doce ines[B7b9]perado o a[E7]mor
+    [A7]É impos[Dmaj7]sível ser feliz sozinho`
+    },
+    {
+        id: 'jazz-how-insensitive',
+        title: 'How Insensitive',
+        artist: 'Jobim',
+        tags: ['Jazz', 'Bossa Nova'],
+        key: 'Dm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Dm9]How insensitive [Dbdim7]I must have seemed
+[Cm6]When she told me that [G7/B]she loved me
+[Bbmaj7]How unmoved and [Ebmaj7]cold I must have been
+[Em7b5]When she told me so [A7alt]sincerely
+
+[Dm9]Why, she must have [Dbdim7]asked
+[Cm6]Did I just turn and [G7/B]stare in icy silence?
+[Bbmaj7]What was I to [Ebmaj7]say?
+[Em7b5]What can you say [A7alt]when a love affair is [Dm]over?`
+    },
+    {
+        id: 'jazz-meditation',
+        title: 'Meditation',
+        artist: 'Jobim',
+        tags: ['Jazz', 'Bossa Nova'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [Cmaj7]In my loneliness
+    [B7]When you're gone and I'm all by myself
+    [Dm7]And I need your ca[G7]ress
+    [Cmaj7]I just think of you
+
+    [Cmaj7]And the thought of you
+    [B7]Holding me, looking into my eyes
+    [Dm7]Is all I need to[G7]sigh
+    [Cmaj7]I just think of you
+
+    [Gm7]Yes, I[C7]love you[Fmaj7]so
+    [Fm7]And that for [Bb7]me is all I[Ebmaj7]need to know[G7]
+    [Cmaj7]I will wait for you
+    [B7]Till the sun falls from out of the sky
+    [Dm7]For what else can I[G7]do
+        [Cmaj7]I will wait for you`
+    },
+    {
+        id: 'jazz-triste',
+        title: 'Triste',
+        artist: 'Jobim',
+        tags: ['Jazz', 'Bossa Nova'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+        [Bbmaj7]Sad is to live in [Gbmaj7]solitude
+        [B7]Far from your[Bbmaj7]tranquil altitude
+        [Gm7]Sad is to know that[C7]no one ever can[Am7]live on a[D7]dream
+        [Gm7]That never can[C7]be, will never[Cm7]be[F7]
+
+        [Bbmaj7]Dreamer awake, [Gbmaj7]wake up and see
+        [B7]Your beauty is[Bbmaj7]an aerie
+        [Gm7]High above this[C7]lane where lonely[Am7]lovers walk[D7]by
+        [Gm7]Sad as a[C7]sigh, sad as a[Bbmaj7]sigh`
+    },
+    {
+        id: 'jazz-one-note-samba',
+        title: 'One Note Samba',
+        artist: 'Jobim',
+        tags: ['Jazz', 'Bossa Nova'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{start_of_verse}
+[Dm7]This is just a little samba [Db7]built upon a single note
+[Cm7]Other notes are bound to follow [B7]but the root is still that note
+[Bbmaj7]Now this new note is the consequence [Bbm6]of the one we've just been through
+[Am7]As I'm bound to be the [D7]unavoidable conse[G7]quence of [C7]you
+
+[Fm7]There's so many people [Bb7]who can talk and talk and talk
+[Ebmaj7]And just say nothing, [Abmaj7]or nearly nothing
+[Dm7]I have used up all the [G7]scale I know and at the end
+[Cmaj7]I've come to nothing, [C#dim7]or nearly nothing
+
+[Dm7]So I came back to my first note [Db7]as I must come back to you
+[Cm7]I will pour into that one note [B7]all the love I feel for you
+[Bbmaj7]Anyone who wants the [Bbm6]whole show, Re Mi Fa Sol La Ti Do
+[Am7]He will find himself with [D7]no show, [G7]better play the note you [C7]know`
+    },
+    {
+        id: 'jazz-solar',
+        title: 'Solar',
+        artist: 'Miles Davis',
+        tags: ['Jazz', 'Standard'],
+        key: 'Cm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Cm6] | [Cm6] | [Gm7] | [C7] |
+| [Fmaj7] | [Fmaj7] | [Fm7] | [Bb7] |
+| [Ebmaj7] | [Ebmaj7] | [Ebm7] | [Ab7] |
+| [Dbmaj7] | [G7alt] | [Cm6] | [G7alt] | `
+    },
+    {
+        id: 'jazz-four',
+        title: 'Four',
+        artist: 'Miles Davis',
+        tags: ['Jazz', 'Bebop'],
+        key: 'Eb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Ebmaj7] | [Ebm7][Ab7] | [Fm7] | [Edim7] |
+| [Ebmaj7] | [A7] | [Abmaj7] | [Abm7][Db7] |
+| [Ebmaj7] | [Gbdim7] | [Fm7] | [Bb7] |
+| [Ebmaj7] | [Fm7][Bb7] | `
+    },
+    {
+        id: 'jazz-tune-up',
+        title: 'Tune Up',
+        artist: 'Miles Davis',
+        tags: ['Jazz', 'Bebop'],
+        key: 'D',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Em7] | [A7] | [Dmaj7] | [Dmaj7] |
+| [Dm7] | [G7] | [Cmaj7] | [Cmaj7] |
+| [Cm7] | [F7] | [Bbmaj7] | [Ebmaj7] |
+| [Em7] | [A7] | [Dmaj7] | [Dmaj7] | `
+    },
+    {
+        id: 'jazz-oleo',
+        title: 'Oleo',
+        artist: 'Sonny Rollins',
+        tags: ['Jazz', 'Bebop'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+Rhythm Changes in Bb(A Section)
+        | [Bb][Gm7] | [Cm7][F7] | [Bb][Gm7] | [Cm7][F7] |
+| [Bb][Bb7] | [Eb][Edim] | [Bb][F7] | [Bb] | `
+    },
+    {
+        id: 'jazz-anthropology',
+        title: 'Anthropology',
+        artist: 'Charlie Parker',
+        tags: ['Jazz', 'Bebop'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+Rhythm Changes in Bb(A Section)
+        | [Bb][G7] | [Cm7][F7] | [Bb][G7] | [Cm7][F7] |
+| [Fm7][Bb7] | [Eb][Ebm] | [Bb][F7] | [Bb] | `
+    },
+    {
+        id: 'jazz-donna-lee',
+        title: 'Donna Lee',
+        artist: 'Charlie Parker / Miles Davis',
+        tags: ['Jazz', 'Bebop'],
+        key: 'Ab',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Ab] | [F7] | [Bb7] | [Bb7] |
+| [Eb7] | [Eb7] | [Ab] | [Eb7] |
+| [Ab] | [F7] | [Bb7] | [Bb7] |
+| [C7] | [C7] | [Fm] | [C7b9] | `
+    },
+    {
+        id: 'jazz-confirmation',
+        title: 'Confirmation',
+        artist: 'Charlie Parker',
+        tags: ['Jazz', 'Bebop'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Fmaj7] | [Em7b5][A7] | [Dm7] | [Cm7][F7] |
+| [Bb7] | [Am7][D7] | [G7] | [Gm7][C7] |
+| [Fmaj7] | [Em7b5][A7] | [Dm7] | [Cm7][F7] |
+| [Bb7] | [Am7][D7] | [Gm7][C7] | [F] | `
+    },
+    {
+        id: 'jazz-yardbird-suite',
+        title: 'Yardbird Suite',
+        artist: 'Charlie Parker',
+        tags: ['Jazz', 'Bebop'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [C] | [Fm] | [C] | [Gm7][C7] |
+| [F] | [Fm6] | [C][Bb7] | [A7] |
+| [D7] | [D7] | [G7] | [G7] |
+| [C] | [C] | [C] | [C] | `
+    },
+    {
+        id: 'jazz-au-privave',
+        title: 'Au Privave',
+        artist: 'Charlie Parker',
+        tags: ['Jazz', 'Blues', 'Bebop'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [F7] | [Gm7][Am7] | [Cm7][F7] | [Bb7] |
+| [Bb7] | [Bdim] | [F][Am7] | [D7] |
+| [Gm7] | [C7] | [F][D7] | [Gm7][C7] | `
+    },
+    {
+        id: 'jazz-billies-bounce',
+        title: 'Billie\'s Bounce',
+        artist: 'Charlie Parker',
+        tags: ['Jazz', 'Blues', 'Bebop'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [F7] | [Bb7] | [F7] | [Cm7][F7] |
+| [Bb7] | [Bdim] | [F7] | [Am7][D7] |
+| [Gm7] | [C7] | [F7][D7] | [Gm7][C7] | `
+    },
+    {
+        id: 'jazz-nows-the-time',
+        title: 'Now\'s the Time',
+        artist: 'Charlie Parker',
+        tags: ['Jazz', 'Blues', 'Bebop'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [F7] | [Bb7] | [F7] | [F7] |
+| [Bb7] | [Bdim] | [F7] | [Am7][D7] |
+| [Gm7] | [C7] | [F7] | [C7] | `
+    },
+    {
+        id: 'jazz-night-in-tunisia',
+        title: 'A Night in Tunisia',
+        artist: 'Dizzy Gillespie',
+        tags: ['Jazz', 'Bebop', 'Latin'],
+        key: 'Dm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    A:
+| [Eb7] | [Dm6] | [Eb7] | [Dm6] |
+| [Eb7] | [Dm6] | [Em7b5] | [A7alt] |
+        Interlude:
+| [Em7b5] | [Eb7] | [Dm6] | [Dm6] | `
+    },
+    {
+        id: 'jazz-joy-spring',
+        title: 'Joy Spring',
+        artist: 'Clifford Brown',
+        tags: ['Jazz', 'Bebop'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+    [F] | [G7] | [Gm7][C7] | [F] |
+        [Fm7][Bb7] | [Eb] | [Abm7][Db7] | [Gb] |
+        [Am7][D7] | [G] | [Gm7][C7] | [F] | `
+    },
+    {
+        id: 'jazz-stolen-moments',
+        title: 'Stolen Moments',
+        artist: 'Oliver Nelson',
+        tags: ['Jazz', 'Minor Blues'],
+        key: 'Cm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Cm7] | [Cm7] | [Cm7] | [Cm7] |
+| [Fm7] | [Fm7] | [Cm7] | [Cm7] |
+| [Dm7b5] | [G7alt] | [Cm7] | [Cm7] | `
+    },
+    {
+        id: 'jazz-footprints',
+        title: 'Footprints',
+        artist: 'Wayne Shorter',
+        tags: ['Jazz', 'Modal', 'Blues'],
+        key: 'Cm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Cm11] | [Cm11] | [Cm11] | [Cm11] |
+| [Fm11] | [Fm11] | [Cm11] | [Cm11] |
+| [D7alt] | [Db7alt] | [Cm11] | [Cm11] | `
+    },
+    {
+        id: 'jazz-maiden-voyage',
+        title: 'Maiden Voyage',
+        artist: 'Herbie Hancock',
+        tags: ['Jazz', 'Modal'],
+        key: 'D',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [D9sus4] | [D9sus4] | [D9sus4] | [D9sus4] |
+| [F9sus4] | [F9sus4] | [F9sus4] | [F9sus4] |
+| [Eb9sus4] | [Eb9sus4] | [Eb9sus4] | [Eb9sus4] |
+| [Db9sus4] | [Db9sus4] | [D9sus4] | [D9sus4] | `
+    },
+    {
+        id: 'jazz-watermelon-man',
+        title: 'Watermelon Man',
+        artist: 'Herbie Hancock',
+        tags: ['Jazz', 'Funk', 'Blues'],
+        key: 'F',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [F7] | [F7] | [F7] | [F7] |
+| [Bb7] | [Bb7] | [F7] | [F7] |
+| [C7] | [Bb7] | [F7] | [C7] | `
+    },
+    {
+        id: 'jazz-song-for-my-father',
+        title: 'Song for My Father',
+        artist: 'Horace Silver',
+        tags: ['Jazz', 'Latin', 'Hard Bop'],
+        key: 'Fm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Fm9] | [Fm9] | [Eb9] | [Eb9] |
+| [Db9] | [C7alt] | [Fm9] | [Fm9] | `
+    },
+    {
+        id: 'jazz-nicas-dream',
+        title: 'Nica\'s Dream',
+        artist: 'Horace Silver',
+        tags: ['Jazz', 'Hard Bop', 'Latin'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Bbm(maj7)] | [Abm7][Db7] | [Gbmaj7] | [F7alt] |
+| [Bbm(maj7)] | [Abm7][Db7] | [Gbmaj7] | [F7alt] | `
+    },
+    {
+        id: 'jazz-whisper-not',
+        title: 'Whisper Not',
+        artist: 'Benny Golson',
+        tags: ['Jazz', 'Hard Bop'],
+        key: 'Cm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Cm] | [Cm][A7b5] | [Dm7b5] | [G7alt] |
+| [Cm][C7] | [Fm][Bb7] | [Ebmaj7][Ab7] | [Dm7b5][G7] | `
+    },
+    {
+        id: 'jazz-moanin',
+        title: 'Moanin\'',
+        artist: 'Bobby Timmons',
+        tags: ['Jazz', 'Hard Bop', 'Soul Jazz'],
+        key: 'Fm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Fm] | [Fm] | [Fm] | [Fm] |
+| [Bbm] | [Bbm] | [Fm] | [Fm] |
+| [C7] | [Bb7] | [Fm] | [C7] | `
+    },
+    {
+        id: 'jazz-dat-dere',
+        title: 'Dat Dere',
+        artist: 'Bobby Timmons',
+        tags: ['Jazz', 'Soul Jazz'],
+        key: 'Cm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Cm7] | [Bb7] | [Am7][Ab7] | [G7] |
+| [Cm7] | [Bb7] | [Am7][Ab7] | [G7] | `
+    },
+    {
+        id: 'jazz-work-song',
+        title: 'Work Song',
+        artist: 'Nat Adderley',
+        tags: ['Jazz', 'Soul Jazz'],
+        key: 'Fm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Fm7] | [Fm7] | [Fm7] | [Fm7] |
+| [Fm7] | [Fm7] | [G7alt] | [C7alt] | `
+    },
+    {
+        id: 'jazz-mercy-mercy-mercy',
+        title: 'Mercy, Mercy, Mercy',
+        artist: 'Joe Zawinul',
+        tags: ['Jazz', 'Soul Jazz'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Bb] | [Eb/Bb] | [Bb] | [Eb/Bb] |
+| [Bb] | [Cm7] | [Dm7] | [Eb][F] |
+| [Bb] | [Bb] | [Bb] | [Bb] | `
+    },
+    {
+        id: 'jazz-the-sidewinder',
+        title: 'The Sidewinder',
+        artist: 'Lee Morgan',
+        tags: ['Jazz', 'Soul Jazz', 'Blues'],
+        key: 'Eb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Eb7] | [Eb7] | [Eb7] | [Eb7] |
+| [Ab7] | [Ab7] | [Eb7] | [Eb7] |
+| [Fm7] | [Bb7] | [Eb7] | [Eb7] | `
+    },
+    {
+        id: 'jazz-chitlins-con-carne',
+        title: 'Chitlins Con Carne',
+        artist: 'Kenny Burrell',
+        tags: ['Jazz', 'Blues', 'Latin'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [C7] | [C7] | [C7] | [C7] |
+| [F7] | [F7] | [C7] | [C7] |
+| [Ab7] | [G7] | [C7] | [G7] | `
+    },
+    {
+        id: 'jazz-midnight-blue',
+        title: 'Midnight Blue',
+        artist: 'Kenny Burrell',
+        tags: ['Jazz', 'Blues'],
+        key: 'Fm',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Fm7] | [Fm7] | [Fm7] | [Fm7] |
+| [Bbm7] | [Bbm7] | [Fm7] | [Fm7] |
+| [Cm7] | [Bbm7] | [Fm7] | [C7] | `
+    },
+    {
+        id: 'jazz-in-a-mellow-tone',
+        title: 'In a Mellow Tone',
+        artist: 'Duke Ellington',
+        tags: ['Jazz', 'Swing'],
+        key: 'Ab',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Eb7] | [Eb7] | [Ab6] | [Ab6] |
+| [C7] | [C7] | [F7] | [F7] |
+| [Bb7] | [Bb7] | [Eb7] | [Eb7] |
+| [Ab6][Adim] | [Bbm7][Eb7] | [Ab6] | [Ab6] | `
+    },
+    {
+        id: 'jazz-perdido',
+        title: 'Perdido',
+        artist: 'Juan Tizol',
+        tags: ['Jazz', 'Swing'],
+        key: 'Bb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+B Section:
+| [D7] | [D7] | [G7] | [G7] |
+| [C7] | [C7] | [F7] | [F7] | `
+    },
+    {
+        id: 'jazz-c-jam-blues',
+        title: 'C Jam Blues',
+        artist: 'Duke Ellington',
+        tags: ['Jazz', 'Blues', 'Swing'],
+        key: 'C',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [C7] | [F7] | [C7] | [C7] |
+| [F7] | [F7] | [C7] | [C7] |
+| [G7] | [F7] | [C7] | [G7] | `
+    },
+    {
+        id: 'jazz-blue-train',
+        title: 'Blue Train',
+        artist: 'John Coltrane',
+        tags: ['Jazz', 'Blues', 'Hard Bop'],
+        key: 'Eb',
+        capo: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        content: `{ start_of_verse }
+| [Eb7] | [Eb7] | [Eb7] | [Eb7] |
+| [Ab7] | [Ab7] | [Eb7] | [Eb7] |
+| [Fm7] | [Bb7] | [Eb7] | [Bb7] | `
+    },
 ];

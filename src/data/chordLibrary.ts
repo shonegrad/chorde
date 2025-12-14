@@ -757,6 +757,382 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
             { frets: ['x', 'x', 6, 4, 'x', 'x'], fingers: ['x', 'x', 3, 1, 'x', 'x'], suffix: 'partial' },
         ]
     },
+
+    // JAZZ PACK ADDITIONS
+    'Bm7': {
+        name: 'Bm7',
+        fullName: 'B Minor 7th',
+        variations: [
+            { frets: ['x', 2, 4, 2, 3, 2], fingers: ['x', 1, 3, 1, 2, 1], barres: [2], suffix: 'barre' },
+            { frets: [7, 9, 7, 7, 7, 7], fingers: [1, 3, 1, 1, 1, 1], barres: [7], suffix: 'barre' }
+        ]
+    },
+    'F#m7': {
+        name: 'F#m7',
+        fullName: 'F# Minor 7th',
+        variations: [
+            { frets: [2, 4, 2, 2, 2, 2], fingers: [1, 3, 1, 1, 1, 1], barres: [2], suffix: 'barre' },
+            { frets: ['x', 9, 11, 9, 10, 9], fingers: ['x', 1, 3, 1, 2, 1], barres: [9], suffix: 'barre' }
+        ]
+    },
+    'Bbmaj7': {
+        name: 'Bbmaj7',
+        fullName: 'Bb Major 7th',
+        variations: [
+            { frets: ['x', 1, 3, 2, 3, 1], fingers: ['x', 1, 3, 2, 4, 1], barres: [1], suffix: 'barre' },
+            { frets: [6, 8, 7, 7, 6, 6], fingers: [1, 4, 2, 3, 1, 1], barres: [6], suffix: 'barre' }
+        ]
+    },
+    'Gbmaj7': {
+        name: 'Gbmaj7',
+        fullName: 'Gb Major 7th',
+        variations: [
+            { frets: [2, 4, 3, 3, 2, 2], fingers: [1, 4, 2, 3, 1, 1], barres: [2], suffix: 'barre' },
+            { frets: ['x', 9, 11, 10, 11, 9], fingers: ['x', 1, 3, 2, 4, 1], barres: [9], suffix: 'barre' }
+        ]
+    },
+    'Am7b5': {
+        name: 'Am7b5',
+        fullName: 'A Half-Diminished 7th',
+        variations: [
+            { frets: ['x', 0, 1, 0, 1, 'x'], fingers: ['x', 0, 1, 0, 2, 'x'], suffix: 'open' },
+            { frets: [5, 'x', 5, 5, 4, 'x'], fingers: [2, 'x', 3, 4, 1, 'x'], suffix: 'partial' }
+        ]
+    },
+    'Cm7b5': {
+        name: 'Cm7b5',
+        fullName: 'C Half-Diminished 7th',
+        variations: [
+            { frets: ['x', 3, 4, 3, 4, 'x'], fingers: ['x', 1, 2, 1, 3, 'x'], suffix: 'partial' },
+            { frets: [8, 'x', 8, 8, 7, 'x'], fingers: [2, 'x', 3, 4, 1, 'x'], suffix: 'partial' }
+        ]
+    },
+    'Abdim7': {
+        name: 'Abdim7',
+        fullName: 'Ab Diminished 7th',
+        variations: [
+            { frets: [4, 'x', 3, 4, 3, 'x'], fingers: [2, 'x', 1, 3, 1, 'x'], suffix: 'partial' }
+        ]
+    },
+    'Adim': {
+        name: 'Adim',
+        fullName: 'A Diminished',
+        variations: [
+            { frets: ['x', 0, 1, 2, 1, 'x'], fingers: ['x', 0, 1, 3, 2, 'x'], suffix: 'open' }
+        ]
+    },
+    'Bdim7': {
+        name: 'Bdim7',
+        fullName: 'B Diminished 7th',
+        variations: [
+            { frets: ['x', 2, 3, 1, 3, 'x'], fingers: ['x', 2, 3, 1, 4, 'x'], suffix: 'open' },
+            { frets: [7, 'x', 6, 7, 6, 'x'], fingers: [2, 'x', 1, 3, 1, 'x'], suffix: 'partial' }
+        ]
+    },
+    'Bdim': {
+        name: 'Bdim',
+        fullName: 'B Diminished',
+        variations: [
+            { frets: ['x', 2, 4, 4, 3, 'x'], fingers: ['x', 1, 3, 4, 2, 'x'], suffix: 'barre' }
+        ]
+    },
+    'C#dim7': {
+        name: 'C#dim7',
+        fullName: 'C# Diminished 7th',
+        variations: [
+            { frets: ['x', 4, 5, 3, 5, 'x'], fingers: ['x', 2, 3, 1, 4, 'x'], suffix: 'partial' }
+        ]
+    },
+    'C#dim': {
+        name: 'C#dim',
+        fullName: 'C# Diminished',
+        variations: [
+            { frets: ['x', 4, 2, 0, 'x', 'x'], fingers: ['x', 3, 1, 0, 'x', 'x'], suffix: 'open' }
+        ]
+    },
+    'Ddim7': {
+        name: 'Ddim7',
+        fullName: 'D Diminished 7th',
+        variations: [
+            { frets: ['x', 'x', 0, 1, 0, 1], fingers: ['x', 'x', 0, 1, 0, 2], suffix: 'open' },
+            { frets: ['x', 5, 6, 4, 6, 'x'], fingers: ['x', 2, 3, 1, 4, 'x'], suffix: 'partial' }
+        ]
+    },
+    'Dbdim7': {
+        name: 'Dbdim7',
+        fullName: 'Db Diminished 7th',
+        variations: [
+            { frets: ['x', 4, 5, 3, 5, 'x'], fingers: ['x', 2, 3, 1, 4, 'x'], suffix: 'partial' }
+        ]
+    },
+    'Edim': {
+        name: 'Edim',
+        fullName: 'E Diminished',
+        variations: [
+            { frets: [0, 1, 2, 0, 'x', 'x'], fingers: [0, 1, 2, 0, 'x', 'x'], suffix: 'open' }
+        ]
+    },
+    'Fdim7': {
+        name: 'Fdim7',
+        fullName: 'F Diminished 7th',
+        variations: [
+            { frets: [1, 'x', 0, 1, 0, 'x'], fingers: [2, 'x', 0, 3, 1, 'x'], suffix: 'partial' }
+        ]
+    },
+    'Gbdim7': {
+        name: 'Gbdim7',
+        fullName: 'Gb Diminished 7th',
+        variations: [
+            { frets: [2, 'x', 1, 2, 1, 'x'], fingers: [2, 'x', 1, 3, 1, 'x'], suffix: 'partial' }
+        ]
+    },
+    'Ab6': {
+        name: 'Ab6',
+        fullName: 'Ab Major 6th',
+        variations: [
+            { frets: [4, 6, 4, 5, 6, 4], fingers: [1, 3, 1, 2, 4, 1], barres: [4], suffix: 'barre' }
+        ]
+    },
+    'Bbm6': {
+        name: 'Bbm6',
+        fullName: 'Bb Minor 6th',
+        variations: [
+            { frets: ['x', 1, 3, 0, 2, 1], fingers: ['x', 1, 3, 0, 2, 1], suffix: 'open' },
+            { frets: [6, 8, 8, 6, 8, 6], fingers: [1, 3, 4, 1, 4, 1], barres: [6], suffix: 'barre' }
+        ]
+    },
+    'Fm6': {
+        name: 'Fm6',
+        fullName: 'F Minor 6th',
+        variations: [
+            { frets: [1, 3, 1, 1, 3, 1], fingers: [1, 3, 1, 1, 4, 1], barres: [1], suffix: 'barre' }
+        ]
+    },
+    'Gm6': {
+        name: 'Gm6',
+        fullName: 'G Minor 6th',
+        variations: [
+            { frets: [3, 5, 3, 3, 5, 3], fingers: [1, 3, 1, 1, 4, 1], barres: [3], suffix: 'barre' }
+        ]
+    },
+    'C/Bb': {
+        name: 'C/Bb',
+        fullName: 'C Major over Bb',
+        variations: [
+            { frets: ['x', 1, 2, 0, 1, 0], fingers: ['x', 1, 2, 0, 1, 0], suffix: 'bass variant' }
+        ]
+    },
+    'C7/G': {
+        name: 'C7/G',
+        fullName: 'C7 over G',
+        variations: [
+            { frets: [3, 3, 2, 3, 1, 0], fingers: [3, 4, 2, 4, 1, 0], suffix: 'bass variant' }
+        ]
+    },
+    'Dm/C': {
+        name: 'Dm/C',
+        fullName: 'D Minor over C',
+        variations: [
+            { frets: ['x', 3, 0, 2, 3, 1], fingers: ['x', 3, 0, 2, 4, 1], suffix: 'bass variant' }
+        ]
+    },
+    'Eb/Bb': {
+        name: 'Eb/Bb',
+        fullName: 'Eb Major over Bb',
+        variations: [
+            { frets: ['x', 1, 1, 3, 4, 3], fingers: ['x', 1, 1, 2, 4, 3], barres: [1], suffix: 'bass variant' }
+        ]
+    },
+    'Ebm7/Ab': {
+        name: 'Ebm7/Ab',
+        fullName: 'Ebm7 over Ab',
+        variations: [
+            { frets: [4, 6, 4, 6, 4, 4], fingers: [1, 3, 1, 4, 1, 1], barres: [4], suffix: 'Ab9sus4 equiv' }
+        ]
+    },
+    'F/A': {
+        name: 'F/A',
+        fullName: 'F Major over A',
+        variations: [
+            { frets: ['x', 0, 3, 2, 1, 1], fingers: ['x', 0, 3, 2, 1, 1], suffix: 'open' }
+        ]
+    },
+    'Fm/Ab': {
+        name: 'Fm/Ab',
+        fullName: 'F Minor over Ab',
+        variations: [
+            { frets: [4, 3, 3, 5, 'x', 'x'], fingers: [2, 1, 1, 3, 'x', 'x'], suffix: 'open' }
+        ]
+    },
+    'G7/B': {
+        name: 'G7/B',
+        fullName: 'G7 over B',
+        variations: [
+            { frets: ['x', 2, 0, 0, 0, 1], fingers: ['x', 2, 0, 0, 0, 1], suffix: 'open' }
+        ]
+    },
+    'A7alt': {
+        name: 'A7alt',
+        fullName: 'A7 Altered',
+        variations: [
+            { frets: ['x', 0, 5, 6, 6, 6], fingers: ['x', 0, 1, 2, 3, 4], suffix: 'partial' }
+        ]
+    },
+    'C7alt': {
+        name: 'C7alt',
+        fullName: 'C7 Altered',
+        variations: [
+            { frets: ['x', 3, 2, 3, 4, 'x'], fingers: ['x', 2, 1, 3, 4, 'x'], suffix: '#9' }
+        ]
+    },
+    'Db7alt': {
+        name: 'Db7alt',
+        fullName: 'Db7 Altered',
+        variations: [
+            { frets: ['x', 4, 3, 4, 5, 'x'], fingers: ['x', 2, 1, 3, 4, 'x'], suffix: '#9' }
+        ]
+    },
+    'B7b13': {
+        name: 'B7b13',
+        fullName: 'B7 Flat 13',
+        variations: [
+            { frets: [7, 'x', 7, 8, 8, 'x'], fingers: [1, 'x', 2, 3, 4, 'x'], suffix: 'barre' }
+        ]
+    },
+    'B7b9': {
+        name: 'B7b9',
+        fullName: 'B7 Flat 9',
+        variations: [
+            { frets: ['x', 2, 1, 2, 1, 'x'], fingers: ['x', 2, 1, 3, 1, 'x'], suffix: 'open' }
+        ]
+    },
+    'C7b9': {
+        name: 'C7b9',
+        fullName: 'C7 Flat 9',
+        variations: [
+            { frets: ['x', 3, 2, 3, 2, 'x'], fingers: ['x', 2, 1, 3, 1, 'x'], suffix: 'open' }
+        ]
+    },
+    'D7b5': {
+        name: 'D7b5',
+        fullName: 'D7 Flat 5',
+        variations: [
+            { frets: ['x', 5, 6, 5, 7, 'x'], fingers: ['x', 1, 2, 1, 3, 'x'], suffix: 'jazz' }
+        ]
+    },
+    'A7b5': {
+        name: 'A7b5',
+        fullName: 'A7 Flat 5',
+        variations: [
+            { frets: ['x', 0, 5, 6, 4, 'x'], fingers: ['x', 0, 2, 3, 1, 'x'], suffix: 'open' }
+        ]
+    },
+    'Am11': { // Was Cm11 in missing list, wait, Cm11 is missing.
+        name: 'Am11',
+        fullName: 'A Minor 11',
+        variations: [
+            { frets: [5, 'x', 5, 5, 3, 'x'], fingers: [2, 'x', 3, 4, 1, 'x'], suffix: 'jazz' }
+        ]
+    },
+    'Cm11': {
+        name: 'Cm11',
+        fullName: 'C Minor 11',
+        variations: [
+            { frets: [8, 'x', 8, 8, 6, 'x'], fingers: [2, 'x', 3, 4, 1, 'x'], barres: [8], suffix: 'jazz' }
+        ]
+    },
+    'Fm11': {
+        name: 'Fm11',
+        fullName: 'F Minor 11',
+        variations: [
+            { frets: [1, 'x', 1, 1, 4, 'x'], fingers: [1, 'x', 1, 1, 4, 'x'], barres: [1], suffix: 'jazz' }
+        ]
+    },
+    'C7sus4': {
+        name: 'C7sus4',
+        fullName: 'C7 Suspended 4th',
+        variations: [
+            { frets: ['x', 3, 3, 3, 1, 'x'], fingers: ['x', 2, 3, 4, 1, 'x'], suffix: 'partial' }
+        ]
+    },
+    'D9sus4': {
+        name: 'D9sus4',
+        fullName: 'D9 Suspended 4th',
+        variations: [
+            { frets: ['x', 5, 5, 5, 5, 5], fingers: ['x', 1, 1, 1, 1, 1], barres: [5], suffix: 'barre' }
+        ]
+    },
+    'Db9': {
+        name: 'Db9',
+        fullName: 'Db Dominant 9th',
+        variations: [
+            { frets: ['x', 4, 3, 4, 4, 4], fingers: ['x', 2, 1, 3, 3, 3], barres: [4], suffix: 'barre' }
+        ]
+    },
+    'Db9sus4': {
+        name: 'Db9sus4',
+        fullName: 'Db9 Suspended 4th',
+        variations: [
+            { frets: ['x', 4, 4, 4, 4, 4], fingers: ['x', 1, 1, 1, 1, 1], barres: [4], suffix: 'barre' }
+        ]
+    },
+    'Eb9': {
+        name: 'Eb9',
+        fullName: 'Eb Dominant 9th',
+        variations: [
+            { frets: ['x', 6, 5, 6, 6, 6], fingers: ['x', 2, 1, 3, 3, 3], barres: [6], suffix: 'barre' }
+        ]
+    },
+    'Eb9sus4': {
+        name: 'Eb9sus4',
+        fullName: 'Eb9 Suspended 4th',
+        variations: [
+            { frets: ['x', 6, 6, 6, 6, 6], fingers: ['x', 1, 1, 1, 1, 1], barres: [6], suffix: 'barre' }
+        ]
+    },
+    'F9sus4': {
+        name: 'F9sus4',
+        fullName: 'F9 Suspended 4th',
+        variations: [
+            { frets: ['x', 8, 8, 8, 8, 8], fingers: ['x', 1, 1, 1, 1, 1], barres: [8], suffix: 'barre' }
+        ]
+    },
+    'Fm9': {
+        name: 'Fm9',
+        fullName: 'F Minor 9th',
+        variations: [
+            { frets: ['x', 8, 6, 8, 8, 8], fingers: ['x', 2, 1, 3, 3, 3], barres: [8], suffix: 'barre' }
+        ]
+    },
+    'Dm9': {
+        name: 'Dm9',
+        fullName: 'D Minor 9th',
+        variations: [
+            { frets: ['x', 5, 3, 5, 5, 5], fingers: ['x', 2, 1, 3, 3, 3], barres: [5], suffix: 'barre' }
+        ]
+    },
+    'CmMaj7': {
+        name: 'CmMaj7',
+        fullName: 'C Minor Major 7th',
+        variations: [
+            { frets: ['x', 3, 5, 4, 4, 3], fingers: ['x', 1, 3, 2, 2, 1], barres: [3], suffix: 'barre' }
+        ]
+    },
+    'Bbm(maj7)': {
+        name: 'Bbm(maj7)',
+        fullName: 'Bb Minor Major 7th',
+        variations: [
+            { frets: ['x', 1, 3, 2, 2, 1], fingers: ['x', 1, 3, 2, 2, 1], barres: [1], suffix: 'barre' }
+        ]
+    },
+    'BbmMaj7': { // Alias
+        name: 'BbmMaj7',
+        fullName: 'Bb Minor Major 7th',
+        variations: [
+            { frets: ['x', 1, 3, 2, 2, 1], fingers: ['x', 1, 3, 2, 2, 1], barres: [1], suffix: 'barre' }
+        ]
+    },
+
 };
 
 export function getChord(chordName: string): ChordDefinition | null {

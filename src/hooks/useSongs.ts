@@ -8,7 +8,7 @@ import { JAZZ_PACK } from '../data/jazzPack';
 
 const STORAGE_KEY = 'chorde_songs';
 const VERSION_KEY = 'chorde_version';
-const CURRENT_VERSION = '2.1'; // Bumped to trigger refresh after duplicate removal
+const CURRENT_VERSION = '2.2'; // Bumped to trigger refresh after adding more jazz songs
 
 export const useSongs = () => {
     const [songs, setSongs] = useState<Song[]>([]);
@@ -19,6 +19,13 @@ export const useSongs = () => {
 
         // Get all default songs from source
         const defaultSongs = [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2, ...JAZZ_PACK];
+        console.log('DEBUG: Pack lengths:', {
+            SEED: SEED_SONGS.length,
+            ROCK: ROCK_PACK.length,
+            ROCK2: ROCK_PACK_2.length,
+            JAZZ: JAZZ_PACK.length,
+            TOTAL: defaultSongs.length
+        });
         const defaultSongIds = new Set(defaultSongs.map(s => s.id));
 
         if (!stored) {
