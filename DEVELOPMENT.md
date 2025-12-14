@@ -1,4 +1,29 @@
-# Development Guidelines
+# Development Guidelines for AI Agents
+
+**Note**: This document contains guidelines specifically for AI agents working on the Chorde project.
+
+## User Command: "commit+push"
+
+When the user says "commit+push", execute the following steps in order:
+
+1. **Increment the version number** (following semantic versioning)
+2. **Stage all changes**: `git add -A`
+3. **Commit with descriptive message**: Include what changed and why
+4. **Push to GitHub**: `git push`
+5. **Deploy to GitHub Pages**: `./deploy.sh`
+
+Example workflow:
+```bash
+# 1. Update version in src/version.ts (0.1.1 -> 0.1.2)
+# 2. Stage changes
+git add -A
+# 3. Commit
+git commit -m "feat: add new feature"
+# 4. Push
+git push
+# 5. Deploy
+./deploy.sh
+```
 
 This document contains important guidelines and best practices for developing Chorde.
 
