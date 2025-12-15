@@ -20,14 +20,6 @@ export const useSongs = () => {
 
         // Get all default songs from source
         const defaultSongs = [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2, ...JAZZ_PACK, ...MIX_PACK];
-        console.log('DEBUG: Pack lengths:', {
-            SEED: SEED_SONGS.length,
-            ROCK: ROCK_PACK.length,
-            ROCK2: ROCK_PACK_2.length,
-            JAZZ: JAZZ_PACK.length,
-            MIX: MIX_PACK.length,
-            TOTAL: defaultSongs.length
-        });
         const defaultSongIds = new Set(defaultSongs.map(s => s.id));
 
         if (!stored) {

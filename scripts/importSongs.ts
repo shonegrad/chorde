@@ -85,19 +85,13 @@ export function generateSongObject(data: SongData, id: string): string {
  */
 function inferTags(artist: string, title: string): string[] {
     const tags: string[] = [];
-
-    // Genre inference (basic)
-    const rock = ['nirvana', 'oasis', 'radiohead', 'foo fighters', 'pearl jam'];
-    const pop = ['taylor swift', 'ed sheeran', 'adele', 'beatles'];
-    const country = ['johnny cash', 'dolly parton', 'willie nelson'];
-    const indie = ['arctic monkeys', 'the strokes', 'vampire weekend'];
-
     const artistLower = artist.toLowerCase();
 
-    if (rock.some(a => artistLower.includes(a))) tags.push('rock');
-    if (pop.some(a => artistLower.includes(a))) tags.push('pop');
-    if (country.some(a => artistLower.includes(a))) tags.push('country');
-    if (indie.some(a => artistLower.includes(a))) tags.push('indie');
+    // Simple genre inference based on keywords in artist or title
+    if (artistLower.includes('rock') || title.toLowerCase().includes('rock')) tags.push('rock');
+    if (artistLower.includes('blues') || title.toLowerCase().includes('blues')) tags.push('blues');
+    if (artistLower.includes('jazz') || title.toLowerCase().includes('jazz')) tags.push('jazz');
+    if (artistLower.includes('folk') || title.toLowerCase().includes('folk')) tags.push('folk');
 
     // Era inference
     if (title.toLowerCase().includes('acoustic') || title.toLowerCase().includes('unplugged')) {
