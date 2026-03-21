@@ -37,7 +37,7 @@ export function parseChordProFile(filePath: string): SongData | null {
         }
 
         // Remove metadata directives from content
-        let cleanContent = content
+        const cleanContent = content
             .replace(/\{title:[^}]+\}/gi, '')
             .replace(/\{t:[^}]+\}/gi, '')
             .replace(/\{artist:[^}]+\}/gi, '')
@@ -117,7 +117,7 @@ export function importSongsFromDirectory(dirPath: string): string {
 
     const songs: string[] = [];
 
-    files.forEach((file, index) => {
+    files.forEach((file) => {
         const filePath = path.join(dirPath, file);
         const data = parseChordProFile(filePath);
 
