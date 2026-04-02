@@ -8,7 +8,7 @@ export interface SongFilter {
 }
 
 // View states
-export type ViewState = 'LIST' | 'PLAY' | 'EDIT' | 'IMPORT' | 'CHORDS';
+export type ViewState = 'LIST' | 'PLAY' | 'EDIT' | 'IMPORT' | 'CHORDS' | 'SETTINGS';
 
 // Context shape
 export interface AppContextType {

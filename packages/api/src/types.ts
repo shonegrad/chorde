@@ -13,7 +13,8 @@ export interface SearchResult {
   title: string;
   artist: string;
   key?: string;
-  preview?: string; // First 2-3 lines
+  preview?: string;
+  hasChords?: boolean;
 }
 
 export interface SongContent {

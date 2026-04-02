@@ -43,6 +43,9 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
             {result.key && (
               <Chip label={`Key: ${result.key}`} size="small" color="primary" variant="outlined" />
             )}
+            {result.hasChords === false && (
+              <Chip label="Lyrics Only" size="small" color="warning" variant="outlined" />
+            )}
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
             {result.artist}

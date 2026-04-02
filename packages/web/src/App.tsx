@@ -1,9 +1,9 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSongs } from './hooks/useSongs';
+import React, { useState, Suspense } from 'react';
+import { useApp } from './context/useApp';
 import { SongList } from './components/SongList';
 import { NavigationMenu } from './components/NavigationMenu';
 import ErrorBoundary from './components/ErrorBoundary';
-import type { Song, ViewMode } from './types';
+import type { Song } from './types';
 import { Box, IconButton, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
@@ -14,33 +14,11 @@ const SongImporter = React.lazy(() => import('./components/SongImporter').then(m
 const ChordBrowser = React.lazy(() => import('./components/ChordBrowser'));
 const Settings = React.lazy(() => import('./components/Settings').then(m => ({ default: m.Settings })));
 
-type ViewState = 'LIST' | 'PLAY' | 'EDIT' | 'IMPORT' | 'CHORDS' | 'SETTINGS';
-
-const VIEW_MODE_KEY = 'chorde_view_mode';
-
 function App() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const { songs, saveSong, deleteSong } = useSongs();
-  const [view, setView] = useState<ViewState>('LIST');
-  const [activeSong, setActiveSong] = useState<Song | undefined>(undefined);
-  const [filter, setFilter] = useState<{ type: 'tag' | 'artist' | 'key'; value: string } | null>(null);
-  const [navOpen, setNavOpen] = useState(!isMobile); // Open by default on desktop
-
-  // Initialize view mode from localStorage
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    const stored = localStorage.getItem(VIEW_MODE_KEY);
-    return (stored === 'list' || stored === 'grid') ? stored : 'grid';
-  });
-
-  // Persist view mode changes to localStorage
-  useEffect(() => {
-    localStorage.setItem(VIEW_MODE_KEY, viewMode);
-  }, [viewMode]);
-
-  const handleViewModeChange = (mode: ViewMode) => {
-    setViewMode(mode);
-  };
+  const { songs, saveSong, deleteSong, view, setView, activeSong, setActiveSong, filter, setFilter, viewMode, setViewMode } = useApp();
+  const [navOpen, setNavOpen] = useState(!isMobile);
 
   const filteredSongs = filter
     ? songs.filter((song) => {
@@ -235,7 +213,7 @@ function App() {
           activeFilter={filter}
           onClearFilter={handleClearFilter}
           viewMode={viewMode}
-          onViewModeChange={handleViewModeChange}
+          onViewModeChange={setViewMode}
         />
       </Box>
     </Box>

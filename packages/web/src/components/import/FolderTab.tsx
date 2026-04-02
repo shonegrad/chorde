@@ -24,7 +24,7 @@ interface ImportItem {
 }
 
 interface FolderTabProps {
-  onImport: (content: string) => void;
+  onImport: (contents: string[]) => void;
   onCancel: () => void;
 }
 
@@ -83,6 +83,7 @@ export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
 
     setImporting(true);
     const nextItems: ImportItem[] = [];
+    const validContents: string[] = [];
 
     for (let index = 0; index < files.length; index += 1) {
       const file = files[index];
@@ -104,7 +105,7 @@ export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
           throw new Error('Empty file');
         }
 
-        onImport(content);
+        validContents.push(content);
         nextItems.push({
           id: `${file.name}-${index}`,
           name: file.name,
@@ -124,6 +125,10 @@ export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
 
     setItems(nextItems);
     setImporting(false);
+
+    if (validContents.length > 0) {
+      onImport(validContents);
+    }
   };
 
   return (

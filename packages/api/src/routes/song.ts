@@ -1,11 +1,15 @@
 import { Hono } from 'hono';
 import { OpenHymnalAdapter } from '../adapters/openhymnal.js';
+import { HymnaryAdapter } from '../adapters/hymnary.js';
+import { ChordProOrgAdapter } from '../adapters/chordproorg.js';
 
 const app = new Hono();
 
 // Initialize adapters
 const adapters = [
   new OpenHymnalAdapter(),
+  new HymnaryAdapter(),
+  new ChordProOrgAdapter(),
 ];
 
 // GET /api/song/:source/:id - Get full song content
