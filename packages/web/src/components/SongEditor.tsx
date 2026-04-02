@@ -31,8 +31,22 @@ export const SongEditor: React.FC<SongEditorProps> = ({ initialSong, onSave, onC
             title,
             artist,
             content,
-            createdAt: initialSong?.createdAt || Date.now(),
-            updatedAt: Date.now(),
+            format: initialSong?.format || 'plaintext',
+            capo: initialSong?.capo,
+            tags: initialSong?.tags || ['custom'],
+            sections: initialSong?.sections,
+            key: initialSong?.key,
+            bpm: initialSong?.bpm,
+            timeSignature: initialSong?.timeSignature || '4/4',
+            attribution: initialSong?.attribution || {
+                sourceName: 'Custom',
+                sourceUrl: '',
+                license: 'Unknown'
+            },
+            rightsStatus: initialSong?.rightsStatus || 'unknown',
+            createdAt: initialSong?.createdAt || new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            hash: initialSong?.hash || crypto.randomUUID(),
         });
     };
 

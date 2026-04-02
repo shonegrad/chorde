@@ -8,7 +8,7 @@ import { ChordStaff } from './ChordStaff';
 import { ChordModal } from './ChordModal';
 import { SectionNav } from './SectionNav';
 import { ChordTab } from './ChordTab';
-import { MusicNoteIcon } from '@mui/icons-material';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import {
     AppBar,
     Toolbar,
@@ -20,12 +20,14 @@ import {
     Select,
     MenuItem,
     FormControl,
+    FormControlLabel,
     InputLabel,
     Stack,
     Chip,
     Paper,
     Container,
     Tooltip,
+    Switch,
     ToggleButton,
     ToggleButtonGroup
 } from '@mui/material';
@@ -73,8 +75,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
     const [overrideBpm, setOverrideBpm] = useState<number | null>(null); // Manual BPM override
     const [lockTempo, setLockTempo] = useState(false); // Prevent accidental tempo changes
     const [countIn, setCountIn] = useState<number>(0); // Count-in progress
-    const [countInBeats, setCountInBeats] = useState<number>(4); // Beats for count-in
-    const [clickSoundEnabled, setClickSoundEnabled] = useState<boolean>(true); // Click sound for count-in
+    const [countInBeats] = useState<number>(4); // Beats for count-in
+    const [clickSoundEnabled] = useState<boolean>(true); // Click sound for count-in
     
     // Audio context for click sound
     const audioCtxRef = useRef<AudioContext | null>(null);
@@ -350,7 +352,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
                              <Tooltip title="Tap to set tempo">
                                  <IconButton 
                                      onClick={handleTapTempo} 
-                                     color={lockTempo ? "disabled" : "default"}
+                                     color="default"
+                                     disabled={lockTempo}
                                  >
                                      <MusicNoteIcon fontSize="small" />
                                  </IconButton>
@@ -361,14 +364,14 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
                              <IconButton 
                                  onClick={() => setBpm(prev => prev !== null ? prev - 1 : null)}
                                  disabled={lockTempo || (bpm !== null && bpm <= 40)}
-                                 color={lockTempo ? "disabled" : "default"}
+                                 color="default"
                              >
                                  <RemoveIcon fontSize="small" />
                              </IconButton>
                              <IconButton 
                                  onClick={() => setBpm(prev => prev !== null ? prev + 1 : null)}
                                  disabled={lockTempo || (bpm !== null && bpm >= 208)}
-                                 color={lockTempo ? "disabled" : "default"}
+                                 color="default"
                              >
                                  <AddIcon fontSize="small" />
                              </IconButton>

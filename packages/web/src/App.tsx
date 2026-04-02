@@ -68,6 +68,12 @@ function App() {
     if (isMobile) setNavOpen(false);
   };
 
+  const handleSettingsClick = () => {
+    setView('SETTINGS');
+    setFilter(null);
+    if (isMobile) setNavOpen(false);
+  };
+
   const handleSelect = (song: Song) => {
     setActiveSong(song);
     setView('PLAY');
@@ -208,6 +214,7 @@ function App() {
         songs={songs}
         activeFilter={filter}
         onFilterChange={handleFilterChange}
+        onSettingsNav={handleSettingsClick}
         open={navOpen}
         onClose={isMobile ? toggleNav : undefined}
       />

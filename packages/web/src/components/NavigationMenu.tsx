@@ -31,6 +31,7 @@ interface NavigationMenuProps {
     songs: Song[];
     activeFilter: { type: 'tag' | 'artist' | 'key'; value: string } | null;
     onFilterChange: (filter: { type: 'tag' | 'artist' | 'key'; value: string } | null) => void;
+    onSettingsNav?: () => void;
     open: boolean;
     onClose?: () => void;
 }
@@ -47,6 +48,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
     songs,
     activeFilter,
     onFilterChange,
+    onSettingsNav,
     open,
     onClose
 }) => {
@@ -274,7 +276,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
 
                      {/* Settings Section */}
                      <ListItem disablePadding>
-                         <ListItemButton onClick={() => setView('SETTINGS')}>
+                         <ListItemButton onClick={() => onSettingsNav?.()}>
                              <SettingsIcon sx={{ mr: 2, color: 'action.active' }} />
                              <ListItemText primary="Settings" />
                          </ListItemButton>

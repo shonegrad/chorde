@@ -1,4 +1,3 @@
-import type { Song } from '../types';
 import { LocalLibraryStore } from '../lib/libraryStore';
 
 /**
@@ -127,7 +126,7 @@ export class GoogleDriveService {
     }
 
     this.folderId = folderId;
-    return folderId;
+    return folderId!;
   }
 
   /**
