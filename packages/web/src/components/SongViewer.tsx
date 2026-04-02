@@ -75,7 +75,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({ song, onClose, onEdit, o
     const [overrideBpm, setOverrideBpm] = useState<number | null>(null); // Manual BPM override
     const [lockTempo, setLockTempo] = useState(false); // Prevent accidental tempo changes
     const [countIn, setCountIn] = useState<number>(0); // Count-in progress
-    const [countInBeats] = useState<number>(4); // Beats for count-in
     const [clickSoundEnabled] = useState<boolean>(true); // Click sound for count-in
     
     // Audio context for click sound
