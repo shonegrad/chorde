@@ -227,29 +227,28 @@ Echoes of mercy, whispers of love.`,
 export class HymnaryAdapter extends BaseAdapter {
   id = 'hymnary';
   name = 'Hymnary.org';
-  
+
   async search(query: string): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase().trim();
     if (!lowerQuery) return [];
 
-    return PUBLIC_DOMAIN_HYMNS
-      .filter(hymn => 
+    return PUBLIC_DOMAIN_HYMNS.filter(
+      (hymn) =>
         hymn.title.toLowerCase().includes(lowerQuery) ||
         hymn.author.toLowerCase().includes(lowerQuery)
-      )
-      .map(hymn => ({
-        id: hymn.id,
-        source: this.id,
-        title: hymn.title,
-        artist: hymn.author,
-        preview: hymn.lyrics.split('\n')[0],
-        hasChords: false,
-      }));
+    ).map((hymn) => ({
+      id: hymn.id,
+      source: this.id,
+      title: hymn.title,
+      artist: hymn.author,
+      preview: hymn.lyrics.split('\n')[0],
+      hasChords: false,
+    }));
   }
 
   async fetchSong(id: string): Promise<SongContent> {
-    const hymn = PUBLIC_DOMAIN_HYMNS.find(h => h.id === id);
-    
+    const hymn = PUBLIC_DOMAIN_HYMNS.find((h) => h.id === id);
+
     if (!hymn) {
       return {
         chordPro: `{title: Hymn Not Found}\n{artist: Unknown}\n\nHymn content not available.`,
@@ -259,24 +258,28 @@ export class HymnaryAdapter extends BaseAdapter {
 
     const chordPro = this.convertLyricsToChordPro(hymn);
     const metadata = this.extractMetadata(chordPro);
-    
+
     return {
       chordPro,
-      metadata,
+      metadata: {
+        title: metadata.title ?? 'Unknown',
+        artist: metadata.artist ?? 'Unknown',
+        ...metadata,
+      },
     };
   }
 
   private convertLyricsToChordPro(hymn: HymnData): string {
     const lines = hymn.lyrics.split('\n');
     const chordProLines: string[] = [];
-    
+
     chordProLines.push(`{title: ${hymn.title}}`);
     chordProLines.push(`{artist: ${hymn.author}}`);
     chordProLines.push(`{subtitle: Public Domain (${hymn.year})}`);
     chordProLines.push(`{comment: Lyrics only -- no chords. Add chords using the editor.}`);
     chordProLines.push('');
     chordProLines.push('{start_of_verse}');
-    
+
     for (const line of lines) {
       if (!line.trim()) {
         chordProLines.push('');
@@ -284,9 +287,9 @@ export class HymnaryAdapter extends BaseAdapter {
       }
       chordProLines.push(line);
     }
-    
+
     chordProLines.push('{end_of_verse}');
-    
+
     return chordProLines.join('\n');
   }
 }

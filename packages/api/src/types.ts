@@ -1,7 +1,30 @@
-// Shared types — re-exported from @chorde/shared for consistency
-export type { Source, SearchResult, SongContent } from '@chorde/shared/src/index';
+export interface Source {
+  id: string;
+  name: string;
+  icon?: string;
+  enabled: boolean;
+}
 
-// API-specific interface (not shared with web)
+export interface SearchResult {
+  id: string;
+  source: string;
+  title: string;
+  artist: string;
+  key?: string;
+  preview?: string;
+  hasChords?: boolean;
+}
+
+export interface SongContent {
+  chordPro: string;
+  metadata: {
+    title: string;
+    artist: string;
+    key?: string;
+    capo?: number;
+  };
+}
+
 export interface SourceAdapter {
   id: string;
   name: string;

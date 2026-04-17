@@ -9,7 +9,15 @@ vi.mock('../adapters/openhymnal.js', () => ({
     name = 'OpenHymnal';
     async search(query: string) {
       if (query.includes('Amazing')) {
-        return [{ id: 'AmazingGrace', source: 'openhymnal', title: 'Amazing Grace', artist: 'John Newton', key: 'G' }];
+        return [
+          {
+            id: 'AmazingGrace',
+            source: 'openhymnal',
+            title: 'Amazing Grace',
+            artist: 'John Newton',
+            key: 'G',
+          },
+        ];
       }
       return [];
     }
@@ -34,7 +42,15 @@ vi.mock('../adapters/hymnary.js', () => ({
     name = 'Hymnary.org';
     async search(query: string) {
       if (query.includes('Amazing')) {
-        return [{ id: 'amazing-grace', source: 'hymnary', title: 'Amazing Grace', artist: 'John Newton', hasChords: false }];
+        return [
+          {
+            id: 'amazing-grace',
+            source: 'hymnary',
+            title: 'Amazing Grace',
+            artist: 'John Newton',
+            hasChords: false,
+          },
+        ];
       }
       return [];
     }
@@ -53,7 +69,15 @@ vi.mock('../adapters/chordproorg.js', () => ({
     name = 'ChordPro.org';
     async search(query: string) {
       if (query.includes('Let')) {
-        return [{ id: 'let-it-be', source: 'chordpro', title: 'Let It Be', artist: 'The Beatles', key: 'C' }];
+        return [
+          {
+            id: 'let-it-be',
+            source: 'chordpro',
+            title: 'Let It Be',
+            artist: 'The Beatles',
+            key: 'C',
+          },
+        ];
       }
       return [];
     }
@@ -80,7 +104,7 @@ describe('Search Routes', () => {
     it('returns all available sources', async () => {
       const res = await app.request('/api/sources');
       expect(res.status).toBe(200);
-      const sources = await res.json();
+      const sources = (await res.json()) as any;
       expect(sources).toHaveLength(3);
       expect(sources.map((s: any) => s.id)).toContain('openhymnal');
       expect(sources.map((s: any) => s.id)).toContain('hymnary');
@@ -89,7 +113,7 @@ describe('Search Routes', () => {
 
     it('marks all sources as enabled', async () => {
       const res = await app.request('/api/sources');
-      const sources = await res.json();
+      const sources = (await res.json()) as any;
       sources.forEach((source: any) => {
         expect(source.enabled).toBe(true);
       });
@@ -100,14 +124,14 @@ describe('Search Routes', () => {
     it('returns search results for matching query', async () => {
       const res = await app.request('/api/search?q=Amazing');
       expect(res.status).toBe(200);
-      const data = await res.json();
+      const data = (await res.json()) as any;
       expect(data.results.length).toBeGreaterThan(0);
       expect(data.totalCount).toBeGreaterThan(0);
     });
 
     it('searches across all sources by default', async () => {
       const res = await app.request('/api/search?q=Amazing');
-      const data = await res.json();
+      const data = (await res.json()) as any;
       const sources = data.results.map((r: any) => r.source);
       expect(sources).toContain('openhymnal');
       expect(sources).toContain('hymnary');
@@ -115,7 +139,7 @@ describe('Search Routes', () => {
 
     it('filters by specific source', async () => {
       const res = await app.request('/api/search?q=Amazing&sources=openhymnal');
-      const data = await res.json();
+      const data = (await res.json()) as any;
       const sources = data.results.map((r: any) => r.source);
       expect(sources).toContain('openhymnal');
       expect(sources).not.toContain('hymnary');
@@ -128,7 +152,7 @@ describe('Search Routes', () => {
 
     it('returns empty results for non-matching query', async () => {
       const res = await app.request('/api/search?q=xyznonexistent123');
-      const data = await res.json();
+      const data = (await res.json()) as any;
       expect(data.results).toEqual([]);
       expect(data.totalCount).toBe(0);
     });
@@ -142,7 +166,7 @@ describe('Song Routes', () => {
     it('returns song content for valid source and ID', async () => {
       const res = await app.request('/api/song/openhymnal/AmazingGrace');
       expect(res.status).toBe(200);
-      const data = await res.json();
+      const data = (await res.json()) as any;
       expect(data.chordPro).toContain('Amazing Grace');
       expect(data.metadata.title).toBe('Amazing Grace');
     });
@@ -155,14 +179,14 @@ describe('Song Routes', () => {
     it('works with hymnary source', async () => {
       const res = await app.request('/api/song/hymnary/amazing-grace');
       expect(res.status).toBe(200);
-      const data = await res.json();
+      const data = (await res.json()) as any;
       expect(data.chordPro).toContain('Amazing Grace');
     });
 
     it('works with chordpro source', async () => {
       const res = await app.request('/api/song/chordpro/let-it-be');
       expect(res.status).toBe(200);
-      const data = await res.json();
+      const data = (await res.json()) as any;
       expect(data.chordPro).toContain('Let It Be');
     });
   });

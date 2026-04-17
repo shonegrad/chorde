@@ -12,14 +12,14 @@ interface HymnIndex {
 export class OpenHymnalAdapter extends BaseAdapter {
   id = 'openhymnal';
   name = 'OpenHymnal';
-  
+
   private baseUrl = 'https://raw.githubusercontent.com/mattgraham/worship/master';
   private indexCache: HymnIndex[] | null = null;
   private cacheTimestamp: number = 0;
   private readonly CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
   private async fetchIndex(): Promise<HymnIndex[]> {
-    if (this.indexCache && (Date.now() - this.cacheTimestamp) < this.CACHE_TTL) {
+    if (this.indexCache && Date.now() - this.cacheTimestamp < this.CACHE_TTL) {
       return this.indexCache;
     }
 
@@ -27,24 +27,24 @@ export class OpenHymnalAdapter extends BaseAdapter {
       const response = await fetch(
         'https://api.github.com/repos/mattgraham/worship/git/trees/master?recursive=1'
       );
-      
+
       if (!response.ok) {
         throw new Error(`GitHub API error: ${response.status}`);
       }
 
-      const data = await response.json();
-      const files = data.tree?.filter((item: any) => 
-        item.type === 'blob' && 
-        (item.path.endsWith('.onsong') || item.path.endsWith('.chordpro'))
-      ) || [];
+      const data: any = await response.json();
+      const files =
+        data.tree?.filter(
+          (item: any) =>
+            item.type === 'blob' &&
+            (item.path.endsWith('.onsong') || item.path.endsWith('.chordpro'))
+        ) || [];
 
       const index: HymnIndex[] = [];
-      
+
       for (const file of files) {
-        const title = file.path
-          .replace(/\.(onsong|chordpro)$/, '')
-          .replace(/_/g, ' ');
-        
+        const title = file.path.replace(/\.(onsong|chordpro)$/, '').replace(/_/g, ' ');
+
         index.push({
           title,
           artist: '',
@@ -66,15 +66,15 @@ export class OpenHymnalAdapter extends BaseAdapter {
   async search(query: string): Promise<SearchResult[]> {
     const index = await this.fetchIndex();
     const lowerQuery = query.toLowerCase().trim();
-    
+
     if (!lowerQuery) return [];
 
     const results: SearchResult[] = [];
-    
+
     for (const hymn of index) {
       const titleMatch = hymn.title.toLowerCase().includes(lowerQuery);
       const artistMatch = hymn.artist.toLowerCase().includes(lowerQuery);
-      
+
       if (titleMatch || artistMatch) {
         results.push({
           id: encodeURIComponent(hymn.filename),
@@ -95,7 +95,7 @@ export class OpenHymnalAdapter extends BaseAdapter {
 
     try {
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch song: ${response.status}`);
       }
@@ -106,7 +106,11 @@ export class OpenHymnalAdapter extends BaseAdapter {
 
       return {
         chordPro,
-        metadata,
+        metadata: {
+          title: metadata.title ?? 'Unknown',
+          artist: metadata.artist ?? 'Unknown',
+          ...metadata,
+        },
       };
     } catch (error) {
       console.error(`Error fetching song ${filename}:`, error);
@@ -129,7 +133,7 @@ export class OpenHymnalAdapter extends BaseAdapter {
 
     for (const line of lines) {
       const trimmed = line.trim();
-      
+
       if (!trimmed) continue;
 
       if (inMetadata) {
@@ -149,15 +153,19 @@ export class OpenHymnalAdapter extends BaseAdapter {
           capo = trimmed.substring(5).trim();
           continue;
         }
-        if (trimmed.startsWith('CCLI:') || trimmed.startsWith('Original Key:') || 
-            trimmed.startsWith('Notes:') || trimmed.startsWith('Book:')) {
+        if (
+          trimmed.startsWith('CCLI:') ||
+          trimmed.startsWith('Original Key:') ||
+          trimmed.startsWith('Notes:') ||
+          trimmed.startsWith('Book:')
+        ) {
           continue;
         }
-        
+
         if (trimmed.includes(':') && !trimmed.match(/\[.*\]/)) {
           continue;
         }
-        
+
         if (trimmed.match(/\[.*\]/) || trimmed.match(/\w/)) {
           inMetadata = false;
         }
@@ -165,15 +173,17 @@ export class OpenHymnalAdapter extends BaseAdapter {
 
       if (!inMetadata) {
         if (trimmed.match(/^(Verse|Chorus|Bridge|Pre-Chorus|Intro|Outro|Interlude|Tag)\s*\d*:?/i)) {
-          const sectionMatch = trimmed.match(/^(Verse|Chorus|Bridge|Pre-Chorus|Intro|Outro|Interlude|Tag)\s*(\d*)/i);
+          const sectionMatch = trimmed.match(
+            /^(Verse|Chorus|Bridge|Pre-Chorus|Intro|Outro|Interlude|Tag)\s*(\d*)/i
+          );
           if (sectionMatch) {
             const sectionType = sectionMatch[1].toLowerCase().replace('-', '_');
             const num = sectionMatch[2];
-            
+
             if (currentSection) {
               chordProLines.push(`{end_of_${currentSection}}`);
             }
-            
+
             currentSection = num ? `${sectionType}${num}` : sectionType;
             chordProLines.push(`{start_of_${currentSection}}`);
             continue;
@@ -192,7 +202,7 @@ export class OpenHymnalAdapter extends BaseAdapter {
     }
 
     const titleFromFilename = filename.replace(/\.(onsong|chordpro)$/, '').replace(/_/g, ' ');
-    
+
     const header: string[] = [];
     header.push(`{title: ${title || titleFromFilename}}`);
     if (artist) header.push(`{artist: ${artist}}`);

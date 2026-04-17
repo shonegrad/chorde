@@ -7,7 +7,8 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "lint": "eslint src",
+    "build": "echo \"Shared package is TypeScript source-only, no build needed\"",
+    "lint": "echo \"No linter configured for shared package\"",
     "test": "echo \"No tests yet\""
   },
   "devDependencies": {

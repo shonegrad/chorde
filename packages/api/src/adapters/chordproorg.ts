@@ -180,28 +180,27 @@ The [G]baffled king com[E7]posing Halle[Am]lujah
 export class ChordProOrgAdapter extends BaseAdapter {
   id = 'chordpro';
   name = 'ChordPro.org';
-  
+
   async search(query: string): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase().trim();
     if (!lowerQuery) return [];
 
-    return CHORDPRO_EXAMPLES
-      .filter(song => 
+    return CHORDPRO_EXAMPLES.filter(
+      (song) =>
         song.title.toLowerCase().includes(lowerQuery) ||
         song.artist.toLowerCase().includes(lowerQuery)
-      )
-      .map(song => ({
-        id: song.id,
-        source: this.id,
-        title: song.title,
-        artist: song.artist,
-        key: song.key,
-      }));
+    ).map((song) => ({
+      id: song.id,
+      source: this.id,
+      title: song.title,
+      artist: song.artist,
+      key: song.key,
+    }));
   }
 
   async fetchSong(id: string): Promise<SongContent> {
-    const song = CHORDPRO_EXAMPLES.find(s => s.id === id);
-    
+    const song = CHORDPRO_EXAMPLES.find((s) => s.id === id);
+
     if (!song) {
       return {
         chordPro: `{title: Song Not Found}\n{artist: Unknown}\n\nSong content not available.`,
@@ -210,10 +209,14 @@ export class ChordProOrgAdapter extends BaseAdapter {
     }
 
     const metadata = this.extractMetadata(song.content);
-    
+
     return {
       chordPro: this.normalizeChordPro(song.content),
-      metadata,
+      metadata: {
+        title: metadata.title ?? 'Unknown',
+        artist: metadata.artist ?? 'Unknown',
+        ...metadata,
+      },
     };
   }
 }
