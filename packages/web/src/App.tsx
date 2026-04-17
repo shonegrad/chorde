@@ -1,5 +1,7 @@
-import React, { useState, Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
+import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useApp } from './context/useApp';
+import { useNotification } from './context/NotificationContext';
 import { SongList } from './components/SongList';
 import { NavigationMenu } from './components/NavigationMenu';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -7,216 +9,231 @@ import type { Song } from './types';
 import { Box, IconButton, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
-// Lazy-loaded components for code splitting
-const SongViewer = React.lazy(() => import('./components/SongViewer').then(m => ({ default: m.SongViewer })));
-const SongEditor = React.lazy(() => import('./components/SongEditor').then(m => ({ default: m.SongEditor })));
-const SongImporter = React.lazy(() => import('./components/SongImporter').then(m => ({ default: m.SongImporter })));
+const SongViewer = React.lazy(() =>
+  import('./components/SongViewer').then((m) => ({ default: m.SongViewer }))
+);
+const SongEditor = React.lazy(() =>
+  import('./components/SongEditor').then((m) => ({ default: m.SongEditor }))
+);
+const SongImporter = React.lazy(() =>
+  import('./components/SongImporter').then((m) => ({ default: m.SongImporter }))
+);
 const ChordBrowser = React.lazy(() => import('./components/ChordBrowser'));
-const Settings = React.lazy(() => import('./components/Settings').then(m => ({ default: m.Settings })));
+const Settings = React.lazy(() =>
+  import('./components/Settings').then((m) => ({ default: m.Settings }))
+);
 
-function App() {
+const LoadingFallback = (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      bgcolor: 'background.default',
+    }}
+  >
+    <CircularProgress color="primary" />
+  </Box>
+);
+
+function SongViewerRoute() {
+  const { songs } = useApp();
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const song = songs.find((s) => s.id === id);
+
+  if (!song) {
+    return <Navigate to="/" replace />;
+  }
+
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={LoadingFallback}>
+        <SongViewer
+          song={song}
+          onClose={() => navigate('/')}
+          onEdit={() => navigate(`/song/${song.id}/edit`)}
+          onTagClick={(tag: string) => navigate(`/?tag=${encodeURIComponent(tag)}`)}
+          onArtistClick={(artist: string) => navigate(`/?artist=${encodeURIComponent(artist)}`)}
+        />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function SongEditorRoute() {
+  const { songs, saveSong, deleteSong } = useApp();
+  const { notifySuccess, notifyError } = useNotification();
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const song = id ? songs.find((s) => s.id === id) : undefined;
+
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={LoadingFallback}>
+        <SongEditor
+          initialSong={song}
+          onSave={async (savedSong: Song) => {
+            try {
+              await saveSong(savedSong);
+              notifySuccess('Song saved!');
+              navigate(`/song/${savedSong.id}`);
+            } catch {
+              notifyError('Failed to save song');
+            }
+          }}
+          onCancel={song ? () => navigate(`/song/${song.id}`) : () => navigate('/')}
+          onDelete={async (deletedId: string) => {
+            try {
+              await deleteSong(deletedId);
+              notifySuccess('Song deleted');
+              navigate('/');
+            } catch {
+              notifyError('Failed to delete song');
+            }
+          }}
+        />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function SongImporterRoute() {
+  const { saveSong } = useApp();
+  const { notifySuccess, notifyError } = useNotification();
+  const navigate = useNavigate();
+
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={LoadingFallback}>
+        <SongImporter
+          onImport={async (song: Song) => {
+            try {
+              await saveSong(song);
+              notifySuccess('Song imported!');
+              navigate(`/song/${song.id}`);
+            } catch {
+              notifyError('Failed to import song');
+            }
+          }}
+          onCancel={() => navigate('/')}
+        />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function SongListView() {
+  const { songs, filter, setFilter, viewMode, setViewMode } = useApp();
+  const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const { songs, saveSong, deleteSong, view, setView, activeSong, setActiveSong, filter, setFilter, viewMode, setViewMode } = useApp();
   const [navOpen, setNavOpen] = useState(!isMobile);
 
-  const filteredSongs = filter
+  const searchParams = new URLSearchParams(location.search);
+  const urlTag = searchParams.get('tag');
+  const urlArtist = searchParams.get('artist');
+  const urlKey = searchParams.get('key');
+
+  const activeFilter =
+    filter ||
+    (urlTag
+      ? { type: 'tag' as const, value: urlTag }
+      : urlArtist
+        ? { type: 'artist' as const, value: urlArtist }
+        : urlKey
+          ? { type: 'key' as const, value: urlKey }
+          : null);
+
+  const filteredSongs = activeFilter
     ? songs.filter((song) => {
-      if (filter.type === 'tag') return song.tags?.includes(filter.value);
-      if (filter.type === 'artist') return song.artist === filter.value;
-      if (filter.type === 'key') return song.key === filter.value;
-      return true;
-    })
+        if (activeFilter.type === 'tag') return song.tags?.includes(activeFilter.value);
+        if (activeFilter.type === 'artist') return song.artist === activeFilter.value;
+        if (activeFilter.type === 'key') return song.key === activeFilter.value;
+        return true;
+      })
     : songs;
 
-  const handleCreate = () => {
-    setActiveSong(undefined);
-    setView('EDIT');
-    setFilter(null);
-  };
-
-  const handleImportClick = () => {
-    setView('IMPORT');
-    setFilter(null);
-  };
-
-  const handleChordsClick = () => {
-    setView('CHORDS');
-    setFilter(null);
-    if (isMobile) setNavOpen(false);
-  };
-
-  const handleSettingsClick = () => {
-    setView('SETTINGS');
-    setFilter(null);
-    if (isMobile) setNavOpen(false);
-  };
-
-  const handleSelect = (song: Song) => {
-    setActiveSong(song);
-    setView('PLAY');
-  };
-
-  const handleEdit = () => {
-    // Active song is already set from Play view
-    setView('EDIT');
-  };
-
-  const handleSave = (song: Song) => {
-    saveSong(song);
-    setActiveSong(song); // Update active song ref
-    setView('PLAY'); // Go back to play view
-  };
-
-  const handleBackToList = () => {
-    setActiveSong(undefined);
-    setView('LIST');
-  };
-
-  const handleTagClick = (tag: string) => {
-    setFilter({ type: 'tag', value: tag });
-    setActiveSong(undefined);
-    setView('LIST');
-  };
-
-  const handleArtistClick = (artist: string) => {
-    setFilter({ type: 'artist', value: artist });
-    setActiveSong(undefined);
-    setView('LIST');
-    if (isMobile) setNavOpen(false);
-  };
-
-  const handleFilterChange = (newFilter: { type: 'tag' | 'artist' | 'key'; value: string } | null) => {
-    setFilter(newFilter);
-  };
-
-  const handleClearFilter = () => {
-    setFilter(null);
-  };
-
-  const toggleNav = () => {
-    setNavOpen(!navOpen);
-  };
-
-  // Loading fallback for lazy-loaded components
-  const LoadingFallback = (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        bgcolor: 'background.default',
-      }}
-    >
-      <CircularProgress color="primary" />
-    </Box>
-  );
-
-   // Router switch
-   if (view === 'PLAY' && activeSong) {
-     return (
-       <ErrorBoundary>
-         <Suspense fallback={LoadingFallback}>
-           <SongViewer
-             song={activeSong}
-             onClose={handleBackToList}
-             onEdit={handleEdit}
-             onTagClick={handleTagClick}
-             onArtistClick={handleArtistClick}
-           />
-         </Suspense>
-       </ErrorBoundary>
-     );
-   }
-
-   if (view === 'EDIT') {
-     return (
-       <ErrorBoundary>
-         <Suspense fallback={LoadingFallback}>
-           <SongEditor
-             initialSong={activeSong}
-             onSave={handleSave}
-             onCancel={activeSong ? () => setView('PLAY') : handleBackToList}
-             onDelete={(id) => {
-               deleteSong(id);
-               handleBackToList();
-             }}
-           />
-         </Suspense>
-       </ErrorBoundary>
-     );
-   }
-
-   if (view === 'IMPORT') {
-     return (
-       <ErrorBoundary>
-         <Suspense fallback={LoadingFallback}>
-           <SongImporter
-             onImport={(song) => {
-               saveSong(song);
-               setActiveSong(song);
-               setView('PLAY');
-             }}
-             onCancel={handleBackToList}
-           />
-         </Suspense>
-       </ErrorBoundary>
-     );
-   }
-
-   if (view === 'CHORDS') {
-     return (
-       <ErrorBoundary>
-         <Suspense fallback={LoadingFallback}>
-           <ChordBrowser onBack={handleBackToList} />
-         </Suspense>
-       </ErrorBoundary>
-     );
-   }
-
-   if (view === 'SETTINGS') {
-     return (
-       <ErrorBoundary>
-         <Suspense fallback={LoadingFallback}>
-           <Settings onBack={handleBackToList} />
-         </Suspense>
-       </ErrorBoundary>
-     );
-   }
-
-  // Main list view with navigation
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
       <NavigationMenu
         songs={songs}
-        activeFilter={filter}
-        onFilterChange={handleFilterChange}
-        onSettingsNav={handleSettingsClick}
+        activeFilter={activeFilter}
+        onFilterChange={(newFilter) => {
+          setFilter(newFilter);
+          if (newFilter) {
+            navigate(`/?${newFilter.type}=${encodeURIComponent(newFilter.value)}`, {
+              replace: true,
+            });
+          } else {
+            navigate('/', { replace: true });
+          }
+        }}
+        onSettingsNav={() => navigate('/settings')}
+        onChordsNav={() => navigate('/chords')}
+        onImportNav={() => navigate('/import')}
         open={navOpen}
-        onClose={isMobile ? toggleNav : undefined}
+        onClose={isMobile ? () => setNavOpen(!navOpen) : undefined}
       />
       <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
         {isMobile && (
           <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={toggleNav}>
+            <IconButton onClick={() => setNavOpen(!navOpen)}>
               <MenuIcon />
             </IconButton>
           </Box>
         )}
         <SongList
           songs={filteredSongs}
-          onSelect={handleSelect}
-          onCreate={handleCreate}
-          onImportNav={handleImportClick}
-          onChordsNav={handleChordsClick}
-          activeFilter={filter}
-          onClearFilter={handleClearFilter}
+          onSelect={(song: Song) => navigate(`/song/${song.id}`)}
+          onCreate={() => navigate('/song/new')}
+          onImportNav={() => navigate('/import')}
+          onChordsNav={() => navigate('/chords')}
+          activeFilter={activeFilter}
+          onClearFilter={() => {
+            setFilter(null);
+            navigate('/', { replace: true });
+          }}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
         />
       </Box>
     </Box>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<SongListView />} />
+      <Route path="/song/:id" element={<SongViewerRoute />} />
+      <Route path="/song/:id/edit" element={<SongEditorRoute />} />
+      <Route path="/song/new" element={<SongEditorRoute />} />
+      <Route path="/import" element={<SongImporterRoute />} />
+      <Route
+        path="/chords"
+        element={
+          <ErrorBoundary>
+            <Suspense fallback={LoadingFallback}>
+              <ChordBrowser onBack={() => window.history.back()} />
+            </Suspense>
+          </ErrorBoundary>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ErrorBoundary>
+            <Suspense fallback={LoadingFallback}>
+              <Settings onBack={() => window.history.back()} />
+            </Suspense>
+          </ErrorBoundary>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

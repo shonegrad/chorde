@@ -1,52 +1,58 @@
 /// <reference types="vitest/globals" />
 import '@testing-library/jest-dom/vitest';
 
-// Mock IntersectionObserver (not available in jsdom)
 class MockIntersectionObserver implements IntersectionObserver {
-    readonly root: Element | null = null;
-    readonly rootMargin: string = '';
-    readonly thresholds: ReadonlyArray<number> = [];
+  readonly root: Element | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
 
-    constructor(
-        private callback: IntersectionObserverCallback,
-    ) { }
+  constructor(private callback: IntersectionObserverCallback) {}
 
-    observe(): void { }
-    unobserve(): void { }
-    disconnect(): void { }
-    takeRecords(): IntersectionObserverEntry[] {
-        return [];
-    }
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
 }
 
 Object.defineProperty(window, 'IntersectionObserver', {
-    writable: true,
-    configurable: true,
-    value: MockIntersectionObserver,
+  writable: true,
+  configurable: true,
+  value: MockIntersectionObserver,
 });
 
 Object.defineProperty(global, 'IntersectionObserver', {
-    writable: true,
-    configurable: true,
-    value: MockIntersectionObserver,
+  writable: true,
+  configurable: true,
+  value: MockIntersectionObserver,
 });
 
-// Mock localStorage for tests
+const store: Record<string, string> = {};
+
 const localStorageMock = {
-    getItem: vi.fn(),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-    clear: vi.fn(),
-    length: 0,
-    key: vi.fn(),
+  getItem: vi.fn((key: string) => store[key] ?? null),
+  setItem: vi.fn((key: string, value: string) => {
+    store[key] = String(value);
+  }),
+  removeItem: vi.fn((key: string) => {
+    delete store[key];
+  }),
+  clear: vi.fn(() => {
+    Object.keys(store).forEach((k) => delete store[k]);
+  }),
+  get length() {
+    return Object.keys(store).length;
+  },
+  key: vi.fn((index: number) => Object.keys(store)[index] ?? null),
 };
 
 Object.defineProperty(window, 'localStorage', {
-    value: localStorageMock,
+  value: localStorageMock,
+  configurable: true,
 });
 
-// Reset mocks between tests
 beforeEach(() => {
-    vi.clearAllMocks();
-    localStorageMock.getItem.mockReturnValue(null);
+  vi.clearAllMocks();
+  Object.keys(store).forEach((k) => delete store[k]);
 });

@@ -1,7 +1,7 @@
 {
   "name": "chorde",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "A modern songbook application for musicians with ChordPro support",
   "keywords": [
     "music",
@@ -25,9 +25,26 @@
     "lint": "npm run lint --workspaces",
     "test": "npm run test --workspaces",
     "predeploy": "npm run build --workspace=@chorde/web",
-    "deploy": "gh-pages -d packages/web/dist"
+    "deploy": "gh-pages -d packages/web/dist",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"packages/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
-    "gh-pages": "^6.3.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
+    "gh-pages": "^6.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
+    "typescript-eslint": "^8.58.2"
   }
 }

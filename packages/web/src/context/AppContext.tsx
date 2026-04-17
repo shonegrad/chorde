@@ -1,98 +1,99 @@
-import { createContext, useState, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useState, useEffect, useCallback } from 'react';
 import type { Song, ViewMode } from '../types';
-import type { AppContextType, AppProviderProps, SongFilter, ViewState } from './types';
-import { LocalLibraryStore } from '../lib/libraryStore';
+import type { AppContextType, AppProviderProps, SongFilter } from './types';
+import { IndexedDBLibraryStore } from '../lib/libraryStore';
 
-import { SEED_SONGS } from '../data/seedSongs';
-import { ROCK_PACK } from '../data/rockPack';
-import { ROCK_PACK_2 } from '../data/rockPack2';
-import { JAZZ_PACK } from '../data/jazzPack';
-import { MIX_PACK } from '../data/mixPack';
-import { EXTERNAL_248_PACK } from '../data/external_248';
-
-const STORAGE_KEY = 'chorde_songs';
-const VERSION_KEY = 'chorde_version';
 const VIEW_MODE_KEY = 'chorde_view_mode';
-const CURRENT_VERSION = '2.5';
+
+async function loadSeedSongs(): Promise<Song[]> {
+  const [{ SEED_SONGS }, { ROCK_PACK }, { ROCK_PACK_2 }, { JAZZ_PACK }, { MIX_PACK }] =
+    await Promise.all([
+      import('../data/seedSongs'),
+      import('../data/rockPack'),
+      import('../data/rockPack2'),
+      import('../data/jazzPack'),
+      import('../data/mixPack'),
+    ]);
+
+  return [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2, ...JAZZ_PACK, ...MIX_PACK];
+}
+
+const store = new IndexedDBLibraryStore();
 
 export const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: AppProviderProps) {
-  const defaultSongs = [
-    ...SEED_SONGS,
-    ...ROCK_PACK,
-    ...ROCK_PACK_2,
-    ...JAZZ_PACK,
-    ...MIX_PACK,
-    ...(EXTERNAL_248_PACK ?? [])
-  ];
-
-  const libraryStore = new LocalLibraryStore(STORAGE_KEY, VERSION_KEY, CURRENT_VERSION);
   const [songs, setSongs] = useState<Song[]>([]);
-  const [view, setView] = useState<ViewState>('LIST');
-  const [activeSong, setActiveSong] = useState<Song | undefined>(undefined);
   const [filter, setFilter] = useState<SongFilter | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const [viewMode, setViewModeState] = useState<ViewMode>(() => {
     const stored = localStorage.getItem(VIEW_MODE_KEY);
-    return (stored === 'list' || stored === 'grid') ? (stored as ViewMode) : 'grid';
+    return stored === 'list' || stored === 'grid' ? (stored as ViewMode) : 'grid';
   });
+
   const setViewMode = (mode: ViewMode) => {
     setViewModeState(mode);
     localStorage.setItem(VIEW_MODE_KEY, mode);
   };
 
-  // Initialize library from storage
+  const seedSongsRef = useCallback(() => loadSeedSongs(), []);
+
   useEffect(() => {
-    // Load initial songs from library store
-    const storedSongs = libraryStore.listSongs();
-    const seedSet = new Set<string>(defaultSongs.map(s => s.id));
-    
-    if (storedSongs.length === 0) {
-      // No stored data, use default songs
-      libraryStore.bulkUpsert(defaultSongs);
-      setSongs(defaultSongs);
-    } else {
-      // Check if we need to merge with default songs (for new default songs)
-      const merged = [...defaultSongs, ...storedSongs.filter(s => !seedSet.has(s.id))];
-      libraryStore.bulkUpsert(merged);
-      setSongs(merged);
-    }
+    (async () => {
+      try {
+        const seedSongs = await seedSongsRef();
+        const stored = await store.listSongs();
+        if (stored.length === 0) {
+          await store.bulkUpsert(seedSongs);
+          setSongs(seedSongs);
+        } else {
+          const seedIds = new Set(seedSongs.map((s) => s.id));
+          const merged = [...seedSongs, ...stored.filter((s) => !seedIds.has(s.id))];
+          await store.bulkUpsert(merged);
+          setSongs(merged);
+        }
+      } catch (e) {
+        console.error('Failed to initialize library:', e);
+        const seedSongs = await seedSongsRef();
+        setSongs(seedSongs);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [seedSongsRef]);
+
+  const saveSong = useCallback(async (song: Song) => {
+    await store.upsertSong(song);
+    setSongs((prev) => [...prev.filter((s) => s.id !== song.id), song]);
   }, []);
 
-  const saveSong = (song: Song) => {
-    libraryStore.upsertSong(song);
-    setSongs(prev => [...prev, song]);
-  };
-  
-  const deleteSong = (id: string) => {
-    libraryStore.deleteSong(id);
-    setSongs(prev => prev.filter(s => s.id !== id));
-  };
-  
-  const resetLibrary = () => {
-    libraryStore.bulkUpsert(defaultSongs);
-    setSongs(defaultSongs);
-  };
+  const deleteSong = useCallback(async (id: string) => {
+    await store.deleteSong(id);
+    setSongs((prev) => prev.filter((s) => s.id !== id));
+  }, []);
+
+  const resetLibrary = useCallback(async () => {
+    const seedSongs = await seedSongsRef();
+    await store.bulkUpsert(seedSongs);
+    setSongs(seedSongs);
+  }, [seedSongsRef]);
 
   const value: AppContextType = {
     songs,
     saveSong,
     deleteSong,
     resetLibrary,
-    view,
-    setView,
-    activeSong,
-    setActiveSong,
     filter,
     setFilter,
     viewMode,
     setViewMode,
   };
 
-  return (
-    <AppContext.Provider value={value}>
-      {children}
-    </AppContext.Provider>
-  );
+  if (loading) {
+    return null;
+  }
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }

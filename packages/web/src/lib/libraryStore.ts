@@ -1,17 +1,201 @@
 import type { Song } from '../types';
 
-// LibraryStore interface as per Phase 1A
 export interface LibraryStore {
-  listSongs(): Song[];
-  getSong(id: string): Song | undefined;
-  upsertSong(song: Song): void;
-  deleteSong(id: string): void;
-  bulkUpsert(songs: Song[]): void;
-  exportSnapshot(): string; // Returns JSON string of the snapshot
-  importSnapshot(snapshot: string): void; // Merges snapshot into local library
+  listSongs(): Promise<Song[]>;
+  listSongsSync(): Song[];
+  getSong(id: string): Promise<Song | undefined>;
+  upsertSong(song: Song): Promise<void>;
+  deleteSong(id: string): Promise<void>;
+  bulkUpsert(songs: Song[]): Promise<void>;
+  exportSnapshot(): string;
+  importSnapshot(snapshot: string): Promise<void>;
 }
 
-// Simple implementation using localStorage
+const DB_NAME = 'chorde-library';
+const DB_VERSION = 1;
+const STORE_NAME = 'songs';
+const MIGRATION_KEY = 'chorde_idb_migrated';
+
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        store.createIndex('artist', 'artist', { unique: false });
+        store.createIndex('key', 'key', { unique: false });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function promisifyRequest<T>(request: IDBRequest<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function transactionComplete(tx: IDBTransaction): Promise<void> {
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error || new Error('Transaction aborted'));
+  });
+}
+
+export class IndexedDBLibraryStore implements LibraryStore {
+  private memoryCache: Song[] = [];
+  private initialized = false;
+  private initPromise: Promise<void> | null = null;
+
+  constructor() {
+    this.initPromise = this.migrateFromLocalStorage().then(() => this.loadCache());
+  }
+
+  private async ensureInit(): Promise<void> {
+    if (this.initialized) return;
+    await this.initPromise;
+  }
+
+  private async migrateFromLocalStorage(): Promise<void> {
+    const alreadyMigrated = localStorage.getItem(MIGRATION_KEY);
+    if (alreadyMigrated) return;
+
+    const lsKey = 'chorde_songs';
+    const stored = localStorage.getItem(lsKey);
+    if (!stored) {
+      localStorage.setItem(MIGRATION_KEY, 'true');
+      return;
+    }
+
+    try {
+      const songs: Song[] = JSON.parse(stored);
+      if (Array.isArray(songs) && songs.length > 0) {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        for (const song of songs) {
+          store.put(song);
+        }
+        await transactionComplete(tx);
+        db.close();
+      }
+    } catch (e) {
+      console.error('Failed to migrate from localStorage:', e);
+    }
+
+    localStorage.setItem(MIGRATION_KEY, 'true');
+  }
+
+  private async loadCache(): Promise<void> {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    this.memoryCache = await promisifyRequest(store.getAll());
+    this.initialized = true;
+    db.close();
+  }
+
+  private async persistSong(song: Song): Promise<void> {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.put(song);
+    await transactionComplete(tx);
+    db.close();
+  }
+
+  private async persistDelete(id: string): Promise<void> {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.delete(id);
+    await transactionComplete(tx);
+    db.close();
+  }
+
+  async listSongs(): Promise<Song[]> {
+    await this.ensureInit();
+    return [...this.memoryCache];
+  }
+
+  listSongsSync(): Song[] {
+    return [...this.memoryCache];
+  }
+
+  async getSong(id: string): Promise<Song | undefined> {
+    await this.ensureInit();
+    return this.memoryCache.find((s) => s.id === id);
+  }
+
+  async upsertSong(song: Song): Promise<void> {
+    await this.ensureInit();
+    await this.persistSong(song);
+    const idx = this.memoryCache.findIndex((s) => s.id === song.id);
+    if (idx >= 0) {
+      this.memoryCache[idx] = song;
+    } else {
+      this.memoryCache.push(song);
+    }
+  }
+
+  async deleteSong(id: string): Promise<void> {
+    await this.ensureInit();
+    await this.persistDelete(id);
+    this.memoryCache = this.memoryCache.filter((s) => s.id !== id);
+  }
+
+  async bulkUpsert(songs: Song[]): Promise<void> {
+    await this.ensureInit();
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    for (const song of songs) {
+      store.put(song);
+    }
+    await transactionComplete(tx);
+    db.close();
+
+    const songMap = new Map<string, Song>();
+    this.memoryCache.forEach((s) => songMap.set(s.id, s));
+    songs.forEach((s) => songMap.set(s.id, s));
+    this.memoryCache = Array.from(songMap.values());
+  }
+
+  exportSnapshot(): string {
+    const snapshot = {
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      songs: this.memoryCache,
+      setlists: [],
+    };
+    return JSON.stringify(snapshot, null, 2);
+  }
+
+  async importSnapshot(snapshot: string): Promise<void> {
+    let parsed;
+    try {
+      parsed = JSON.parse(snapshot);
+    } catch {
+      throw new Error('Invalid snapshot format');
+    }
+
+    if (!parsed.schemaVersion || parsed.schemaVersion !== 1) {
+      throw new Error('Unsupported schema version');
+    }
+
+    if (!Array.isArray(parsed.songs)) {
+      throw new Error('Invalid snapshot: missing songs array');
+    }
+
+    await this.bulkUpsert(parsed.songs);
+  }
+}
+
 export class LocalLibraryStore implements LibraryStore {
   private storageKey: string;
   private versionKey: string;
@@ -28,12 +212,9 @@ export class LocalLibraryStore implements LibraryStore {
     const stored = localStorage.getItem(this.storageKey);
     const storedVersion = localStorage.getItem(this.versionKey);
     if (!stored) {
-      // Initialize with empty array if nothing stored
       localStorage.setItem(this.storageKey, JSON.stringify([]));
       localStorage.setItem(this.versionKey, this.currentVersion);
     } else if (storedVersion !== this.currentVersion) {
-      // Version mismatch - we could run migrations here
-      // For now, we'll just update the version and keep the data
       localStorage.setItem(this.versionKey, this.currentVersion);
     }
   }
@@ -47,17 +228,21 @@ export class LocalLibraryStore implements LibraryStore {
     localStorage.setItem(this.storageKey, JSON.stringify(songs));
   }
 
-  listSongs(): Song[] {
+  async listSongs(): Promise<Song[]> {
     return this.getSongs();
   }
 
-  getSong(id: string): Song | undefined {
-    return this.getSongs().find(song => song.id === id);
+  listSongsSync(): Song[] {
+    return this.getSongs();
   }
 
-  upsertSong(song: Song): void {
+  async getSong(id: string): Promise<Song | undefined> {
+    return this.getSongs().find((song) => song.id === id);
+  }
+
+  async upsertSong(song: Song): Promise<void> {
     const songs = this.getSongs();
-    const index = songs.findIndex(s => s.id === song.id);
+    const index = songs.findIndex((s) => s.id === song.id);
     if (index >= 0) {
       songs[index] = song;
     } else {
@@ -66,16 +251,15 @@ export class LocalLibraryStore implements LibraryStore {
     this.setSongs(songs);
   }
 
-  deleteSong(id: string): void {
-    const songs = this.getSongs().filter(song => song.id !== id);
-    this.setSongs(songs);
+  async deleteSong(id: string): Promise<void> {
+    this.setSongs(this.getSongs().filter((song) => song.id !== id));
   }
 
-  bulkUpsert(songs: Song[]): void {
+  async bulkUpsert(songs: Song[]): Promise<void> {
     const current = this.getSongs();
     const songMap = new Map<string, Song>();
-    current.forEach(song => songMap.set(song.id, song));
-    songs.forEach(song => songMap.set(song.id, song));
+    current.forEach((song) => songMap.set(song.id, song));
+    songs.forEach((song) => songMap.set(song.id, song));
     this.setSongs(Array.from(songMap.values()));
   }
 
@@ -84,21 +268,20 @@ export class LocalLibraryStore implements LibraryStore {
     const snapshot = {
       schemaVersion: 1,
       exportedAt: new Date().toISOString(),
-      songs: songs,
-      setlists: [] // For future use
+      songs,
+      setlists: [],
     };
     return JSON.stringify(snapshot, null, 2);
   }
 
-  importSnapshot(snapshot: string): void {
+  async importSnapshot(snapshot: string): Promise<void> {
     let parsed;
     try {
       parsed = JSON.parse(snapshot);
-    } catch (e) {
+    } catch {
       throw new Error('Invalid snapshot format');
     }
 
-    // Validate schema version (for now, we only support version 1)
     if (!parsed.schemaVersion || parsed.schemaVersion !== 1) {
       throw new Error('Unsupported schema version');
     }
@@ -107,7 +290,6 @@ export class LocalLibraryStore implements LibraryStore {
       throw new Error('Invalid snapshot: missing songs array');
     }
 
-    // Merge the snapshot songs into the current library
-    this.bulkUpsert(parsed.songs);
+    await this.bulkUpsert(parsed.songs);
   }
 }
