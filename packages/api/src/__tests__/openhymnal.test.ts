@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { OpenHymnalAdapter } from '../adapters/openhymnal.js';
 
-vi.stubGlobal('fetch', vi.fn());
-
 describe('OpenHymnalAdapter', () => {
   const adapter = new OpenHymnalAdapter();
 
   beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
     vi.resetAllMocks();
     adapter.indexCache = null;
     adapter.cacheTimestamp = 0;

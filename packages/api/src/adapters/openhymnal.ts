@@ -163,7 +163,11 @@ export class OpenHymnalAdapter extends BaseAdapter {
           continue;
         }
 
-        if (trimmed.includes(':') && !trimmed.match(/\[.*\]/)) {
+        if (
+          trimmed.includes(':') &&
+          !trimmed.match(/\[.*\]/) &&
+          !trimmed.match(/^(Verse|Chorus|Bridge|Pre-Chorus|Intro|Outro|Interlude|Tag)\s*\d*:?/i)
+        ) {
           continue;
         }
 
