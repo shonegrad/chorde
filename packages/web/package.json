@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run validate:songs && tsc -b && vite build",
+    "validate:songs": "vitest run src/lib/__tests__/songValidation.test.ts",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",

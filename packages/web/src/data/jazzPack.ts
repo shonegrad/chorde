@@ -1,18 +1,52 @@
 import type { Song } from '../types';
 
+const simpleHash = (str: string): string => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
+};
+
+const NOW = new Date().toISOString();
+
+const jazzSong = (overrides: Partial<Song> & { content: string }): Song => ({
+  id: overrides.id ?? crypto.randomUUID(),
+  title: overrides.title ?? 'Untitled',
+  artist: overrides.artist ?? 'Unknown Artist',
+  content: overrides.content,
+  format: 'chordpro' as const,
+  capo: overrides.capo ?? 0,
+  tags: overrides.tags ?? [],
+  key: overrides.key ?? 'C',
+  bpm: overrides.bpm ?? 120,
+  timeSignature: overrides.timeSignature ?? '4/4',
+  attribution: {
+    sourceName: 'Jazz Standard',
+    sourceUrl: '',
+    license: 'Public Domain',
+    author: overrides.artist,
+    notes: '',
+    ...(overrides.attribution ?? {}),
+  },
+  rightsStatus: 'open' as const,
+  createdAt: overrides.createdAt ?? NOW,
+  updatedAt: overrides.updatedAt ?? NOW,
+  hash: overrides.hash ?? simpleHash(overrides.content),
+});
+
 // Public-domain / widely-performed jazz standards.
-// Note: Chord charts are simple lead-sheet style; feel free to refine.
 export const JAZZ_PACK: Song[] = [
-    {
-        id: 'jazz-pack-all-of-me',
-        title: 'All of Me',
-        artist: 'Gerald Marks & Seymour Simons',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: All of Me}
+  jazzSong({
+    id: 'jazz-pack-all-of-me',
+    title: 'All of Me',
+    artist: 'Gerald Marks & Seymour Simons',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'C',
+    bpm: 120,
+    content: `{title: All of Me}
 {artist: Gerald Marks & Seymour Simons}
 {key: C}
 
@@ -28,18 +62,16 @@ export const JAZZ_PACK: Song[] = [
 [C]You took the part that once was [E7]my heart
 [Am]So why not take all of [D7]me
 [G7]All of me
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-autumn-leaves',
-        title: 'Autumn Leaves',
-        artist: 'Joseph Kosma',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'Gm',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Autumn Leaves}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-autumn-leaves',
+    title: 'Autumn Leaves',
+    artist: 'Joseph Kosma',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'Gm',
+    bpm: 100,
+    content: `{title: Autumn Leaves}
 {artist: Joseph Kosma}
 {key: Gm}
 
@@ -54,18 +86,16 @@ export const JAZZ_PACK: Song[] = [
 [BbMaj7]And soon I'll hear old winter's [EbMaj7]song
 [Am7b5]But I miss you most of all my [D7]darling
 [Gm]When autumn leaves start to [Gm]fall
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-blue-bossa',
-        title: 'Blue Bossa',
-        artist: 'Kenny Dorham',
-        tags: ['Jazz', 'Standard', 'Bossa Nova'],
-        key: 'Cm',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Blue Bossa}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-blue-bossa',
+    title: 'Blue Bossa',
+    artist: 'Kenny Dorham',
+    tags: ['Jazz', 'Standard', 'Bossa Nova'],
+    key: 'Cm',
+    bpm: 110,
+    content: `{title: Blue Bossa}
 {artist: Kenny Dorham}
 {key: Cm}
 
@@ -83,18 +113,16 @@ export const JAZZ_PACK: Song[] = [
 [Dm7b5]  [G7]
 [Cm7]  [Fm7]
 [Dm7b5]  [G7]
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-fly-me-to-the-moon',
-        title: 'Fly Me to the Moon',
-        artist: 'Bart Howard',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Fly Me to the Moon}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-fly-me-to-the-moon',
+    title: 'Fly Me to the Moon',
+    artist: 'Bart Howard',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'C',
+    bpm: 140,
+    content: `{title: Fly Me to the Moon}
 {artist: Bart Howard}
 {key: C}
 
@@ -117,18 +145,16 @@ export const JAZZ_PACK: Song[] = [
 {start_of_chorus: Tag}
 [Am7]In other words, [Dm7]please be true
 [G7]In other words, I [Cmaj7]love you
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-take-the-a-train',
-        title: 'Take the A Train',
-        artist: 'Billy Strayhorn',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Take the A Train}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-take-the-a-train',
+    title: 'Take the A Train',
+    artist: 'Billy Strayhorn',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'C',
+    bpm: 160,
+    content: `{title: Take the A Train}
 {artist: Billy Strayhorn}
 {key: C}
 
@@ -147,18 +173,16 @@ Listen to those rails a-thrumming
 {start_of_chorus: Tag}
 [C6]All aboard, get on the A [D7]train
 Soon you'll be on Sugar Hill in [G7]Harlem
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-satin-doll',
-        title: 'Satin Doll',
-        artist: 'Duke Ellington',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Satin Doll}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-satin-doll',
+    title: 'Satin Doll',
+    artist: 'Duke Ellington',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'C',
+    bpm: 140,
+    content: `{title: Satin Doll}
 {artist: Duke Ellington}
 {key: C}
 
@@ -171,18 +195,16 @@ Her shoulder, she digs me out
 [C6]Baby, I'm a poor man
 [D7]But I can still afford to buy you
 [G7]A satin doll
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-misty',
-        title: 'Misty',
-        artist: 'Erroll Garner',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'Eb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Misty}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-misty',
+    title: 'Misty',
+    artist: 'Erroll Garner',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'Eb',
+    bpm: 70,
+    content: `{title: Misty}
 {artist: Erroll Garner}
 {key: Eb}
 
@@ -193,18 +215,16 @@ Her shoulder, she digs me out
 {start_of_chorus}
 [EbMaj7]I can't understand, I get [Gm7]misty just holding your hand
 [Fm7]Walk my way and a thousand [Bb7]violins begin to play
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-summertime',
-        title: 'Summertime',
-        artist: 'George Gershwin',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'Am',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Summertime}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-summertime',
+    title: 'Summertime',
+    artist: 'George Gershwin',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'Am',
+    bpm: 80,
+    content: `{title: Summertime}
 {artist: George Gershwin}
 {key: Am}
 
@@ -215,18 +235,16 @@ Her shoulder, she digs me out
 {start_of_chorus}
 [Am]Oh, your daddy's rich, and your [E7]ma is good lookin'
 [Am]So hush, little baby, [E7]don't you cry
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-my-funny-valentine',
-        title: 'My Funny Valentine',
-        artist: 'Richard Rodgers',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: My Funny Valentine}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-my-funny-valentine',
+    title: 'My Funny Valentine',
+    artist: 'Richard Rodgers',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'C',
+    bpm: 90,
+    content: `{title: My Funny Valentine}
 {artist: Richard Rodgers}
 {key: C}
 
@@ -237,18 +255,16 @@ Her shoulder, she digs me out
 {start_of_chorus}
 [Am7]Your looks are laughable, unphotographable
 [Dm7]Yet you're my favorite work of [G7]art
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-round-midnight',
-        title: "'Round Midnight",
-        artist: 'Thelonious Monk',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'Eb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: 'Round Midnight}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-round-midnight',
+    title: "'Round Midnight",
+    artist: 'Thelonious Monk',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'Eb',
+    bpm: 80,
+    content: `{title: 'Round Midnight}
 {artist: Thelonious Monk}
 {key: Eb}
 
@@ -258,21 +274,20 @@ Her shoulder, she digs me out
 {start_of_verse}
 [EbMaj7]It begins to tell
 \n
+
 {start_of_chorus}
 [Am7b5]  [D7]  [Gm7]  [C7]
 [Fm7]  [Bb7]  [EbMaj7]
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-stella-by-starlight',
-        title: 'Stella by Starlight',
-        artist: 'Victor Young',
-        tags: ['Jazz', 'Standard'],
-        key: 'Bb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Stella by Starlight}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-stella-by-starlight',
+    title: 'Stella by Starlight',
+    artist: 'Victor Young',
+    tags: ['Jazz', 'Standard'],
+    key: 'Bb',
+    bpm: 120,
+    content: `{title: Stella by Starlight}
 {artist: Victor Young}
 {key: Bb}
 
@@ -283,18 +298,16 @@ Her shoulder, she digs me out
 {start_of_chorus}
 [BbMaj7]  [Eb7]  [AbMaj7]  [Db7]
 [GbMaj7]  [F7]  [BbMaj7]
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-all-the-things-you-are',
-        title: 'All the Things You Are',
-        artist: 'Jerome Kern',
-        tags: ['Jazz', 'Standard'],
-        key: 'Ab',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: All the Things You Are}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-all-the-things-you-are',
+    title: 'All the Things You Are',
+    artist: 'Jerome Kern',
+    tags: ['Jazz', 'Standard'],
+    key: 'Ab',
+    bpm: 120,
+    content: `{title: All the Things You Are}
 {artist: Jerome Kern}
 {key: Ab}
 
@@ -307,18 +320,16 @@ Her shoulder, she digs me out
 [Fm7]  [Bb7]  [EbMaj7]  [AbMaj7]
 [DbMaj7]  [G7]  [Cmaj7]
 [Fm7]  [Bb7]  [EbMaj7]
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-billies-bounce',
-        title: "Billie's Bounce",
-        artist: 'Charlie Parker',
-        tags: ['Jazz', 'Standard', 'Blues'],
-        key: 'F',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Billie's Bounce}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-billies-bounce',
+    title: "Billie's Bounce",
+    artist: 'Charlie Parker',
+    tags: ['Jazz', 'Standard', 'Blues'],
+    key: 'F',
+    bpm: 180,
+    content: `{title: Billie's Bounce}
 {artist: Charlie Parker}
 {key: F}
 
@@ -326,18 +337,16 @@ Her shoulder, she digs me out
 [F7]  [Bb7]  [F7]  [F7]
 [Bb7]  [Bb7]  [F7]  [D7]
 [Gm7]  [C7]  [F7]  [C7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-blue-monk',
-        title: 'Blue Monk',
-        artist: 'Thelonious Monk',
-        tags: ['Jazz', 'Standard', 'Blues'],
-        key: 'Bb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Blue Monk}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-blue-monk',
+    title: 'Blue Monk',
+    artist: 'Thelonious Monk',
+    tags: ['Jazz', 'Standard', 'Blues'],
+    key: 'Bb',
+    bpm: 140,
+    content: `{title: Blue Monk}
 {artist: Thelonious Monk}
 {key: Bb}
 
@@ -345,18 +354,16 @@ Her shoulder, she digs me out
 [Bb7]  [Eb7]  [Bb7]  [Bb7]
 [Eb7]  [Eb7]  [Bb7]  [G7]
 [Cm7]  [F7]  [Bb7]  [F7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-body-and-soul',
-        title: 'Body and Soul',
-        artist: 'Johnny Green',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'Db',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Body and Soul}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-body-and-soul',
+    title: 'Body and Soul',
+    artist: 'Johnny Green',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'Db',
+    bpm: 70,
+    content: `{title: Body and Soul}
 {artist: Johnny Green}
 {key: Db}
 
@@ -364,18 +371,16 @@ Her shoulder, she digs me out
 [DbMaj7]  [Dbm6]  [Ab7]  [DbMaj7]
 [Fm7]  [Bb7]  [EbMaj7]  [Ab7]
 [DbMaj7]  [G7]  [Cm7]  [F7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-cheek-to-cheek',
-        title: 'Cheek to Cheek',
-        artist: 'Irving Berlin',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Cheek to Cheek}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-cheek-to-cheek',
+    title: 'Cheek to Cheek',
+    artist: 'Irving Berlin',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'C',
+    bpm: 140,
+    content: `{title: Cheek to Cheek}
 {artist: Irving Berlin}
 {key: C}
 
@@ -386,36 +391,32 @@ And my heart beats so that I can hardly speak
 {start_of_chorus}
 [C]And I seem to find the happiness I seek
 When we're out together dancing cheek to cheek
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-cantaloupe-island',
-        title: 'Cantaloupe Island',
-        artist: 'Herbie Hancock',
-        tags: ['Jazz', 'Standard', 'Modal'],
-        key: 'Fm',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Cantaloupe Island}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-cantaloupe-island',
+    title: 'Cantaloupe Island',
+    artist: 'Herbie Hancock',
+    tags: ['Jazz', 'Standard', 'Modal'],
+    key: 'Fm',
+    bpm: 100,
+    content: `{title: Cantaloupe Island}
 {artist: Herbie Hancock}
 {key: Fm}
 
 {start_of_verse}
 [Fm7]  [Db7]  [Fm7]  [Db7]
 [Fm7]  [Db7]  [Fm7]  [Db7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-caravan',
-        title: 'Caravan',
-        artist: 'Juan Tizol',
-        tags: ['Jazz', 'Standard', 'Latin'],
-        key: 'Dm',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Caravan}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-caravan',
+    title: 'Caravan',
+    artist: 'Juan Tizol',
+    tags: ['Jazz', 'Standard', 'Latin'],
+    key: 'Dm',
+    bpm: 160,
+    content: `{title: Caravan}
 {artist: Juan Tizol}
 {key: Dm}
 
@@ -423,18 +424,16 @@ When we're out together dancing cheek to cheek
 [Dm]  [Dm]  [E7]  [E7]
 [Dm]  [Dm]  [A7]  [A7]
 [Dm]  [Gm]  [A7]  [Dm]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-cherokee',
-        title: 'Cherokee',
-        artist: 'Ray Noble',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'Bb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Cherokee}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-cherokee',
+    title: 'Cherokee',
+    artist: 'Ray Noble',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'Bb',
+    bpm: 200,
+    content: `{title: Cherokee}
 {artist: Ray Noble}
 {key: Bb}
 
@@ -445,18 +444,16 @@ When we're out together dancing cheek to cheek
 {start_of_chorus}
 [EbMaj7]  [Ab7]  [DbMaj7]  [DbMaj7]
 [Dm7b5]  [G7]  [Cm7]  [F7]
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-darn-that-dream',
-        title: 'Darn That Dream',
-        artist: 'Jimmy Van Heusen',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Darn That Dream}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-darn-that-dream',
+    title: 'Darn That Dream',
+    artist: 'Jimmy Van Heusen',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'C',
+    bpm: 80,
+    content: `{title: Darn That Dream}
 {artist: Jimmy Van Heusen}
 {key: C}
 
@@ -467,36 +464,32 @@ You say you love me and hold me tight
 {start_of_chorus}
 [Em7]But when I awaken and you are out of sight
 Oh, darn that dream
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-days-of-wine-and-roses',
-        title: 'Days of Wine and Roses',
-        artist: 'Henry Mancini',
-        tags: ['Jazz', 'Standard'],
-        key: 'F',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Days of Wine and Roses}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-days-of-wine-and-roses',
+    title: 'Days of Wine and Roses',
+    artist: 'Henry Mancini',
+    tags: ['Jazz', 'Standard'],
+    key: 'F',
+    bpm: 100,
+    content: `{title: Days of Wine and Roses}
 {artist: Henry Mancini}
 {key: F}
 
 {start_of_verse}
 [Fmaj7]  [Em7b5]  [A7]  [Dm7]
 [Gm7]  [C7]  [Fmaj7]  [Fmaj7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-dont-get-around-much-anymore',
-        title: "Don't Get Around Much Anymore",
-        artist: 'Duke Ellington',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Don't Get Around Much Anymore}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-dont-get-around-much-anymore',
+    title: "Don't Get Around Much Anymore",
+    artist: 'Duke Ellington',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'C',
+    bpm: 120,
+    content: `{title: Don't Get Around Much Anymore}
 {artist: Duke Ellington}
 {key: C}
 
@@ -507,18 +500,16 @@ Heard they crowded the floor
 {start_of_chorus}
 [C]Couldn't bear it without you
 Don't get around much anymore
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-equinox',
-        title: 'Equinox',
-        artist: 'John Coltrane',
-        tags: ['Jazz', 'Standard', 'Modal'],
-        key: 'Cm',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Equinox}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-equinox',
+    title: 'Equinox',
+    artist: 'John Coltrane',
+    tags: ['Jazz', 'Standard', 'Modal'],
+    key: 'Cm',
+    bpm: 100,
+    content: `{title: Equinox}
 {artist: John Coltrane}
 {key: Cm}
 
@@ -526,18 +517,16 @@ Don't get around much anymore
 [Cm7]  [Cm7]  [Fm7]  [Fm7]
 [Cm7]  [Cm7]  [Ab7]  [Ab7]
 [Dm7b5]  [G7]  [Cm7]  [G7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-footprints',
-        title: 'Footprints',
-        artist: 'Wayne Shorter',
-        tags: ['Jazz', 'Standard', 'Modal'],
-        key: 'Cm',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Footprints}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-footprints',
+    title: 'Footprints',
+    artist: 'Wayne Shorter',
+    tags: ['Jazz', 'Standard', 'Modal'],
+    key: 'Cm',
+    bpm: 90,
+    content: `{title: Footprints}
 {artist: Wayne Shorter}
 {key: Cm}
 
@@ -545,18 +534,16 @@ Don't get around much anymore
 [Cm7]  [Fm7]  [Cm7]  [Cm7]
 [Fm7]  [Fm7]  [Cm7]  [Cm7]
 [Db7]  [Db7]  [Cm7]  [Cm7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-girl-from-ipanema',
-        title: 'The Girl from Ipanema',
-        artist: 'Antonio Carlos Jobim',
-        tags: ['Jazz', 'Standard', 'Bossa Nova'],
-        key: 'F',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: The Girl from Ipanema}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-girl-from-ipanema',
+    title: 'The Girl from Ipanema',
+    artist: 'Antonio Carlos Jobim',
+    tags: ['Jazz', 'Standard', 'Bossa Nova'],
+    key: 'F',
+    bpm: 100,
+    content: `{title: The Girl from Ipanema}
 {artist: Antonio Carlos Jobim}
 {key: F}
 
@@ -571,18 +558,16 @@ Don't get around much anymore
 [G7]How can I tell her I love her
 [Dm7]Yes I would give my heart gladly
 [G7]But each day when she walks to the sea
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-have-you-met-miss-jones',
-        title: 'Have You Met Miss Jones?',
-        artist: 'Richard Rodgers',
-        tags: ['Jazz', 'Standard'],
-        key: 'F',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Have You Met Miss Jones?}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-have-you-met-miss-jones',
+    title: 'Have You Met Miss Jones?',
+    artist: 'Richard Rodgers',
+    tags: ['Jazz', 'Standard'],
+    key: 'F',
+    bpm: 140,
+    content: `{title: Have You Met Miss Jones?}
 {artist: Richard Rodgers}
 {key: F}
 
@@ -590,18 +575,16 @@ Don't get around much anymore
 [Fmaj7]  [Fmaj7]  [Fmaj7]  [Fmaj7]
 [Fm7]  [Bb7]  [Am7]  [D7]
 [Gm7]  [C7]  [Fmaj7]  [Fmaj7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-how-high-the-moon',
-        title: 'How High the Moon',
-        artist: 'Morgan Lewis',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'G',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: How High the Moon}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-how-high-the-moon',
+    title: 'How High the Moon',
+    artist: 'Morgan Lewis',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'G',
+    bpm: 180,
+    content: `{title: How High the Moon}
 {artist: Morgan Lewis}
 {key: G}
 
@@ -609,18 +592,16 @@ Don't get around much anymore
 [Gmaj7]  [Gmaj7]  [Gmaj7]  [Gmaj7]
 [Gm7]  [C7]  [Fmaj7]  [Fmaj7]
 [Fm7]  [Bb7]  [Em7]  [A7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-i-got-rhythm',
-        title: 'I Got Rhythm',
-        artist: 'George Gershwin',
-        tags: ['Jazz', 'Standard', 'Rhythm Changes'],
-        key: 'Bb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: I Got Rhythm}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-i-got-rhythm',
+    title: 'I Got Rhythm',
+    artist: 'George Gershwin',
+    tags: ['Jazz', 'Standard', 'Rhythm Changes'],
+    key: 'Bb',
+    bpm: 180,
+    content: `{title: I Got Rhythm}
 {artist: George Gershwin}
 {key: Bb}
 
@@ -631,18 +612,16 @@ Don't get around much anymore
 {start_of_bridge}
 [D7]  [D7]  [G7]  [G7]
 [C7]  [C7]  [F7]  [F7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-ill-remember-april',
-        title: "I'll Remember April",
-        artist: 'Gene de Paul',
-        tags: ['Jazz', 'Standard'],
-        key: 'G',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: I'll Remember April}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-ill-remember-april',
+    title: "I'll Remember April",
+    artist: 'Gene de Paul',
+    tags: ['Jazz', 'Standard'],
+    key: 'G',
+    bpm: 160,
+    content: `{title: I'll Remember April}
 {artist: Gene de Paul}
 {key: G}
 
@@ -650,18 +629,16 @@ Don't get around much anymore
 [Gmaj7]  [Gmaj7]  [Bm7]  [E7]
 [Am7]  [D7]  [Gmaj7]  [Gmaj7]
 [Cmaj7]  [Cm7]  [Bm7]  [E7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-it-could-happen-to-you',
-        title: 'It Could Happen to You',
-        artist: 'Jimmy Van Heusen',
-        tags: ['Jazz', 'Standard'],
-        key: 'Eb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: It Could Happen to You}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-it-could-happen-to-you',
+    title: 'It Could Happen to You',
+    artist: 'Jimmy Van Heusen',
+    tags: ['Jazz', 'Standard'],
+    key: 'Eb',
+    bpm: 100,
+    content: `{title: It Could Happen to You}
 {artist: Jimmy Van Heusen}
 {key: Eb}
 
@@ -669,18 +646,16 @@ Don't get around much anymore
 [Ebmaj7]  [Gm7]  [Fm7]  [Bb7]
 [Ebmaj7]  [Gm7]  [Fm7]  [Bb7]
 [Am7b5]  [D7]  [Gm7]  [C7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-just-friends',
-        title: 'Just Friends',
-        artist: 'John Klenner',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'G',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Just Friends}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-just-friends',
+    title: 'Just Friends',
+    artist: 'John Klenner',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'G',
+    bpm: 140,
+    content: `{title: Just Friends}
 {artist: John Klenner}
 {key: G}
 
@@ -688,54 +663,48 @@ Don't get around much anymore
 [Gmaj7]  [Gmaj7]  [Gmaj7]  [Gmaj7]
 [Em7]  [A7]  [Am7]  [D7]
 [Gmaj7]  [Gmaj7]  [E7]  [E7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-laura',
-        title: 'Laura',
-        artist: 'David Raksin',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Laura}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-laura',
+    title: 'Laura',
+    artist: 'David Raksin',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'C',
+    bpm: 80,
+    content: `{title: Laura}
 {artist: David Raksin}
 {key: C}
 
 {start_of_verse}
 [Cmaj7]  [E7]  [Am7]  [D7]
 [Dm7]  [G7]  [Cmaj7]  [Cmaj7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-lullaby-of-birdland',
-        title: 'Lullaby of Birdland',
-        artist: 'George Shearing',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'F',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Lullaby of Birdland}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-lullaby-of-birdland',
+    title: 'Lullaby of Birdland',
+    artist: 'George Shearing',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'F',
+    bpm: 140,
+    content: `{title: Lullaby of Birdland}
 {artist: George Shearing}
 {key: F}
 
 {start_of_verse}
 [Fmaj7]  [Gm7]  [Am7]  [Abm7]
 [Gm7]  [C7]  [Fmaj7]  [Fmaj7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-mack-the-knife',
-        title: 'Mack the Knife',
-        artist: 'Kurt Weill',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Mack the Knife}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-mack-the-knife',
+    title: 'Mack the Knife',
+    artist: 'Kurt Weill',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'C',
+    bpm: 120,
+    content: `{title: Mack the Knife}
 {artist: Kurt Weill}
 {key: C}
 
@@ -746,18 +715,16 @@ And he shows them pearly white
 {start_of_chorus}
 [C]Just a jackknife has old MacHeath, babe
 And he keeps it out of sight
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-my-favorite-things',
-        title: 'My Favorite Things',
-        artist: 'Richard Rodgers',
-        tags: ['Jazz', 'Standard', 'Waltz'],
-        key: 'E',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: My Favorite Things}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-my-favorite-things',
+    title: 'My Favorite Things',
+    artist: 'Richard Rodgers',
+    tags: ['Jazz', 'Standard', 'Waltz'],
+    key: 'E',
+    bpm: 100,
+    content: `{title: My Favorite Things}
 {artist: Richard Rodgers}
 {key: E}
 
@@ -765,18 +732,16 @@ And he keeps it out of sight
 [Em]  [Em]  [Em]  [Em]
 [E7]  [E7]  [Am]  [Am]
 [F#m7b5]  [B7]  [Em]  [Em]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-night-and-day',
-        title: 'Night and Day',
-        artist: 'Cole Porter',
-        tags: ['Jazz', 'Standard'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Night and Day}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-night-and-day',
+    title: 'Night and Day',
+    artist: 'Cole Porter',
+    tags: ['Jazz', 'Standard'],
+    key: 'C',
+    bpm: 100,
+    content: `{title: Night and Day}
 {artist: Cole Porter}
 {key: C}
 
@@ -787,18 +752,16 @@ Only you beneath the moon and under the sun
 {start_of_chorus}
 [C]Whether near to me or far
 It's no matter darling where you are
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-oleo',
-        title: 'Oleo',
-        artist: 'Sonny Rollins',
-        tags: ['Jazz', 'Standard', 'Rhythm Changes'],
-        key: 'Bb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Oleo}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-oleo',
+    title: 'Oleo',
+    artist: 'Sonny Rollins',
+    tags: ['Jazz', 'Standard', 'Rhythm Changes'],
+    key: 'Bb',
+    bpm: 180,
+    content: `{title: Oleo}
 {artist: Sonny Rollins}
 {key: Bb}
 
@@ -809,18 +772,16 @@ It's no matter darling where you are
 {start_of_bridge}
 [D7]  [D7]  [G7]  [G7]
 [C7]  [C7]  [F7]  [F7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-on-green-dolphin-street',
-        title: 'On Green Dolphin Street',
-        artist: 'Bronislaw Kaper',
-        tags: ['Jazz', 'Standard'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: On Green Dolphin Street}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-on-green-dolphin-street',
+    title: 'On Green Dolphin Street',
+    artist: 'Bronislaw Kaper',
+    tags: ['Jazz', 'Standard'],
+    key: 'C',
+    bpm: 140,
+    content: `{title: On Green Dolphin Street}
 {artist: Bronislaw Kaper}
 {key: C}
 
@@ -828,18 +789,16 @@ It's no matter darling where you are
 [Cmaj7]  [Cmaj7]  [Cmaj7]  [Cmaj7]
 [Cm7]  [F7]  [Bbmaj7]  [Ebmaj7]
 [Am7b5]  [D7]  [Gm7]  [C7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-solar',
-        title: 'Solar',
-        artist: 'Miles Davis',
-        tags: ['Jazz', 'Standard', 'Modal'],
-        key: 'Cm',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Solar}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-solar',
+    title: 'Solar',
+    artist: 'Miles Davis',
+    tags: ['Jazz', 'Standard', 'Modal'],
+    key: 'Cm',
+    bpm: 140,
+    content: `{title: Solar}
 {artist: Miles Davis}
 {key: Cm}
 
@@ -847,18 +806,16 @@ It's no matter darling where you are
 [Cm7]  [Fm7]  [Cm7]  [Cm7]
 [Ab7]  [Ab7]  [DbMaj7]  [DbMaj7]
 [Dm7b5]  [G7]  [Cm7]  [G7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-song-for-my-father',
-        title: 'Song for My Father',
-        artist: 'Horace Silver',
-        tags: ['Jazz', 'Standard', 'Latin'],
-        key: 'Fm',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Song for My Father}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-song-for-my-father',
+    title: 'Song for My Father',
+    artist: 'Horace Silver',
+    tags: ['Jazz', 'Standard', 'Latin'],
+    key: 'Fm',
+    bpm: 100,
+    content: `{title: Song for My Father}
 {artist: Horace Silver}
 {key: Fm}
 
@@ -866,18 +823,16 @@ It's no matter darling where you are
 [Fm7]  [Fm7]  [Fm7]  [Fm7]
 [Db7]  [Db7]  [Fm7]  [Fm7]
 [Eb7]  [Db7]  [Fm7]  [Fm7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-softly-as-in-a-morning-sunrise',
-        title: 'Softly, as in a Morning Sunrise',
-        artist: 'Sigmund Romberg',
-        tags: ['Jazz', 'Standard'],
-        key: 'Cm',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Softly, as in a Morning Sunrise}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-softly-as-in-a-morning-sunrise',
+    title: 'Softly, as in a Morning Sunrise',
+    artist: 'Sigmund Romberg',
+    tags: ['Jazz', 'Standard'],
+    key: 'Cm',
+    bpm: 120,
+    content: `{title: Softly, as in a Morning Sunrise}
 {artist: Sigmund Romberg}
 {key: Cm}
 
@@ -885,18 +840,16 @@ It's no matter darling where you are
 [Cm]  [Cm]  [Fm]  [Fm]
 [Cm]  [Cm]  [Ab]  [Ab]
 [Dm7b5]  [G7]  [Cm]  [G7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-someday-my-prince-will-come',
-        title: 'Someday My Prince Will Come',
-        artist: 'Frank Churchill',
-        tags: ['Jazz', 'Standard', 'Waltz'],
-        key: 'Bb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Someday My Prince Will Come}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-someday-my-prince-will-come',
+    title: 'Someday My Prince Will Come',
+    artist: 'Frank Churchill',
+    tags: ['Jazz', 'Standard', 'Waltz'],
+    key: 'Bb',
+    bpm: 100,
+    content: `{title: Someday My Prince Will Come}
 {artist: Frank Churchill}
 {key: Bb}
 
@@ -904,18 +857,16 @@ It's no matter darling where you are
 [Bbmaj7]  [Gm7]  [Cm7]  [F7]
 [Bbmaj7]  [Gm7]  [Cm7]  [F7]
 [Ebmaj7]  [Ab7]  [Dbmaj7]  [Dbmaj7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-st-thomas',
-        title: 'St. Thomas',
-        artist: 'Sonny Rollins',
-        tags: ['Jazz', 'Standard', 'Calypso'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: St. Thomas}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-st-thomas',
+    title: 'St. Thomas',
+    artist: 'Sonny Rollins',
+    tags: ['Jazz', 'Standard', 'Calypso'],
+    key: 'C',
+    bpm: 140,
+    content: `{title: St. Thomas}
 {artist: Sonny Rollins}
 {key: C}
 
@@ -923,18 +874,16 @@ It's no matter darling where you are
 [C6]  [C6]  [C6]  [C6]
 [F6]  [F6]  [C6]  [C6]
 [G7]  [F6]  [C6]  [G7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-stardust',
-        title: 'Stardust',
-        artist: 'Hoagy Carmichael',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'Eb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Stardust}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-stardust',
+    title: 'Stardust',
+    artist: 'Hoagy Carmichael',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'Eb',
+    bpm: 80,
+    content: `{title: Stardust}
 {artist: Hoagy Carmichael}
 {key: Eb}
 
@@ -942,18 +891,16 @@ It's no matter darling where you are
 [Ebmaj7]  [Gm7]  [Fm7]  [Bb7]
 [Ebmaj7]  [Gm7]  [Fm7]  [Bb7]
 [Am7b5]  [D7]  [Gm7]  [C7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-straight-no-chaser',
-        title: 'Straight, No Chaser',
-        artist: 'Thelonious Monk',
-        tags: ['Jazz', 'Standard', 'Blues'],
-        key: 'F',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Straight, No Chaser}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-straight-no-chaser',
+    title: 'Straight, No Chaser',
+    artist: 'Thelonious Monk',
+    tags: ['Jazz', 'Standard', 'Blues'],
+    key: 'F',
+    bpm: 160,
+    content: `{title: Straight, No Chaser}
 {artist: Thelonious Monk}
 {key: F}
 
@@ -961,18 +908,16 @@ It's no matter darling where you are
 [F7]  [Bb7]  [F7]  [F7]
 [Bb7]  [Bb7]  [F7]  [D7]
 [Gm7]  [C7]  [F7]  [C7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-tenor-madness',
-        title: 'Tenor Madness',
-        artist: 'Sonny Rollins',
-        tags: ['Jazz', 'Standard', 'Blues'],
-        key: 'Bb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Tenor Madness}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-tenor-madness',
+    title: 'Tenor Madness',
+    artist: 'Sonny Rollins',
+    tags: ['Jazz', 'Standard', 'Blues'],
+    key: 'Bb',
+    bpm: 160,
+    content: `{title: Tenor Madness}
 {artist: Sonny Rollins}
 {key: Bb}
 
@@ -980,18 +925,16 @@ It's no matter darling where you are
 [Bb7]  [Eb7]  [Bb7]  [Bb7]
 [Eb7]  [Eb7]  [Bb7]  [G7]
 [Cm7]  [F7]  [Bb7]  [F7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-they-cant-take-that-away-from-me',
-        title: "They Can't Take That Away from Me",
-        artist: 'George Gershwin',
-        tags: ['Jazz', 'Standard'],
-        key: 'C',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: They Can't Take That Away from Me}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-they-cant-take-that-away-from-me',
+    title: "They Can't Take That Away from Me",
+    artist: 'George Gershwin',
+    tags: ['Jazz', 'Standard'],
+    key: 'C',
+    bpm: 120,
+    content: `{title: They Can't Take That Away from Me}
 {artist: George Gershwin}
 {key: C}
 
@@ -1001,18 +944,16 @@ The way you sip your tea
 
 {start_of_chorus}
 [C]No, no they can't take that away from me
-{end_of_chorus}`
-    },
-    {
-        id: 'jazz-pack-there-will-never-be-another-you',
-        title: 'There Will Never Be Another You',
-        artist: 'Harry Warren',
-        tags: ['Jazz', 'Standard', 'Swing'],
-        key: 'Eb',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: There Will Never Be Another You}
+{end_of_chorus}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-there-will-never-be-another-you',
+    title: 'There Will Never Be Another You',
+    artist: 'Harry Warren',
+    tags: ['Jazz', 'Standard', 'Swing'],
+    key: 'Eb',
+    bpm: 140,
+    content: `{title: There Will Never Be Another You}
 {artist: Harry Warren}
 {key: Eb}
 
@@ -1020,42 +961,38 @@ The way you sip your tea
 [Ebmaj7]  [Gm7]  [Fm7]  [Bb7]
 [Ebmaj7]  [Gm7]  [Fm7]  [Bb7]
 [Am7b5]  [D7]  [Gm7]  [C7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-whats-new',
-        title: "What's New",
-        artist: 'Bob Haggart',
-        tags: ['Jazz', 'Standard', 'Ballad'],
-        key: 'G',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: What's New}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-whats-new',
+    title: "What's New",
+    artist: 'Bob Haggart',
+    tags: ['Jazz', 'Standard', 'Ballad'],
+    key: 'G',
+    bpm: 90,
+    content: `{title: What's New}
 {artist: Bob Haggart}
 {key: G}
 
 {start_of_verse}
 [Gmaj7]  [Gm7]  [Fmaj7]  [E7]
 [Am7]  [D7]  [Gmaj7]  [Gmaj7]
-{end_of_verse}`
-    },
-    {
-        id: 'jazz-pack-yesterdays',
-        title: 'Yesterdays',
-        artist: 'Jerome Kern',
-        tags: ['Jazz', 'Standard'],
-        key: 'F',
-        capo: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        content: `{title: Yesterdays}
+{end_of_verse}`,
+  }),
+  jazzSong({
+    id: 'jazz-pack-yesterdays',
+    title: 'Yesterdays',
+    artist: 'Jerome Kern',
+    tags: ['Jazz', 'Standard'],
+    key: 'F',
+    bpm: 100,
+    content: `{title: Yesterdays}
 {artist: Jerome Kern}
 {key: F}
 
 {start_of_verse}
 [Fmaj7]  [Em7b5]  [A7]  [Dm7]
 [Gm7]  [C7]  [Fmaj7]  [Fmaj7]
-{end_of_verse}`
-    },
+{end_of_verse}`,
+  }),
 ];
