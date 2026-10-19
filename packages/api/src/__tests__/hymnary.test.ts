@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { HymnaryAdapter } from '../adapters/hymnary.js';
 
 describe('HymnaryAdapter', () => {
@@ -14,7 +14,7 @@ describe('HymnaryAdapter', () => {
     it('returns matching hymns by author', async () => {
       const results = await adapter.search('Newton');
       expect(results.length).toBeGreaterThan(0);
-      expect(results.some(r => r.artist.includes('Newton'))).toBe(true);
+      expect(results.some((r) => r.artist.includes('Newton'))).toBe(true);
     });
 
     it('returns empty results for non-matching query', async () => {

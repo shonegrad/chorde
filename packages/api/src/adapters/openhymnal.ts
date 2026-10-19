@@ -14,8 +14,8 @@ export class OpenHymnalAdapter extends BaseAdapter {
   name = 'OpenHymnal';
 
   private baseUrl = 'https://raw.githubusercontent.com/mattgraham/worship/master';
-  private indexCache: HymnIndex[] | null = null;
-  private cacheTimestamp: number = 0;
+  indexCache: HymnIndex[] | null = null;
+  cacheTimestamp: number = 0;
   private readonly CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
   private async fetchIndex(): Promise<HymnIndex[]> {
@@ -32,10 +32,10 @@ export class OpenHymnalAdapter extends BaseAdapter {
         throw new Error(`GitHub API error: ${response.status}`);
       }
 
-      const data: any = await response.json();
+      const data = (await response.json()) as { tree?: { type: string; path: string }[] };
       const files =
         data.tree?.filter(
-          (item: any) =>
+          (item: { type: string; path: string }) =>
             item.type === 'blob' &&
             (item.path.endsWith('.onsong') || item.path.endsWith('.chordpro'))
         ) || [];

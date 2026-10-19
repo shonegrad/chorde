@@ -8,8 +8,8 @@ describe('OpenHymnalAdapter', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    (adapter as any).indexCache = null;
-    (adapter as any).cacheTimestamp = 0;
+    adapter.indexCache = null;
+    adapter.cacheTimestamp = 0;
   });
 
   afterEach(() => {
@@ -29,7 +29,7 @@ describe('OpenHymnalAdapter', () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockIndex),
-      } as any);
+      } as unknown as Response);
 
       const results = await adapter.search('Amazing');
       expect(results.length).toBeGreaterThan(0);
@@ -38,15 +38,13 @@ describe('OpenHymnalAdapter', () => {
 
     it('returns empty results for non-matching query', async () => {
       const mockIndex = {
-        tree: [
-          { type: 'blob', path: 'Amazing Grace.onsong' },
-        ],
+        tree: [{ type: 'blob', path: 'Amazing Grace.onsong' }],
       };
 
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockIndex),
-      } as any);
+      } as unknown as Response);
 
       const results = await adapter.search('xyznonexistent');
       expect(results).toEqual([]);
@@ -59,19 +57,17 @@ describe('OpenHymnalAdapter', () => {
 
     it('uses cached index on subsequent searches', async () => {
       const mockIndex = {
-        tree: [
-          { type: 'blob', path: 'Amazing Grace.onsong' },
-        ],
+        tree: [{ type: 'blob', path: 'Amazing Grace.onsong' }],
       };
 
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockIndex),
-      } as any);
+      } as unknown as Response);
 
       await adapter.search('Amazing');
       await adapter.search('Grace');
-      
+
       expect(fetch).toHaveBeenCalledTimes(1);
     });
   });
@@ -90,7 +86,7 @@ That s[G]aved a wr[G7]etch like [D]me.`;
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         text: () => Promise.resolve(mockOnSong),
-      } as any);
+      } as unknown as Response);
 
       const song = await adapter.fetchSong('Amazing%20Grace.onsong');
       expect(song.chordPro).toContain('{title: Amazing Grace}');
@@ -102,7 +98,7 @@ That s[G]aved a wr[G7]etch like [D]me.`;
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 404,
-      } as any);
+      } as unknown as Response);
 
       const song = await adapter.fetchSong('nonexistent.onsong');
       expect(song.chordPro).toContain('unavailable');
@@ -120,7 +116,7 @@ The [G]chorus part`;
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         text: () => Promise.resolve(mockOnSong),
-      } as any);
+      } as unknown as Response);
 
       const song = await adapter.fetchSong('Test%20Song.onsong');
       expect(song.chordPro).toContain('{start_of_verse1}');

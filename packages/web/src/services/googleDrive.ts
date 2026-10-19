@@ -27,18 +27,21 @@ export class GoogleDriveService {
     await this.loadScript('https://apis.google.com/js/api.js');
     // Load the Google Identity Services library for OAuth 2.0
     await this.loadScript('https://accounts.google.com/gsi/client');
-    
+
     // Initialize the API client
     await new Promise((resolve, reject) => {
-      // @ts-ignore - gapi is loaded by the script
+      // @ts-expect-error - gapi is loaded by the script at runtime
       gapi.load('client:auth2', () => {
-        // @ts-ignore
-        gapi.client.init({
-          apiKey: this.apiKey,
-          clientId: this.clientId,
-          scope: this.scope,
-          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
-        }).then(resolve).catch(reject);
+        // @ts-expect-error - gapi is loaded by the script at runtime
+        gapi.client
+          .init({
+            apiKey: this.apiKey,
+            clientId: this.clientId,
+            scope: this.scope,
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+          })
+          .then(resolve)
+          .catch(reject);
       });
     });
   }
@@ -62,13 +65,12 @@ export class GoogleDriveService {
    * @returns Promise that resolves when authentication is complete
    */
   async authenticate(): Promise<void> {
-    // @ts-ignore
+    // @ts-expect-error - gapi.auth2 is loaded by the script at runtime
     await gapi.auth2.getAuthInstance().signIn();
-    // @ts-ignore
+    // @ts-expect-error - gapi.auth2 is loaded by the script at runtime
     const authInstance = gapi.auth2.getAuthInstance();
-    // @ts-ignore
     this.token = authInstance.currentUser.get().getAuthResponse().access_token;
-    
+
     // Ensure the backup folder exists
     await this.ensureBackupFolder();
   }
@@ -84,7 +86,7 @@ export class GoogleDriveService {
    * Sign out the user.
    */
   async signOut(): Promise<void> {
-    // @ts-ignore
+    // @ts-expect-error - gapi.auth2 is loaded by the script at runtime
     await gapi.auth2.getAuthInstance().signOut();
     this.token = null;
     this.folderId = null;
@@ -105,13 +107,14 @@ export class GoogleDriveService {
       path: '/drive/v3/files',
       params: {
         q: `name='${this.folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-        fields: 'files(id, name)'
-      }
+        fields: 'files(id, name)',
+      },
     });
 
     let folderId: string | null = null;
-    if (response.files && response.files.length > 0) {
-      folderId = response.files[0].id;
+    const listResponse = response as { files?: { id: string }[] };
+    if (listResponse.files && listResponse.files.length > 0) {
+      folderId = listResponse.files[0].id;
     } else {
       // Create the folder
       const createResponse = await this.request({
@@ -119,10 +122,10 @@ export class GoogleDriveService {
         path: '/drive/v3/files',
         body: {
           name: this.folderName,
-          mimeType: 'application/vnd.google-apps.folder'
-        }
+          mimeType: 'application/vnd.google-apps.folder',
+        },
       });
-      folderId = createResponse.id;
+      folderId = (createResponse as { id: string }).id;
     }
 
     this.folderId = folderId;
@@ -135,24 +138,24 @@ export class GoogleDriveService {
   private async request(options: {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE';
     path: string;
-    params?: Record<string, any>;
-    body?: any;
-  }): Promise<any> {
+    params?: Record<string, string | number | boolean>;
+    body?: unknown;
+  }): Promise<unknown> {
     const url = new URL(`https://www.googleapis.com${options.path}`);
-    
+
     if (options.params) {
       Object.entries(options.params).forEach(([key, value]) => {
-        url.searchParams.append(key, value);
+        url.searchParams.append(key, String(value));
       });
     }
 
     const response = await fetch(url.toString(), {
       method: options.method,
       headers: {
-        'Authorization': `Bearer ${this.token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${this.token}`,
+        'Content-Type': 'application/json',
       },
-      body: options.body ? JSON.stringify(options.body) : undefined
+      body: options.body ? JSON.stringify(options.body) : undefined,
     });
 
     if (!response.ok) {
@@ -188,13 +191,13 @@ export class GoogleDriveService {
       method: 'POST',
       path: '/drive/v3/files',
       params: {
-        fields: 'id'
+        fields: 'id',
       },
       body: {
         name: fileName,
         parents: [await this.ensureBackupFolder()],
-        mimeType: 'application/json'
-      }
+        mimeType: 'application/json',
+      },
     });
 
     // Note: The above request only creates the file metadata.
@@ -208,9 +211,9 @@ export class GoogleDriveService {
       method: 'POST',
       path: '/upload/drive/v3/files',
       params: {
-        uploadType: 'media'
+        uploadType: 'media',
       },
-      body: snapshot
+      body: snapshot,
     });
 
     // In a real implementation, we would handle the upload progress and errors properly.
@@ -228,35 +231,41 @@ export class GoogleDriveService {
 
     // If no file ID is provided, find the most recent backup file
     if (!fileId) {
-      const response = await this.request({
+      const listResponse = (await this.request({
         method: 'GET',
         path: '/drive/v3/files',
         params: {
           q: `name contains 'chorde-library-backup-' and mimeType='application/json' and trashed=false`,
           orderBy: 'createdTime desc',
           fields: 'files(id, name)',
-          pageSize: 1
-        }
-      });
+          pageSize: '1',
+        },
+      })) as { files?: { id: string }[] };
 
-      if (!response.files || response.files.length === 0) {
+      if (!listResponse.files || listResponse.files.length === 0) {
         throw new Error('No backup files found in Google Drive');
       }
 
-      fileId = response.files[0].id;
+      fileId = listResponse.files[0].id;
     }
 
     // Download the file content
-    const response = await this.request({
-      method: 'GET',
-      path: `/drive/v3/files/${fileId}`,
-      params: {
-        alt: 'media'
+    const downloadResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
       }
-    });
+    );
+
+    if (!downloadResponse.ok) {
+      throw new Error(`Failed to download backup: ${downloadResponse.status}`);
+    }
 
     // The response should be the snapshot string
-    const snapshot = await response.text();
+    const snapshot = await downloadResponse.text();
 
     // Import the snapshot into the library store
     const libraryStore = new LocalLibraryStore();

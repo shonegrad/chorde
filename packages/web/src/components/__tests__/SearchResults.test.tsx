@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { SearchResults } from '../import/SearchResults';
 import type { SearchResult } from '../../services/searchApi';
 
@@ -84,13 +84,7 @@ describe('SearchResults', () => {
   });
 
   it('shows loading spinner when preview loading', () => {
-    render(
-      <SearchResults
-        {...defaultProps}
-        expandedId="openhymnal-1"
-        loading={true}
-      />
-    );
+    render(<SearchResults {...defaultProps} expandedId="openhymnal-1" loading={true} />);
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
