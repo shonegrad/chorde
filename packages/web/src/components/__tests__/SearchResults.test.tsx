@@ -24,7 +24,6 @@ describe('SearchResults', () => {
 
   it('renders all results', () => {
     render(<SearchResults {...defaultProps} />);
-    expect(screen.getByText('Amazing Grace')).toBeInTheDocument();
     expect(screen.getAllByText('Amazing Grace')).toHaveLength(2);
   });
 

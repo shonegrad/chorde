@@ -50,6 +50,7 @@ export const extractMetadata = (content: string): SongMetadata => {
 };
 
 export const parseChordPro = (content: string): ParsedSong => {
+  if (!content || !content.trim()) return [];
   const lines = content.split('\n');
   const parsedLines: ParsedLine[] = [];
   let currentSection: SongSection | undefined;
