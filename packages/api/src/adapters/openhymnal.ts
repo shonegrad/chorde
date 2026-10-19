@@ -83,6 +83,7 @@ export class OpenHymnalAdapter extends BaseAdapter {
           title: hymn.title,
           artist: hymn.artist || 'Unknown',
           key: hymn.key || undefined,
+          hasChords: true,
         });
       }
     }

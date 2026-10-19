@@ -196,6 +196,7 @@ export class ChordProOrgAdapter extends BaseAdapter {
       title: song.title,
       artist: song.artist,
       key: song.key,
+      hasChords: true,
     }));
   }
 
