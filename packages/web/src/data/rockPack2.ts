@@ -50,6 +50,14 @@ export const ROCK_PACK_2: Song[] = [
 Under the [C]weeping [D7]willow [G]tree
 So [D7]she may know where I am [G]sleeping
 And [C]perhaps she'll [D7]weep for [G]me`,
+    attribution: {
+      sourceName: 'Traditional',
+      sourceUrl: '',
+      license: 'Public Domain',
+      author: '',
+      notes: 'Traditional song, public domain.',
+    },
+    rightsStatus: 'open' as const,
   }),
   rockSong({
     id: 'rock2-pack-i-am-a-man-of-constant-sorrow',
@@ -63,6 +71,14 @@ And [C]perhaps she'll [D7]weep for [G]me`,
 I've seen [G]trouble all my [D7]days
 I [G]bid farewell to old [C]Kentucky
 The [G]place where I was [D7]born and [G]raised`,
+    attribution: {
+      sourceName: 'Traditional',
+      sourceUrl: '',
+      license: 'Public Domain',
+      author: '',
+      notes: 'Traditional folk song, public domain.',
+    },
+    rightsStatus: 'open' as const,
   }),
   rockSong({
     id: 'rock2-pack-shady-grove',
@@ -76,6 +92,14 @@ The [G]place where I was [D7]born and [G]raised`,
 Shady [Em]grove, my darling
 [Em]Shady grove, my little [D]shady grove
 [Em]Shady grove, my [D]darling`,
+    attribution: {
+      sourceName: 'Traditional',
+      sourceUrl: '',
+      license: 'Public Domain',
+      author: '',
+      notes: 'Traditional Appalachian folk song, public domain.',
+    },
+    rightsStatus: 'open' as const,
   }),
   rockSong({
     id: 'rock2-pack-cripple-creek',
@@ -89,6 +113,14 @@ Shady [Em]grove, my darling
 [G]Cripple Creek, send the word [D]round
 [C]I'm goin' up to Cripple [D]Creek
 [G]In a [D]little [G]town`,
+    attribution: {
+      sourceName: 'Traditional',
+      sourceUrl: '',
+      license: 'Public Domain',
+      author: '',
+      notes: 'Traditional folk song, public domain.',
+    },
+    rightsStatus: 'open' as const,
   }),
   rockSong({
     id: 'rock2-pack-i-aint-got-nobody',
@@ -101,5 +133,13 @@ Shady [Em]grove, my darling
 [C]I ain't got nobody, and [F]nobody cares for [C]me
 I [G7]ain't got nobody, so [F]sad and [C]lonely
 [G7]Won't [F]some sweet [C]mama come and [G7]take a chance on [C]me`,
+    attribution: {
+      sourceName: 'Traditional',
+      sourceUrl: '',
+      license: 'Public Domain',
+      author: '',
+      notes: 'Traditional song (1916), public domain.',
+    },
+    rightsStatus: 'open' as const,
   }),
 ];

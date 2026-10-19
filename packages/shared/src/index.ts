@@ -24,9 +24,10 @@ export interface Song {
 }
 
 export interface SongSection {
-  type: 'verse' | 'chorus' | 'bridge' | 'intro' | 'outro' | 'solo' | 'instrumental';
+  type: 'verse' | 'chorus' | 'bridge' | 'intro' | 'outro' | 'solo' | 'instrumental' | 'tab';
   label?: string;
   lineIndex: number;
+  isTab?: boolean;
 }
 
 export interface ParsedLine {

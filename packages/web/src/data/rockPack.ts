@@ -26,12 +26,12 @@ const rockSong = (overrides: Partial<Song> & { content: string }): Song => ({
   attribution: {
     sourceName: 'Traditional',
     sourceUrl: '',
-    license: 'Public Domain',
+    license: 'All Rights Reserved',
     author: overrides.artist,
     notes: '',
     ...(overrides.attribution ?? {}),
   },
-  rightsStatus: 'open' as const,
+  rightsStatus: 'restricted' as const,
   createdAt: overrides.createdAt ?? NOW,
   updatedAt: overrides.updatedAt ?? NOW,
   hash: overrides.hash ?? simpleHash(overrides.content),
@@ -46,16 +46,24 @@ export const ROCK_PACK: Song[] = [
     key: 'C',
     bpm: 100,
     content: `{start_of_verse}
-[C]Oh, I'll twine with my mingles and [G7]waiving black hair
-With the [C]roses so red and the [G7]lilies so fair
-And the [C]myrtle so bright with the [G7]emerald dew
-The [C]pale and the [G7]lily and [C]blue
+[C]Oh, I'll twine with my [C]mingles and [C]waving black hair
+With the [C]roses so red and the [C]lilies so fair
+And the [C]myrtle so bright with the [C]emerald dew
+The [C]pale and the [C]lily and [C]blue
 
 {start_of_chorus}
-[C]I'll twine with my mingles and [G7]waiving black hair
-[C]Until the day I [G7]die
-[C]Poor [G7]old [C]heart,
-[C]Pale [G7]lily and [C]blue`,
+[C]I'll twine with my [C]mingles and [C]waving black hair
+[C]Until the day I [C]die
+[C]Poor [C]old [C]heart,
+[C]Pale [C]lily and [C]blue`,
+    attribution: {
+      sourceName: 'Traditional',
+      sourceUrl: '',
+      license: 'Public Domain',
+      author: '',
+      notes: 'Traditional Carter Family song, public domain.',
+    },
+    rightsStatus: 'open' as const,
   }),
   rockSong({
     id: 'rock-pack-this-land-is-your-land',

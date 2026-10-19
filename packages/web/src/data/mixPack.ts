@@ -50,6 +50,14 @@ export const MIX_PACK: Song[] = [
 This little light of mine, I'm [G7]gonna let it [C]shine
 This little light of mine, I'm [F]gonna let it [C]shine
 [C]Let it shine, [G7]let it shine, [C]let it shine`,
+    attribution: {
+      sourceName: 'Traditional',
+      sourceUrl: '',
+      license: 'Public Domain',
+      author: '',
+      notes: 'Traditional gospel song, public domain.',
+    },
+    rightsStatus: 'open' as const,
   }),
   mixSong({
     id: 'mix-pack-when-the-saints-go-marching-in',
@@ -63,6 +71,14 @@ This little light of mine, I'm [F]gonna let it [C]shine
 [F]Oh, when the saints go marching [C7]in
 [Bb]Lord, I want to be in that [F]number
 When the [C7]saints go marching [F]in`,
+    attribution: {
+      sourceName: 'Traditional',
+      sourceUrl: '',
+      license: 'Public Domain',
+      author: '',
+      notes: 'Traditional gospel/jazz standard, public domain.',
+    },
+    rightsStatus: 'open' as const,
   }),
   mixSong({
     id: 'mix-pack-he-aint-heavy-hes-my-brother',

@@ -26,12 +26,12 @@ const jazzSong = (overrides: Partial<Song> & { content: string }): Song => ({
   attribution: {
     sourceName: 'Jazz Standard',
     sourceUrl: '',
-    license: 'Public Domain',
+    license: 'All Rights Reserved',
     author: overrides.artist,
     notes: '',
     ...(overrides.attribution ?? {}),
   },
-  rightsStatus: 'open' as const,
+  rightsStatus: 'restricted' as const,
   createdAt: overrides.createdAt ?? NOW,
   updatedAt: overrides.updatedAt ?? NOW,
   hash: overrides.hash ?? simpleHash(overrides.content),
@@ -273,7 +273,6 @@ Her shoulder, she digs me out
 
 {start_of_verse}
 [EbMaj7]It begins to tell
-\n
 
 {start_of_chorus}
 [Am7b5]  [D7]  [Gm7]  [C7]
@@ -612,7 +611,7 @@ Don't get around much anymore
 {start_of_bridge}
 [D7]  [D7]  [G7]  [G7]
 [C7]  [C7]  [F7]  [F7]
-{end_of_verse}`,
+{end_of_bridge}`,
   }),
   jazzSong({
     id: 'jazz-pack-ill-remember-april',
@@ -772,7 +771,7 @@ It's no matter darling where you are
 {start_of_bridge}
 [D7]  [D7]  [G7]  [G7]
 [C7]  [C7]  [F7]  [F7]
-{end_of_verse}`,
+{end_of_bridge}`,
   }),
   jazzSong({
     id: 'jazz-pack-on-green-dolphin-street',
