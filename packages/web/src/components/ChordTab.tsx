@@ -60,7 +60,7 @@ export const ChordTab: React.FC<ChordTabProps> = React.memo(
             <g key={i}>
               <line
                 x1={leftMargin}
-                y={y}
+                y1={y}
                 x2={width + leftMargin}
                 y2={y}
                 stroke={theme.palette.divider}
