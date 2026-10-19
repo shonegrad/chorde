@@ -1,3 +1,23 @@
+export type LicenseType =
+  | 'public-domain' // CC0, PD
+  | 'creative-commons-by' // CC BY 4.0
+  | 'creative-commons-by-sa' // CC BY-SA 4.0 (share-alike)
+  | 'creative-commons-nc' // CC NC
+  | 'creative-commons-zero' // CC0
+  | 'custom' // Custom license terms
+  | 'unknown';
+
+export interface SongAttribution {
+  sourceName: string;
+  sourceUrl: string;
+  license: LicenseType;
+  author?: string;
+  notes?: string;
+  copyright?: string; // Raw {copyright:} directive from ChordPro
+  verifiedAt?: string; // ISO date of verification
+  verifiedBy: 'auto' | 'manual';
+}
+
 export interface Song {
   id: string;
   title: string;
@@ -10,14 +30,8 @@ export interface Song {
   key?: string;
   bpm?: number;
   timeSignature?: string;
-  attribution?: {
-    sourceName: string;
-    sourceUrl: string;
-    license: string;
-    author?: string;
-    notes?: string;
-  };
-  rightsStatus?: 'open' | 'unknown' | 'restricted';
+  attribution: SongAttribution;
+  rightsStatus: 'open' | 'conditional' | 'unknown' | 'restricted';
   createdAt: string | number;
   updatedAt: string | number;
   hash?: string;

@@ -26,9 +26,10 @@ const jazzSong = (overrides: Partial<Song> & { content: string }): Song => ({
   attribution: {
     sourceName: 'Jazz Standard',
     sourceUrl: '',
-    license: 'All Rights Reserved',
+    license: 'unknown',
     author: overrides.artist,
     notes: '',
+    verifiedBy: 'auto',
     ...(overrides.attribution ?? {}),
   },
   rightsStatus: 'restricted' as const,

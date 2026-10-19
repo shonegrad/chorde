@@ -105,10 +105,11 @@ describe('Search Routes', () => {
       const res = await app.request('/api/sources');
       expect(res.status).toBe(200);
       const sources = (await res.json()) as { id: string; name: string; enabled: boolean }[];
-      expect(sources).toHaveLength(3);
+      expect(sources).toHaveLength(4);
       expect(sources.map((s) => s.id)).toContain('openhymnal');
       expect(sources.map((s) => s.id)).toContain('hymnary');
       expect(sources.map((s) => s.id)).toContain('chordpro');
+      expect(sources.map((s) => s.id)).toContain('session');
     });
 
     it('marks all sources as enabled', async () => {

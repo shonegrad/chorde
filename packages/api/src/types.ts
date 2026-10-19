@@ -5,6 +5,13 @@ export interface Source {
   enabled: boolean;
 }
 
+export type SourceLicense =
+  | 'public-domain'
+  | 'creative-commons-by'
+  | 'creative-commons-by-sa'
+  | 'creative-commons-nc'
+  | 'unknown';
+
 export interface SearchResult {
   id: string;
   source: string;
@@ -13,6 +20,7 @@ export interface SearchResult {
   key?: string;
   preview?: string;
   hasChords?: boolean;
+  license?: string;
 }
 
 export interface SongContent {
@@ -23,6 +31,7 @@ export interface SongContent {
     key?: string;
     capo?: number;
   };
+  license?: string;
 }
 
 export interface SourceAdapter {

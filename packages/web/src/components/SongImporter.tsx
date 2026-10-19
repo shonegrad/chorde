@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import type { Song } from '../types';
+import type { Song, LicenseType } from '../types';
 import { extractMetadata } from '../lib/chordPro';
 import { Container, Typography, Box, IconButton, Tabs, Tab, Snackbar, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { LegalNoticeModal } from './import/LegalNoticeModal';
 import { PasteTab } from './import/PasteTab';
 import { SearchTab } from './import/SearchTab';
 import { FolderTab } from './import/FolderTab';
@@ -29,11 +30,30 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
     added: number;
     failed: number;
   } | null>(null);
+  const [showLegalNotice, setShowLegalNotice] = useState(false);
+  const [importSong, setImportSong] = useState<Song | undefined>(undefined);
 
   const handleImportFromContent = async (content: string) => {
     if (!content.trim()) return;
 
     const metadata = extractMetadata(content);
+
+    // Detect license from {copyright:} directive in ChordPro
+    const copyrightMatch = content.match(/\{copyright:\s*(.+?)\}/i);
+    let detectedLicense: LicenseType = 'unknown';
+    let copyrightText = '';
+
+    if (copyrightMatch) {
+      copyrightText = copyrightMatch[1].trim();
+      // Simple license detection from copyright text
+      const lowerCopyright = copyrightText.toLowerCase();
+      if (lowerCopyright.includes('public domain') || lowerCopyright.includes('pd')) {
+        detectedLicense = 'public-domain';
+      } else if (lowerCopyright.includes('creative commons') || lowerCopyright.includes('cc')) {
+        detectedLicense = 'creative-commons-by'; // default CC assumption
+      }
+    }
+
     const song: Song = {
       id: crypto.randomUUID(),
       title: metadata.title,
@@ -49,15 +69,25 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
       attribution: {
         sourceName: 'User Import',
         sourceUrl: '',
-        license: 'Unknown',
+        license: detectedLicense,
         author: '',
         notes: 'Imported by user',
+        copyright: copyrightText,
+        verifiedAt: new Date().toISOString(),
+        verifiedBy: 'auto',
       },
-      rightsStatus: 'unknown',
+      rightsStatus: detectedLicense === 'public-domain' ? 'open' : 'unknown',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       hash: simpleHash(content),
     };
+
+    // Show legal notice for non-public-domain songs
+    if (detectedLicense !== 'public-domain') {
+      setImportSong(song);
+      setShowLegalNotice(true);
+      return;
+    }
 
     await onImport(song);
   };
@@ -91,6 +121,31 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
           <CloseIcon />
         </IconButton>
       </Box>
+
+      <LegalNoticeModal
+        isOpen={showLegalNotice}
+        onClose={() => {
+          setShowLegalNotice(false);
+          setImportSong(undefined);
+        }}
+        onConfirm={() => {
+          if (importSong) {
+            onImport(importSong);
+            setShowLegalNotice(false);
+            setImportSong(undefined);
+          }
+        }}
+        song={
+          importSong
+            ? {
+                title: importSong.title,
+                artist: importSong.artist,
+                license: importSong.attribution.license,
+                copyright: importSong.attribution.copyright,
+              }
+            : undefined
+        }
+      />
 
       <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} sx={{ mb: 3 }}>
         <Tab label="Paste / Drop" />

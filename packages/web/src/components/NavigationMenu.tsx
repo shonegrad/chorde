@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSetlistStore } from '../store/setlistStore';
 import type { Song } from '../types';
 import { APP_VERSION } from '../version';
 import {
@@ -22,6 +24,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloseIcon from '@mui/icons-material/Close';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import AddIcon from '@mui/icons-material/Add';
 import PersonIcon from '@mui/icons-material/Person';
 import KeyIcon from '@mui/icons-material/Key';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
@@ -86,10 +89,14 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const navigate = useNavigate();
+  const setlists = useSetlistStore((s) => s.setlists);
+  const createSetlist = useSetlistStore((s) => s.createSetlist);
 
   const [keysExpanded, setKeysExpanded] = React.useState(false);
   const [artistsExpanded, setArtistsExpanded] = React.useState(false);
   const [tagsExpanded, setTagsExpanded] = React.useState(false);
+  const [setlistsExpanded, setSetlistsExpanded] = React.useState(false);
 
   const artists = useMemo(() => {
     const artistMap = new Map<string, number>();
@@ -299,6 +306,48 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                           : 'normal',
                     }}
                   />
+                </ListItemButton>
+              ))}
+            </List>
+          </Collapse>
+
+          <Divider sx={{ my: 1 }} />
+
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setSetlistsExpanded(!setlistsExpanded)}>
+              <MusicNoteIcon sx={{ mr: 2, color: 'action.active' }} />
+              <ListItemText primary="Setlists" />
+              <Badge badgeContent={setlists.length} color="primary" sx={{ mr: 2 }}>
+                <Box sx={{ width: 0 }} />
+              </Badge>
+              {setlistsExpanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+            </ListItemButton>
+          </ListItem>
+          <Collapse in={setlistsExpanded} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItemButton
+                sx={{ pl: 7 }}
+                onClick={() => {
+                  const name = prompt('Setlist name?');
+                  if (name) {
+                    const sl = createSetlist(name);
+                    navigate(`/setlist/${sl.id}`);
+                  }
+                }}
+              >
+                <AddIcon sx={{ mr: 1 }} fontSize="small" />
+                <ListItemText primary="New Setlist" />
+              </ListItemButton>
+              {setlists.map((sl) => (
+                <ListItemButton
+                  key={sl.id}
+                  sx={{ pl: 7 }}
+                  onClick={() => {
+                    navigate(`/setlist/${sl.id}`);
+                    if (isMobile && onClose) onClose();
+                  }}
+                >
+                  <ListItemText primary={sl.name} secondary={`${sl.songIds.length} songs`} />
                 </ListItemButton>
               ))}
             </List>

@@ -26,9 +26,10 @@ const rockSong = (overrides: Partial<Song> & { content: string }): Song => ({
   attribution: {
     sourceName: 'Traditional',
     sourceUrl: '',
-    license: 'All Rights Reserved',
+    license: 'unknown',
     author: overrides.artist,
     notes: '',
+    verifiedBy: 'auto',
     ...(overrides.attribution ?? {}),
   },
   rightsStatus: 'restricted' as const,
@@ -59,9 +60,10 @@ The [C]pale and the [C]lily and [C]blue
     attribution: {
       sourceName: 'Traditional',
       sourceUrl: '',
-      license: 'Public Domain',
+      license: 'public-domain',
       author: '',
       notes: 'Traditional Carter Family song, public domain.',
+      verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
   }),

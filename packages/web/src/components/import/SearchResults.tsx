@@ -9,7 +9,7 @@ import {
   CircularProgress,
   Alert,
   Collapse,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -30,7 +30,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
   onExpand,
   expanded,
   preview,
-  loading
+  loading,
 }) => {
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
@@ -46,6 +46,16 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
             {result.hasChords === false && (
               <Chip label="Lyrics Only" size="small" color="warning" variant="outlined" />
             )}
+            {result.license && (
+              <Chip
+                label={result.license}
+                size="small"
+                sx={{
+                  textTransform: 'capitalize',
+                  color: result.license === 'public-domain' ? 'success' : 'warning',
+                }}
+              />
+            )}
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
             {result.artist}
@@ -57,11 +67,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
           <IconButton size="small" onClick={() => onExpand(result)}>
             {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => onImport(result)}
-          >
+          <Button variant="contained" size="small" onClick={() => onImport(result)}>
             Import
           </Button>
         </Stack>
@@ -83,7 +89,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                 fontSize: '0.875rem',
                 whiteSpace: 'pre-wrap',
                 maxHeight: 300,
-                overflow: 'auto'
+                overflow: 'auto',
               }}
             >
               {preview}
@@ -116,7 +122,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   expandedId,
   preview,
   loading,
-  error
+  error,
 }) => {
   if (error) {
     return (
@@ -142,7 +148,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         {results.length} {results.length === 1 ? 'result' : 'results'} found
       </Typography>
       <Stack spacing={2}>
-        {results.map(result => (
+        {results.map((result) => (
           <SearchResultItem
             key={`${result.source}-${result.id}`}
             result={result}

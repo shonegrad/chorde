@@ -15,6 +15,7 @@ export interface SearchResult {
   key?: string;
   preview?: string;
   hasChords?: boolean;
+  license?: string;
 }
 
 export interface SongContent {

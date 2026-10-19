@@ -180,6 +180,7 @@ The [G]baffled king com[E7]posing Halle[Am]lujah
 export class ChordProOrgAdapter extends BaseAdapter {
   id = 'chordpro';
   name = 'ChordPro.org';
+  license = 'unknown';
 
   async search(query: string): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase().trim();

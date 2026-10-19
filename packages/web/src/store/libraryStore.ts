@@ -1,0 +1,94 @@
+import { create } from 'zustand';
+import type { Song, ViewMode } from '../types';
+import { IndexedDBLibraryStore } from '../lib/libraryStore';
+
+export interface SongFilter {
+  type: 'tag' | 'artist' | 'key';
+  value: string;
+}
+
+interface LibraryState {
+  songs: Song[];
+  loading: boolean;
+  filter: SongFilter | null;
+  viewMode: ViewMode;
+  store: IndexedDBLibraryStore;
+  loadSongs: () => Promise<void>;
+  saveSong: (song: Song) => Promise<void>;
+  deleteSong: (id: string) => Promise<void>;
+  resetLibrary: () => Promise<void>;
+  setFilter: (filter: SongFilter | null) => void;
+  setViewMode: (mode: ViewMode) => void;
+}
+
+async function loadSeedSongs(): Promise<Song[]> {
+  const [{ SEED_SONGS }, { ROCK_PACK }, { ROCK_PACK_2 }, { JAZZ_PACK }, { MIX_PACK }] =
+    await Promise.all([
+      import('../data/seedSongs'),
+      import('../data/rockPack'),
+      import('../data/rockPack2'),
+      import('../data/jazzPack'),
+      import('../data/mixPack'),
+    ]);
+  return [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2, ...JAZZ_PACK, ...MIX_PACK];
+}
+
+const VIEW_MODE_KEY = 'chorde_view_mode';
+
+export const useLibraryStore = create<LibraryState>((set, get) => ({
+  songs: [],
+  loading: true,
+  filter: null,
+  viewMode: ((): ViewMode => {
+    const stored = localStorage.getItem(VIEW_MODE_KEY);
+    return stored === 'list' || stored === 'grid' ? (stored as ViewMode) : 'grid';
+  })(),
+  store: new IndexedDBLibraryStore(),
+
+  loadSongs: async () => {
+    const store = get().store;
+    try {
+      const seedSongs = await loadSeedSongs();
+      const stored = await store.listSongs();
+      if (stored.length === 0) {
+        await store.bulkUpsert(seedSongs);
+        set({ songs: seedSongs, loading: false });
+      } else {
+        const storedIds = new Set(stored.map((s) => s.id));
+        const merged = [...stored, ...seedSongs.filter((s) => !storedIds.has(s.id))];
+        await store.bulkUpsert(merged);
+        set({ songs: merged, loading: false });
+      }
+    } catch (e) {
+      console.error('Failed to initialize library:', e);
+      const seedSongs = await loadSeedSongs();
+      set({ songs: seedSongs, loading: false });
+    }
+  },
+
+  saveSong: async (song) => {
+    const store = get().store;
+    await store.upsertSong(song);
+    set((state) => ({ songs: [...state.songs.filter((s) => s.id !== song.id), song] }));
+  },
+
+  deleteSong: async (id) => {
+    const store = get().store;
+    await store.deleteSong(id);
+    set((state) => ({ songs: state.songs.filter((s) => s.id !== id) }));
+  },
+
+  resetLibrary: async () => {
+    const store = get().store;
+    const seedSongs = await loadSeedSongs();
+    await store.bulkUpsert(seedSongs);
+    set({ songs: seedSongs });
+  },
+
+  setFilter: (filter) => set({ filter }),
+
+  setViewMode: (mode) => {
+    set({ viewMode: mode });
+    localStorage.setItem(VIEW_MODE_KEY, mode);
+  },
+}));

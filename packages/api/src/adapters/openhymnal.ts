@@ -12,6 +12,7 @@ interface HymnIndex {
 export class OpenHymnalAdapter extends BaseAdapter {
   id = 'openhymnal';
   name = 'OpenHymnal';
+  license = 'public-domain';
 
   private baseUrl = 'https://raw.githubusercontent.com/mattgraham/worship/master';
   indexCache: HymnIndex[] | null = null;

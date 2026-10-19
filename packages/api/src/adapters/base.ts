@@ -4,6 +4,7 @@ import { SourceAdapter, type SearchResult, type SongContent } from '../types.js'
 export abstract class BaseAdapter implements SourceAdapter {
   abstract id: string;
   abstract name: string;
+  license: string = 'unknown';
 
   abstract search(query: string): Promise<SearchResult[]>;
   abstract fetchSong(id: string): Promise<SongContent>;

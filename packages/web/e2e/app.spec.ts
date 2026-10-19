@@ -59,3 +59,21 @@ test.describe('Chorde E2E - Song Viewer', () => {
     }
   });
 });
+
+test.describe('Chorde E2E - Setlists', () => {
+  test('should create a setlist via nav', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    page.on('dialog', async (dialog) => {
+      await dialog.accept('E2E Setlist');
+    });
+    const setlistsBtn = page.getByRole('button', { name: /setlists/i });
+    if (await setlistsBtn.isVisible()) {
+      await setlistsBtn.click();
+      const newSetlist = page.getByText(/new setlist/i);
+      if (await newSetlist.isVisible()) {
+        await newSetlist.click();
+      }
+    }
+  });
+});

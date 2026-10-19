@@ -1,6 +1,6 @@
 import React, { Suspense, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useApp } from './context/useApp';
+import { useLibraryStore } from './store/libraryStore';
 import { useNotification } from './context/NotificationContext';
 import { SongList } from './components/SongList';
 import { NavigationMenu } from './components/NavigationMenu';
@@ -22,6 +22,9 @@ const ChordBrowser = React.lazy(() => import('./components/ChordBrowser'));
 const Settings = React.lazy(() =>
   import('./components/Settings').then((m) => ({ default: m.Settings }))
 );
+const SetlistViewer = React.lazy(() =>
+  import('./components/SetlistViewer').then((m) => ({ default: m.SetlistViewer }))
+);
 
 const LoadingFallback = (
   <Box
@@ -38,7 +41,7 @@ const LoadingFallback = (
 );
 
 function SongViewerRoute() {
-  const { songs } = useApp();
+  const songs = useLibraryStore((s) => s.songs);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const song = songs.find((s) => s.id === id);
@@ -63,7 +66,9 @@ function SongViewerRoute() {
 }
 
 function SongEditorRoute() {
-  const { songs, saveSong, deleteSong } = useApp();
+  const songs = useLibraryStore((s) => s.songs);
+  const saveSong = useLibraryStore((s) => s.saveSong);
+  const deleteSong = useLibraryStore((s) => s.deleteSong);
   const { notifySuccess, notifyError } = useNotification();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -100,7 +105,7 @@ function SongEditorRoute() {
 }
 
 function SongImporterRoute() {
-  const { saveSong } = useApp();
+  const saveSong = useLibraryStore((s) => s.saveSong);
   const { notifySuccess, notifyError } = useNotification();
   const navigate = useNavigate();
 
@@ -125,7 +130,11 @@ function SongImporterRoute() {
 }
 
 function SongListView() {
-  const { songs, filter, setFilter, viewMode, setViewMode } = useApp();
+  const songs = useLibraryStore((s) => s.songs);
+  const filter = useLibraryStore((s) => s.filter);
+  const setFilter = useLibraryStore((s) => s.setFilter);
+  const viewMode = useLibraryStore((s) => s.viewMode);
+  const setViewMode = useLibraryStore((s) => s.setViewMode);
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
@@ -218,6 +227,16 @@ function App() {
           <ErrorBoundary>
             <Suspense fallback={LoadingFallback}>
               <ChordBrowser onBack={() => window.history.back()} />
+            </Suspense>
+          </ErrorBoundary>
+        }
+      />
+      <Route
+        path="/setlist/:id"
+        element={
+          <ErrorBoundary>
+            <Suspense fallback={LoadingFallback}>
+              <SetlistViewer />
             </Suspense>
           </ErrorBoundary>
         }

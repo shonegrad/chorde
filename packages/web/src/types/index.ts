@@ -10,4 +10,6 @@ export type {
   SearchResult,
   SongContent,
   SourceAdapter,
+  LicenseType,
+  SongAttribution,
 } from '@chorde/shared/src/index';

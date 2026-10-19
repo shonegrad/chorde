@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { Song, SongSection, DisplayMode } from '../types';
 import { parseChordPro } from '../lib/chordPro';
-import { exportToChordPro } from '../lib/export';
+import { exportToChordPro, exportToPdf } from '../lib/export';
 import { transposeChord } from '../lib/music';
 import { chordToNashville } from '../lib/nashville';
 import { ChordStaff } from './ChordStaff';
@@ -498,6 +498,9 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             </Box>
 
             <IconButton onClick={() => exportToChordPro(song)} title="Download">
+              <DownloadIcon />
+            </IconButton>
+            <IconButton onClick={() => exportToPdf(song)} title="Export PDF">
               <DownloadIcon />
             </IconButton>
             <Button variant="contained" startIcon={<EditIcon />} onClick={onEdit} size="small">

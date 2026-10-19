@@ -227,6 +227,7 @@ Echoes of mercy, whispers of love.`,
 export class HymnaryAdapter extends BaseAdapter {
   id = 'hymnary';
   name = 'Hymnary.org';
+  license = 'public-domain';
 
   async search(query: string): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase().trim();
