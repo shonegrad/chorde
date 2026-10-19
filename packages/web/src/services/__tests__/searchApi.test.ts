@@ -23,9 +23,7 @@ describe('searchApi', () => {
 
       const sources = await searchApi.getSources();
       expect(sources).toEqual(mockSources);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/sources')
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/api/sources'));
     });
 
     it('throws error when fetch fails', async () => {
@@ -48,9 +46,7 @@ describe('searchApi', () => {
 
       const result = await searchApi.search('test query');
       expect(result).toEqual(mockResponse);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('q=test+query')
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('q=test+query'));
     });
 
     it('includes sources filter when provided', async () => {

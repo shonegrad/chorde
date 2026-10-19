@@ -10,7 +10,12 @@ interface PasteTabProps {
 
 export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
   const [content, setContent] = useState('');
-  const [preview, setPreview] = useState<{ title: string; artist: string; key?: string; capo?: number } | null>(null);
+  const [preview, setPreview] = useState<{
+    title: string;
+    artist: string;
+    key?: string;
+    capo?: number;
+  } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
@@ -38,19 +43,19 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
           flex: 1,
           position: 'relative',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
         }}
-        onDragOver={e => {
+        onDragOver={(e) => {
           e.preventDefault();
           e.stopPropagation();
           setIsDragging(true);
         }}
-        onDragLeave={e => {
+        onDragLeave={(e) => {
           e.preventDefault();
           e.stopPropagation();
           setIsDragging(false);
         }}
-        onDrop={async e => {
+        onDrop={async (e) => {
           e.preventDefault();
           e.stopPropagation();
           setIsDragging(false);
@@ -60,7 +65,9 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
             let text = await file.text();
             const metadata = extractMetadata(text);
             if (!metadata.title || metadata.title === 'Untitled Song') {
-              const filenameTitle = file.name.replace(/\.(txt|cho|crd|chordpro)$/i, '').replace(/[-_]/g, ' ');
+              const filenameTitle = file.name
+                .replace(/\.(txt|cho|crd|chordpro)$/i, '')
+                .replace(/[-_]/g, ' ');
               text = `{title: ${filenameTitle}}\n` + text;
             }
             setContent(text);
@@ -72,33 +79,37 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
           fullWidth
           placeholder="Paste ChordPro text here... OR Drop a file!"
           value={content}
-          onChange={e => setContent(e.target.value)}
+          onChange={(e) => setContent(e.target.value)}
           sx={{
             flex: 1,
             '& .MuiInputBase-root': {
               height: '100%',
               alignItems: 'flex-start',
               fontFamily: 'monospace',
-              bgcolor: 'background.paper'
-            }
+              bgcolor: 'background.paper',
+            },
           }}
         />
 
         {isDragging && (
-          <Box sx={{
-            position: 'absolute',
-            inset: 0,
-            bgcolor: 'rgba(234, 179, 8, 0.1)',
-            border: '2px dashed',
-            borderColor: 'primary.main',
-            zIndex: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backdropFilter: 'blur(2px)',
-            borderRadius: 1
-          }}>
-            <Paper sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              bgcolor: 'rgba(234, 179, 8, 0.1)',
+              border: '2px dashed',
+              borderColor: 'primary.main',
+              zIndex: 10,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(2px)',
+              borderRadius: 1,
+            }}
+          >
+            <Paper
+              sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
+            >
               <CloudUploadIcon color="primary" sx={{ fontSize: 48 }} />
               <Typography variant="h6" color="primary">
                 Drop file to import!
@@ -109,7 +120,10 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
       </Box>
 
       {/* Preview Panel */}
-      <Paper variant="outlined" sx={{ width: { xs: '100%', md: 320 }, p: 3, height: 'fit-content' }}>
+      <Paper
+        variant="outlined"
+        sx={{ width: { xs: '100%', md: 320 }, p: 3, height: 'fit-content' }}
+      >
         <Typography variant="h6" gutterBottom fontWeight="bold">
           Preview
         </Typography>
@@ -118,20 +132,30 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
         {preview ? (
           <Stack spacing={2}>
             <Box>
-              <Typography variant="caption" color="text.secondary">Title</Typography>
-              <Typography variant="subtitle1" fontWeight="bold">{preview.title}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                Title
+              </Typography>
+              <Typography variant="subtitle1" fontWeight="bold">
+                {preview.title}
+              </Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary">Artist</Typography>
+              <Typography variant="caption" color="text.secondary">
+                Artist
+              </Typography>
               <Typography variant="body1">{preview.artist}</Typography>
             </Box>
             <Stack direction="row" spacing={4}>
               <Box>
-                <Typography variant="caption" color="text.secondary">Key</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Key
+                </Typography>
                 <Typography variant="body1">{preview.key || '-'}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">Capo</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Capo
+                </Typography>
                 <Typography variant="body1">{preview.capo || '-'}</Typography>
               </Box>
             </Stack>
@@ -144,11 +168,7 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
 
         <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
           <Button onClick={onCancel}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleImport}
-            disabled={!content.trim()}
-          >
+          <Button variant="contained" onClick={handleImport} disabled={!content.trim()}>
             Import Song
           </Button>
         </Box>

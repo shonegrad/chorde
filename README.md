@@ -6,14 +6,14 @@
 
 - **ChordPro Support**: Parse and render songs with chord embedding.
 - **Search-Based Import**: Search and import songs from public domain sources (OpenHymnal, etc.).
-- **Interactive Chord Library**: 
-    - Browse chords and view multiple finger positions (variations).
-    - **Strumming Audio Preview**: Listen to realistic guitar strum playback with position-based timing.
+- **Interactive Chord Library**:
+  - Browse chords and view multiple finger positions (variations).
+  - **Strumming Audio Preview**: Listen to realistic guitar strum playback with position-based timing.
 - **Dynamic Transposition**: Instantly change the key of any song.
-- **Smart Song Viewer**: 
-    - Auto-scroll with adjustable speed.
-    - Multiple display modes: Chords, Tabs, and Notation.
-    - Loop sections for practice.
+- **Smart Song Viewer**:
+  - Auto-scroll with adjustable speed.
+  - Multiple display modes: Chords, Tabs, and Notation.
+  - Loop sections for practice.
 - **Collapsible Navigation**: Browse by Keys, Artists, and Genres with item count badges.
 - **Local Storage**: Your library is saved locally in your browser.
 - **Nashville Number System**: View songs in numbers for universal playability.
@@ -22,13 +22,14 @@
 
 ## 🏗️ Project Structure
 
-This is a **monorepo** with two packages:
+This is a **monorepo** with three packages:
 
 ```
 chorde/
 ├── packages/
 │   ├── web/          # React frontend application
-│   └── api/          # Hono API service for song search
+│   ├── api/          # Hono API service for song search
+│   └── shared/       # Shared TypeScript types
 └── package.json      # Workspace configuration
 ```
 
@@ -42,21 +43,24 @@ chorde/
 ### Installation
 
 1.  Clone the repository:
+
     ```bash
     git clone https://github.com/your-username/chorde.git
     cd chorde
     ```
 
 2.  Install dependencies:
+
     ```bash
     npm install
     ```
 
 3.  Start the development servers:
+
     ```bash
     # Start both frontend and API
     npm run dev:all
-    
+
     # Or start separately:
     npm run dev      # Frontend only (http://localhost:5173)
     npm run dev:api  # API only (http://localhost:3001)
@@ -67,6 +71,7 @@ chorde/
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework**: React 19
 - **Build Tool**: Vite
 - **Language**: TypeScript
@@ -74,6 +79,7 @@ chorde/
 - **Styling**: MUI's `sx` prop + modular CSS
 
 ### Backend
+
 - **Framework**: Hono
 - **Runtime**: Node.js with @hono/node-server
 - **Language**: TypeScript
@@ -96,6 +102,7 @@ Users can now search for songs from public domain sources and import them direct
 4. Preview and import with one click
 
 Currently supported sources:
+
 - **OpenHymnal** - Public domain hymns in ChordPro format
 
 See [SEARCH_IMPORT_GUIDE.md](./SEARCH_IMPORT_GUIDE.md) for details on adding new sources.

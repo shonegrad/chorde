@@ -6,7 +6,7 @@ import {
   Stack,
   CircularProgress,
   Alert,
-  InputAdornment
+  InputAdornment,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { searchApi } from '../../services/searchApi';
@@ -42,9 +42,11 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Search failed';
       if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
-         setError('Cannot connect to search server. Please ensure the API is running (npm run dev:api).');
+        setError(
+          'Cannot connect to search server. Please ensure the API is running (npm run dev:api).'
+        );
       } else {
-         setError(message);
+        setError(message);
       }
     } finally {
       setLoading(false);
@@ -53,7 +55,7 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
 
   const handleExpand = async (result: SearchResult) => {
     const resultId = `${result.source}-${result.id}`;
-    
+
     // Toggle collapse
     if (expandedId === resultId) {
       setExpandedId(null);
@@ -70,7 +72,9 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
       setPreview(songContent.chordPro);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load preview';
-      setError(message.includes('Failed to fetch') ? 'Connection error. Check API server.' : message);
+      setError(
+        message.includes('Failed to fetch') ? 'Connection error. Check API server.' : message
+      );
     } finally {
       setPreviewLoading(false);
     }
@@ -82,7 +86,9 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
       onImport(songContent.chordPro);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to import song';
-      setError(message.includes('Failed to fetch') ? 'Connection error. Check API server.' : message);
+      setError(
+        message.includes('Failed to fetch') ? 'Connection error. Check API server.' : message
+      );
     }
   };
 
@@ -100,14 +106,14 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
           fullWidth
           placeholder="Search for a song... (e.g., Amazing Grace)"
           value={query}
-          onChange={e => setQuery(e.target.value)}
+          onChange={(e) => setQuery(e.target.value)}
           onKeyPress={handleKeyPress}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon />
               </InputAdornment>
-            )
+            ),
           }}
         />
         <Button

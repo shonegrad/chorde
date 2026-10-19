@@ -14,7 +14,7 @@ describe('ChordProOrgAdapter', () => {
     it('returns matching songs by artist', async () => {
       const results = await adapter.search('Beatles');
       expect(results.length).toBeGreaterThan(0);
-      expect(results.some(r => r.artist.includes('Beatles'))).toBe(true);
+      expect(results.some((r) => r.artist.includes('Beatles'))).toBe(true);
     });
 
     it('returns multiple results for broad query', async () => {

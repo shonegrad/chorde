@@ -13,14 +13,14 @@
 :root {
   /* Legacy variables - prefer theme.customTokens in new code */
   --nav-height: 60px;
-  --bg-color: #18181B;
-  --surface-color: #27272A;
-  --surface-hover: #27272A;
-  --text-primary: #E4E4E7;
-  --text-secondary: #A1A1AA;
-  --text-muted: #52525B;
-  --primary-color: #EAB308;
-  --border-color: #27272A;
+  --bg-color: #18181b;
+  --surface-color: #27272a;
+  --surface-hover: #27272a;
+  --text-primary: #e4e4e7;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --primary-color: #eab308;
+  --border-color: #27272a;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -35,14 +35,19 @@
   --radius-lg: 0.75rem;
 
   /* Fonts */
-  --font-sans: "Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", "Menlo", "Monaco", "Consolas", "Courier New", monospace;
+  --font-sans:
+    'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto',
+    'Helvetica Neue', 'Arial', sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
 }
 
 /* Clickable chords - used in SongViewer */
 .clickable-chord {
   cursor: pointer;
-  transition: transform 0.1s, color 0.2s;
+  transition:
+    transform 0.1s,
+    color 0.2s;
   text-decoration: underline;
   text-decoration-color: transparent;
 }

@@ -11,12 +11,13 @@
    - Click "Create repository"
 
 2. **Add Remote and Push**:
+
    ```bash
    # Add the remote (replace YOUR_USERNAME with your GitHub username)
    git remote add origin https://github.com/YOUR_USERNAME/chorde.git
-   
+
    # Push to GitHub
-   git push -u origin master
+   git push -u origin main
    ```
 
 ## Option 2: Using GitHub CLI (If Installed)

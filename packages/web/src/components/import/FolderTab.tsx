@@ -189,7 +189,13 @@ export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
                   <Chip
                     label={item.status}
                     size="small"
-                    color={item.status === 'added' ? 'success' : item.status === 'failed' ? 'error' : 'default'}
+                    color={
+                      item.status === 'added'
+                        ? 'success'
+                        : item.status === 'failed'
+                          ? 'error'
+                          : 'default'
+                    }
                   />
                 </ListItem>
               ))}
@@ -200,7 +206,11 @@ export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
         <Button onClick={onCancel}>Cancel</Button>
-        <Button variant="contained" onClick={handleImportAll} disabled={importing || files.length === 0}>
+        <Button
+          variant="contained"
+          onClick={handleImportAll}
+          disabled={importing || files.length === 0}
+        >
           {importing ? 'Importing...' : 'Import All'}
         </Button>
       </Box>
