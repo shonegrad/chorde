@@ -168,8 +168,8 @@
 }
 
 .chord-display.notation-mode {
-  height: 60px;
-  /* Taller for staff */
+  min-height: 100px;
+  /* Taller for tabs/notation */
   margin-bottom: 0.5em;
   /* Adjust bottom for taller elements if needed, or let them grow up */
   transform: translateY(-10px);
