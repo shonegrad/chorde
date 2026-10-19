@@ -19,25 +19,27 @@ export const ChordTab: React.FC<ChordTabProps> = React.memo(
 
     const strings = showLabels ? ['e', 'B', 'G', 'D', 'A', 'E'] : ['', '', '', '', '', '']; // High to low (indices 5,4,3,2,1,0 in variations array)
     const frets = chordData.variations[0].frets; // Use first variation
-    const lineSpacing = 9;
-    const leftMargin = showLabels ? 25 : 0; // Space for string labels
+    const lineHeight = 16;
+    const svgHeight = strings.length * lineHeight + 4;
+    const leftMargin = showLabels ? 30 : 0; // Space for string labels
 
     return (
       <svg
         width={width + leftMargin}
-        height={strings.length * lineSpacing + 4}
-        viewBox={`0 0 ${width + leftMargin} ${strings.length * lineSpacing + 4}`}
+        height={svgHeight}
+        viewBox={`0 0 ${width + leftMargin} ${svgHeight}`}
         style={{ overflow: 'visible', verticalAlign: 'bottom' }}
       >
         {/* String labels */}
         {showLabels &&
           strings.map((stringName, i) => {
             const actualName = stringName || '';
+            const y = lineHeight * (strings.length - i) - 2; // Reverse: high e at top
             return (
               <text
                 key={i}
                 x={2}
-                y={(i + 1) * lineSpacing - 2}
+                y={y}
                 fontSize={9}
                 fill={theme.palette.text.secondary}
                 fontFamily={theme.typography.mono.fontFamily}
@@ -48,10 +50,10 @@ export const ChordTab: React.FC<ChordTabProps> = React.memo(
             );
           })}
 
-        {/* Fret lines */}
+        {/* Fret lines - parallel horizontal lines */}
         {strings.map((_, i) => {
           const fret = frets[5 - i]; // Reverse index (frets array is low E to high e)
-          const y = 3.5 + i * lineSpacing;
+          const y = lineHeight * (strings.length - i); // Consistent y-position for fret line
           const fretDisplay = typeof fret === 'number' ? fret.toString() : fret === 'x' ? 'M' : '';
 
           return (
@@ -68,7 +70,7 @@ export const ChordTab: React.FC<ChordTabProps> = React.memo(
               {/* Fret number or mute marker */}
               <text
                 x={leftMargin + width / 2}
-                y={y + 5}
+                y={y + 7}
                 fontSize={10}
                 fill={fret === 'x' ? theme.palette.text.disabled : theme.palette.primary.main}
                 textAnchor="middle"
@@ -88,13 +90,14 @@ export const ChordTab: React.FC<ChordTabProps> = React.memo(
             <g key="fingerings">
               {chordData.variations[0].fingers.map((fretNum: number | string, i: number) => {
                 if (typeof fretNum === 'number' && fretNum >= 1 && fretNum <= 4) {
-                  const stringIndex = i; // Simple mapping: index corresponds to string
-                  const y = 3.5 + stringIndex * lineSpacing;
+                  // Map finger to string: index 0 = high e, index 5 = low E
+                  const stringIndex = 5 - i;
+                  const y = lineHeight * (strings.length - stringIndex);
                   return (
                     <text
                       key={`finger-${i}`}
-                      x={leftMargin + 15}
-                      y={y + 4}
+                      x={leftMargin + 20}
+                      y={y + 3}
                       fontSize={8}
                       fill={theme.palette.primary.main}
                       fontFamily={theme.typography.mono.fontFamily}
