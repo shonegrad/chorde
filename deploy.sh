@@ -8,16 +8,16 @@ echo "Building project..."
 npm run build
 
 # Navigate into the build output directory
-cd dist
+cd packages/web/dist
 
 # Create a fresh git repo in dist/
+rm -rf .git
 git init
 git add -A
 git commit -m 'deploy'
 
 # Force push to the gh-pages branch of the remote repo
-# (Uses the URL of the parent repo)
-git push -f https://github.com/shonegrad/chorde.git master:gh-pages
+git push -f https://github.com/shonegrad/chorde.git HEAD:gh-pages
 
 cd -
 echo "Deployment complete! Check https://shonegrad.github.io/chorde/"
