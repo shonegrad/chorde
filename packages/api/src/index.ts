@@ -26,7 +26,6 @@ app.use(
     origin: (origin) => {
       if (!origin) return '';
       if (ALLOWED_ORIGINS.includes(origin)) return origin;
-      if (origin.startsWith('http://localhost:')) return origin;
       if (PRODUCTION_ORIGIN && origin === PRODUCTION_ORIGIN) return origin;
       return '';
     },

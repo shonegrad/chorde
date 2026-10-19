@@ -49,8 +49,8 @@ export function AppProvider({ children }: AppProviderProps) {
           await store.bulkUpsert(seedSongs);
           setSongs(seedSongs);
         } else {
-          const seedIds = new Set(seedSongs.map((s) => s.id));
-          const merged = [...seedSongs, ...stored.filter((s) => !seedIds.has(s.id))];
+          const storedIds = new Set(stored.map((s) => s.id));
+          const merged = [...stored, ...seedSongs.filter((s) => !storedIds.has(s.id))];
           await store.bulkUpsert(merged);
           setSongs(merged);
         }

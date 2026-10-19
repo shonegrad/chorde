@@ -15,6 +15,7 @@ const DB_NAME = 'chorde-library';
 const DB_VERSION = 1;
 const STORE_NAME = 'songs';
 const MIGRATION_KEY = 'chorde_idb_migrated';
+const SYNC_KEY = 'chorde_idb_sync';
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -54,6 +55,25 @@ export class IndexedDBLibraryStore implements LibraryStore {
 
   constructor() {
     this.initPromise = this.migrateFromLocalStorage().then(() => this.loadCache());
+    this.setupSyncListener();
+  }
+
+  private setupSyncListener(): void {
+    if (typeof window === 'undefined' || !window.addEventListener) return;
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === SYNC_KEY) {
+        this.loadCache();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+  }
+
+  private notifySync(): void {
+    try {
+      localStorage.setItem(SYNC_KEY, String(Date.now()));
+    } catch {
+      // localStorage may be unavailable; sync is best-effort
+    }
   }
 
   private async ensureInit(): Promise<void> {
@@ -107,6 +127,7 @@ export class IndexedDBLibraryStore implements LibraryStore {
     store.put(song);
     await transactionComplete(tx);
     db.close();
+    this.notifySync();
   }
 
   private async persistDelete(id: string): Promise<void> {
@@ -116,6 +137,7 @@ export class IndexedDBLibraryStore implements LibraryStore {
     store.delete(id);
     await transactionComplete(tx);
     db.close();
+    this.notifySync();
   }
 
   async listSongs(): Promise<Song[]> {
@@ -159,6 +181,8 @@ export class IndexedDBLibraryStore implements LibraryStore {
     }
     await transactionComplete(tx);
     db.close();
+
+    this.notifySync();
 
     const songMap = new Map<string, Song>();
     this.memoryCache.forEach((s) => songMap.set(s.id, s));

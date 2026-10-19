@@ -27,7 +27,7 @@ export interface SongContent {
   };
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 class SearchApiClient {
   private baseUrl: string;
@@ -44,7 +44,10 @@ class SearchApiClient {
     return response.json();
   }
 
-  async search(query: string, sources?: string[]): Promise<{ results: SearchResult[]; totalCount: number }> {
+  async search(
+    query: string,
+    sources?: string[]
+  ): Promise<{ results: SearchResult[]; totalCount: number }> {
     const params = new URLSearchParams({ q: query });
     if (sources && sources.length > 0) {
       params.append('sources', sources.join(','));
