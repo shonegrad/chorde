@@ -23,7 +23,18 @@ import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import DownloadIcon from '@mui/icons-material/Download';
 import UploadIcon from '@mui/icons-material/Upload';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import { useAppSettings } from '../lib/settings';
+import {
+  getAudioPreferences,
+  playStrummedChord,
+  resumeAudioContext,
+  saveAudioPreferences,
+  TONE_LABELS,
+  TONE_TYPES,
+  type AudioPreferences,
+} from '../lib/audio';
+import { voicingForChord } from '../lib/voicings';
 import { useLibraryStore } from '../store/libraryStore';
 import { useSetlistStore } from '../store/setlistStore';
 import { buildSnapshot, downloadSnapshot, readSnapshotFile } from '../lib/backup';
@@ -34,6 +45,8 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [settings, updateSettings] = useAppSettings();
   const { notifySuccess, notifyError } = useNotification();
   const { preference, setPreference, mode } = useThemeMode();
+
+  const [audio, setAudio] = useState<AudioPreferences>(() => getAudioPreferences());
 
   const songs = useLibraryStore((s) => s.songs);
   const bulkUpsert = useLibraryStore((s) => s.bulkUpsert);
@@ -98,6 +111,24 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     } catch {
       notifyError('Could not reset your library.');
     }
+  };
+
+  const updateAudio = (next: AudioPreferences) => {
+    setAudio(next);
+    saveAudioPreferences(next);
+  };
+
+  /* Play a chord, so the sound can be heard before it is trusted. */
+  const handleTestSound = async () => {
+    await resumeAudioContext();
+
+    const notes = voicingForChord('C');
+    if (!notes) {
+      notifyError('Could not play that sound.');
+      return;
+    }
+
+    playStrummedChord(notes, 1.5);
   };
 
   return (
@@ -177,6 +208,74 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               System
             </ToggleButton>
           </ToggleButtonGroup>
+        </Box>
+
+        <Divider />
+
+        <Box>
+          <Typography variant="h6" fontWeight="bold">
+            Sound
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Chorde plays the chords of a song with a guitar tone. This sets how loud they are and
+            which tone is used.
+          </Typography>
+          <Stack spacing={3} sx={{ mt: 2, maxWidth: 420 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={audio.enabled}
+                  inputProps={{ 'aria-label': 'Play sound' }}
+                  onChange={(event) => updateAudio({ ...audio, enabled: event.target.checked })}
+                />
+              }
+              label="Play sound"
+            />
+
+            <Box>
+              <Typography gutterBottom>Volume: {Math.round(audio.volume * 100)}%</Typography>
+              <Slider
+                value={audio.volume}
+                min={0}
+                max={1}
+                step={0.05}
+                disabled={!audio.enabled}
+                aria-label="Volume"
+                onChange={(_, value) => updateAudio({ ...audio, volume: value as number })}
+              />
+            </Box>
+
+            <Box>
+              <Typography gutterBottom>Tone</Typography>
+              <ToggleButtonGroup
+                exclusive
+                value={audio.tone}
+                disabled={!audio.enabled}
+                onChange={(_event, value) => {
+                  if (value) updateAudio({ ...audio, tone: value });
+                }}
+                aria-label="Tone"
+                size="small"
+              >
+                {TONE_TYPES.map((tone) => (
+                  <ToggleButton key={tone} value={tone}>
+                    {TONE_LABELS[tone]}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Box>
+
+            <Box>
+              <Button
+                variant="outlined"
+                startIcon={<VolumeUpIcon />}
+                onClick={handleTestSound}
+                disabled={!audio.enabled}
+              >
+                Play a sound
+              </Button>
+            </Box>
+          </Stack>
         </Box>
 
         <Divider />

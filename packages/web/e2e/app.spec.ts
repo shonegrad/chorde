@@ -524,3 +524,150 @@ test.describe('Chorde E2E - Accessibility', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   });
 });
+
+test.describe('Chorde E2E - Sound', () => {
+  /**
+   * A stand-in for the Web Audio API, so the test can tell whether anything
+   * was actually played.
+   */
+  const stubAudio = async (page: Page) => {
+    await page.addInitScript(() => {
+      const played: { frequency: number; type: string }[] = [];
+
+      class FakeAudioParam {
+        value = 0;
+        setValueAtTime() {}
+        linearRampToValueAtTime() {}
+        exponentialRampToValueAtTime() {}
+      }
+
+      class FakeNode {
+        connect() {
+          return this;
+        }
+        disconnect() {}
+      }
+
+      class FakeOscillator extends FakeNode {
+        type = 'sine';
+        frequency = new FakeAudioParam();
+        detune = new FakeAudioParam();
+        onended: (() => void) | null = null;
+        start() {
+          played.push({ frequency: this.frequency.value, type: this.type });
+        }
+        stop() {}
+      }
+
+      class FakeGainNode extends FakeNode {
+        gain = new FakeAudioParam();
+      }
+
+      class FakeFilterNode extends FakeNode {
+        type = 'lowpass';
+        frequency = new FakeAudioParam();
+        Q = new FakeAudioParam();
+      }
+
+      class FakeCompressorNode extends FakeNode {
+        threshold = new FakeAudioParam();
+        knee = new FakeAudioParam();
+        ratio = new FakeAudioParam();
+        attack = new FakeAudioParam();
+        release = new FakeAudioParam();
+      }
+
+      class FakeAudioContext {
+        currentTime = 0;
+        state = 'running';
+        destination = new FakeNode();
+        createOscillator() {
+          return new FakeOscillator();
+        }
+        createGain() {
+          return new FakeGainNode();
+        }
+        createBiquadFilter() {
+          return new FakeFilterNode();
+        }
+        createDynamicsCompressor() {
+          return new FakeCompressorNode();
+        }
+        resume = async () => undefined;
+      }
+
+      (window as unknown as { AudioContext: unknown }).AudioContext = FakeAudioContext;
+      (window as unknown as { __played: typeof played }).__played = played;
+    });
+  };
+
+  const playedNotes = (page: Page) =>
+    page.evaluate(() => (window as unknown as { __played: unknown[] }).__played.length);
+
+  test('plays the chords of the song being read', async ({ page }) => {
+    await stubAudio(page);
+
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await page.getByRole('button', { name: 'Play the chords' }).click();
+
+    await expect.poll(() => playedNotes(page)).toBeGreaterThan(0);
+  });
+
+  test('plays a chord from the chord diagram', async ({ page }) => {
+    await stubAudio(page);
+
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await page.getByText('C', { exact: true }).first().click();
+    await page.getByRole('button', { name: 'Play this chord' }).click();
+
+    await expect.poll(() => playedNotes(page)).toBeGreaterThan(0);
+  });
+
+  test('plays the scale of a key', async ({ page }) => {
+    await stubAudio(page);
+
+    await page.goto('./chords');
+    await expect(page.getByRole('heading', { name: 'Chord Library' })).toBeVisible({
+      timeout: 15000,
+    });
+
+    await page.getByRole('button', { name: /Play the scale of/ }).click();
+
+    await expect.poll(() => playedNotes(page)).toBeGreaterThan(0);
+  });
+
+  test('changes the sound in the settings', async ({ page }) => {
+    await stubAudio(page);
+
+    await page.goto('./settings');
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Play a sound' }).click();
+    await expect.poll(() => playedNotes(page)).toBeGreaterThan(0);
+
+    await page.getByRole('button', { name: 'Pure' }).click();
+    await page.getByRole('button', { name: 'Play a sound' }).click();
+
+    // The pure tone is one oscillator for each note, rather than two.
+    await expect
+      .poll(async () =>
+        page.evaluate(
+          () =>
+            (window as unknown as { __played: { type: string }[] }).__played.filter(
+              (note) => note.type === 'sine'
+            ).length
+        )
+      )
+      .toBeGreaterThan(0);
+  });
+});

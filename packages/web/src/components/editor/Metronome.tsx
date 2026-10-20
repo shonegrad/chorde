@@ -3,6 +3,7 @@ import { Box, Button, IconButton, Stack, TextField, Tooltip, Typography } from '
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import { playClick } from '../../lib/audio';
 
 interface MetronomeProps {
   /** The tempo in beats a minute. */
@@ -22,7 +23,6 @@ export const Metronome: React.FC<MetronomeProps> = ({ bpm, onTempoChange }) => {
   const [tempo, setTempo] = useState(bpm ?? DEFAULT_BPM);
   const [lastBpm, setLastBpm] = useState(bpm);
   const [playing, setPlaying] = useState(false);
-  const audioRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tapTimes = useRef<number[]>([]);
 
@@ -33,28 +33,7 @@ export const Metronome: React.FC<MetronomeProps> = ({ bpm, onTempoChange }) => {
   }
 
   const click = useCallback((accent: boolean) => {
-    if (typeof window === 'undefined') return;
-
-    const AudioContextCtor =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext?: new () => AudioContext }).webkitAudioContext;
-    if (!AudioContextCtor) return;
-
-    if (!audioRef.current) audioRef.current = new AudioContextCtor();
-    const ctx = audioRef.current;
-
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
-    oscillator.type = 'square';
-    oscillator.frequency.value = accent ? 1400 : 1000;
-    gain.gain.value = accent ? 0.16 : 0.09;
-
-    oscillator.connect(gain);
-    gain.connect(ctx.destination);
-
-    const now = ctx.currentTime;
-    oscillator.start(now);
-    oscillator.stop(now + 0.06);
+    playClick(accent);
   }, []);
 
   useEffect(() => {

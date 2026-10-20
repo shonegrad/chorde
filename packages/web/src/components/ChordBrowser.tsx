@@ -7,7 +7,8 @@ import { chordsOfKey, notesOfScale, SCALE_KEYS } from '../lib/keyDetection';
 import { ChordDiagram } from './ChordDiagram';
 import { ChordDiagramEditor } from './ChordDiagramEditor';
 import { ChordModal } from './ChordModal';
-import { playStrummedChord, resumeAudioContext } from '../lib/audio';
+import { playScale, playStrummedChord, resumeAudioContext } from '../lib/audio';
+import { voicingForChord } from '../lib/voicings';
 import { noteToFrequency } from '../lib/scales';
 import {
   Container,
@@ -28,6 +29,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  Tooltip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -116,43 +118,26 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
     const chord = CHORD_LIBRARY[chordName];
     if (!chord || !chord.variations[0]) return;
 
+    // The shape the app knows is played as the notes it plays, so the chord
+    // sounds the way the diagram says it does.
+    const notes = voicingForChord(chordName);
+    if (!notes) return;
+
     setPlayingChord(chordName);
-
-    // Get the first variation's fret positions
-    const variation = chord.variations[0];
-
-    // Convert fret positions to notes (using standard tuning)
-    // Standard tuning: E2, A2, D3, G3, B3, E4
-    const standardTuning = [
-      { note: 'E', octave: 2 },
-      { note: 'A', octave: 2 },
-      { note: 'D', octave: 3 },
-      { note: 'G', octave: 3 },
-      { note: 'B', octave: 3 },
-      { note: 'E', octave: 4 },
-    ];
-    const frequencies: number[] = [];
-    const stringIndices: number[] = [];
-
-    variation.frets.forEach((fret, stringIndex) => {
-      if (fret === 'x') return; // Muted string
-
-      const stringDef = standardTuning[stringIndex];
-      // noteToFrequency returns Hz, despite the variable name in original code suggesting MIDI
-      const openStringFreq = noteToFrequency(stringDef.note, stringDef.octave);
-
-      // Each fret is a semitone
-      const fretNumber = typeof fret === 'number' ? fret : 0;
-      const frequency = openStringFreq * Math.pow(2, fretNumber / 12);
-
-      frequencies.push(frequency);
-      stringIndices.push(stringIndex); // Track which string this note belongs to
-    });
-
-    playStrummedChord(frequencies, stringIndices, 1.5);
+    playStrummedChord(notes, 1.5);
 
     // Clear playing state after audio finishes
     setTimeout(() => setPlayingChord(null), 1500);
+  };
+
+  /* Play the scale of the key, up and then back down. */
+  const handlePlayScale = async () => {
+    await resumeAudioContext();
+
+    const frequencies = notesOfScale(scaleKey).map((note) => noteToFrequency(note, 3));
+    if (frequencies.length === 0) return;
+
+    playScale(frequencies, { tempo: 120, ascending: true, descending: true });
   };
 
   const handleSaveCustomChord = (variation: ChordVariation) => {
@@ -222,6 +207,12 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
               {notesOfScale(scaleKey).join(' ')}
             </Typography>
           </Box>
+
+          <Tooltip title="Play the scale">
+            <IconButton onClick={handlePlayScale} aria-label={`Play the scale of ${scaleKey}`}>
+              <VolumeUpIcon />
+            </IconButton>
+          </Tooltip>
         </Stack>
 
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 2, gap: 1 }}>

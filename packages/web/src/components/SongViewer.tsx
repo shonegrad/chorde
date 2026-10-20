@@ -6,6 +6,14 @@ import { transposeChord, transposeKey, keyPrefersFlats } from '../lib/music';
 import { detectKey } from '../lib/keyDetection';
 import { useAppSettings } from '../lib/settings';
 import { useAutoScroll } from '../lib/useAutoScroll';
+import { beatsPerBar, buildProgression, type ProgressionChord } from '../lib/progression';
+import {
+  playClick,
+  playSequence,
+  resumeAudioContext,
+  stopAllSounds,
+  type SequenceHandle,
+} from '../lib/audio';
 import {
   loadSongPreferences,
   loadViewerPreferences,
@@ -53,6 +61,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import LoopIcon from '@mui/icons-material/Loop';
+import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import TextDecreaseIcon from '@mui/icons-material/TextDecrease';
@@ -108,14 +117,16 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [setlistOpen, setSetlistOpen] = useState(false);
+  const [playingProgression, setPlayingProgression] = useState<ProgressionChord[] | null>(null);
+  const [currentChord, setCurrentChord] = useState<string | null>(null);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const sequenceRef = useRef<SequenceHandle | null>(null);
 
   // Tempo controls
   const [bpm, setBpm] = useState<number | null>(song.bpm ?? null);
   const [lockTempo, setLockTempo] = useState(stageMode.lockTempo);
 
-  // Audio context for the count-in click
-  const audioCtxRef = useRef<AudioContext | null>(null);
+  // The times the tempo was tapped at.
   const lastTapTimeRef = useRef<number>(0);
   const tapTimesRef = useRef<number[]>([]);
 
@@ -181,6 +192,25 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     return extracted;
   }, [parsedContent]);
 
+  /*
+   * The chords of the song, and the notes each one plays.
+   *
+   * The capo moves the sound up the neck, so it is taken into account here:
+   * the shapes are the same, but they ring a semitone or two higher.
+   */
+  const progression = useMemo(
+    () => buildProgression(parsedContent, { capo }),
+    [parsedContent, capo]
+  );
+
+  /*
+   * The chords are only playing if they are the ones that were started.
+   *
+   * When the song is transposed the chords change, so the ones being played
+   * are no longer the ones on the screen.
+   */
+  const playingChords = playingProgression !== null && playingProgression === progression;
+
   // BPM-based scroll speed calculation
   const computedScrollSpeed = useMemo(() => {
     const beatsPerLine = stageMode.beatsPerLine;
@@ -233,31 +263,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const playClickSound = useCallback(
     (accent = false) => {
       if (!stageMode.clickSoundEnabled) return;
-
-      if (!audioCtxRef.current) {
-        const AudioContextCtor =
-          window.AudioContext ||
-          (window as unknown as { webkitAudioContext?: new () => AudioContext }).webkitAudioContext;
-        if (!AudioContextCtor) return;
-        audioCtxRef.current = new AudioContextCtor();
-      }
-
-      const ctx = audioCtxRef.current;
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-
-      oscillator.type = 'square';
-      // The first beat is louder and higher, so it is easy to hear where the
-      // song starts.
-      oscillator.frequency.value = accent ? 1400 : 1000;
-      gainNode.gain.value = accent ? 0.16 : 0.09;
-
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
-
-      const now = ctx.currentTime;
-      oscillator.start(now);
-      oscillator.stop(now + 0.1);
+      playClick(accent);
     },
     [stageMode.clickSoundEnabled]
   );
@@ -334,6 +340,59 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       setLoopSection(null);
     }
   };
+
+  /*
+   * Play the chords of the song.
+   *
+   * Each chord is held for a bar, at the tempo of the song, so the
+   * progression sounds the way it would be played.
+   */
+  const toggleChordPlayback = useCallback(async () => {
+    if (playingChords) {
+      sequenceRef.current?.stop();
+      sequenceRef.current = null;
+      setPlayingProgression(null);
+      setCurrentChord(null);
+      return;
+    }
+
+    if (progression.length === 0) return;
+
+    await resumeAudioContext();
+
+    const beat = 60 / (bpm ?? stageMode.defaultBpm);
+    const duration = beat * beatsPerBar(song.timeSignature);
+
+    const handle = playSequence(
+      progression.map((chord) => ({ notes: chord.notes, duration })),
+      {
+        onStep: (index) => setCurrentChord(progression[index]?.name ?? null),
+        onEnd: () => {
+          setPlayingProgression(null);
+          setCurrentChord(null);
+        },
+      }
+    );
+
+    sequenceRef.current = handle;
+    setPlayingProgression(progression);
+  }, [playingChords, progression, bpm, stageMode.defaultBpm, song.timeSignature]);
+
+  // The chords stop when the song is left.
+  useEffect(
+    () => () => {
+      sequenceRef.current?.stop();
+      sequenceRef.current = null;
+      stopAllSounds();
+    },
+    []
+  );
+
+  // The chords stop when they change, so the wrong chord is never heard.
+  useEffect(() => {
+    sequenceRef.current?.stop();
+    sequenceRef.current = null;
+  }, [progression]);
 
   const handleSectionClick = (sectionIndex: number) => {
     if (loopMode) {
@@ -624,6 +683,23 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                 </Tooltip>
               )}
             </Paper>
+
+            {/* Play the chords of the song */}
+            <Tooltip title={playingChords ? 'Stop the chords' : 'Play the chords'}>
+              <span>
+                <IconButton
+                  onClick={toggleChordPlayback}
+                  color={playingChords ? 'primary' : 'default'}
+                  disabled={!playingChords && progression.length === 0}
+                  aria-label={playingChords ? 'Stop playing the chords' : 'Play the chords'}
+                >
+                  <GraphicEqIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
+            {playingChords && currentChord && (
+              <Chip label={currentChord} color="primary" size="small" aria-live="polite" />
+            )}
 
             {/* Display Mode */}
             <ToggleButtonGroup

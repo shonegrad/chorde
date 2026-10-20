@@ -5,6 +5,14 @@ import { useLibraryStore } from '../store/libraryStore';
 import { useAppSettings } from '../lib/settings';
 import { useAutoScroll } from '../lib/useAutoScroll';
 import { prepareSong } from '../lib/songPlayback';
+import { beatsPerBar, buildProgression, type ProgressionChord } from '../lib/progression';
+import {
+  playClick,
+  playSequence,
+  resumeAudioContext,
+  stopAllSounds,
+  type SequenceHandle,
+} from '../lib/audio';
 import { SongBody } from './SongBody';
 import {
   AppBar,
@@ -23,6 +31,7 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
+import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -48,9 +57,10 @@ export const SetlistPlayer: React.FC = () => {
   // The transposition and capo can be changed while playing, so they are kept
   // here as well as on the setlist.
   const [changed, setChanged] = useState<{ transpose?: number; capo?: number }>({});
+  const [playingProgression, setPlayingProgression] = useState<ProgressionChord[] | null>(null);
 
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const audioRef = useRef<AudioContext | null>(null);
+  const sequenceRef = useRef<SequenceHandle | null>(null);
 
   const entries = setlist?.songs ?? [];
   const entry = entries[index];
@@ -79,29 +89,63 @@ export const SetlistPlayer: React.FC = () => {
   }
 
   const click = useCallback((accent: boolean) => {
-    if (typeof window === 'undefined') return;
-
-    const AudioContextCtor =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext?: new () => AudioContext }).webkitAudioContext;
-    if (!AudioContextCtor) return;
-
-    if (!audioRef.current) audioRef.current = new AudioContextCtor();
-    const ctx = audioRef.current;
-
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
-    oscillator.type = 'square';
-    oscillator.frequency.value = accent ? 1400 : 1000;
-    gain.gain.value = accent ? 0.16 : 0.09;
-
-    oscillator.connect(gain);
-    gain.connect(ctx.destination);
-
-    const now = ctx.currentTime;
-    oscillator.start(now);
-    oscillator.stop(now + 0.1);
+    playClick(accent);
   }, []);
+
+  /*
+   * The chords of the song, so they can be heard before they are played.
+   */
+  const progression = useMemo(
+    () => buildProgression(prepared.lines, { capo }),
+    [prepared.lines, capo]
+  );
+
+  /*
+   * The chords are only playing if they are the ones that were started.
+   *
+   * When the song is transposed the chords change, so the ones being played
+   * are no longer the ones on the screen.
+   */
+  const playingChords = playingProgression !== null && playingProgression === progression;
+
+  const toggleChordPlayback = useCallback(async () => {
+    if (playingChords) {
+      sequenceRef.current?.stop();
+      sequenceRef.current = null;
+      setPlayingProgression(null);
+      return;
+    }
+
+    if (progression.length === 0) return;
+
+    await resumeAudioContext();
+
+    const duration = (60 / bpm) * beatsPerBar(song?.timeSignature);
+
+    const handle = playSequence(
+      progression.map((chord) => ({ notes: chord.notes, duration })),
+      { onEnd: () => setPlayingProgression(null) }
+    );
+
+    sequenceRef.current = handle;
+    setPlayingProgression(progression);
+  }, [playingChords, progression, bpm, song?.timeSignature]);
+
+  // The chords stop when the song is left.
+  useEffect(
+    () => () => {
+      sequenceRef.current?.stop();
+      sequenceRef.current = null;
+      stopAllSounds();
+    },
+    []
+  );
+
+  // The chords stop when they change, so the wrong chord is never heard.
+  useEffect(() => {
+    sequenceRef.current?.stop();
+    sequenceRef.current = null;
+  }, [progression]);
 
   const goTo = useCallback(
     (next: number) => {
@@ -288,6 +332,19 @@ export const SetlistPlayer: React.FC = () => {
             {capo}
           </Typography>
         </Stack>
+
+        <Tooltip title={playingChords ? 'Stop the chords' : 'Play the chords'}>
+          <span>
+            <IconButton
+              onClick={toggleChordPlayback}
+              color={playingChords ? 'primary' : 'default'}
+              disabled={!playingChords && progression.length === 0}
+              aria-label={playingChords ? 'Stop playing the chords' : 'Play the chords'}
+            >
+              <GraphicEqIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
 
         {entry.note && (
           <Chip label={entry.note} size="small" variant="outlined" color="secondary" />

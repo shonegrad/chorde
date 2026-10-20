@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { getChord } from '../data/chordLibrary';
 import { chordToNotation } from '../lib/nashville';
 import { chordInKey } from '../lib/keyDetection';
+import { playStrummedChord, resumeAudioContext } from '../lib/audio';
+import { voicingForChord } from '../lib/voicings';
 import { ChordDiagram } from './ChordDiagram';
 import {
   Dialog,
@@ -9,6 +11,7 @@ import {
   DialogContent,
   IconButton,
   Stack,
+  Tooltip,
   Typography,
   Box,
   ToggleButton,
@@ -17,6 +20,7 @@ import {
   useTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 interface ChordModalProps {
   chordName: string;
@@ -37,11 +41,35 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
     }
   };
 
+  /* Play the chord, so it can be heard as well as seen. */
+  const handlePlay = async () => {
+    await resumeAudioContext();
+
+    const notes = voicingForChord(chordName);
+    if (!notes) return;
+
+    playStrummedChord(notes, 1.5);
+  };
+
   if (!chord) {
     return (
       <Dialog open={true} onClose={onClose} fullScreen={fullScreen} maxWidth="sm" fullWidth>
         <DialogTitle>
           {chordName}
+          <Tooltip title="Play this chord">
+            <IconButton
+              aria-label="Play this chord"
+              onClick={handlePlay}
+              sx={{
+                position: 'absolute',
+                right: 48,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <PlayArrowIcon />
+            </IconButton>
+          </Tooltip>
           <IconButton
             aria-label="close"
             onClick={onClose}
@@ -79,6 +107,20 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
         <Typography variant="h5" component="div" fontWeight="bold">
           {chord.fullName}
         </Typography>
+        <Tooltip title="Play this chord">
+          <IconButton
+            aria-label="Play this chord"
+            onClick={handlePlay}
+            sx={{
+              position: 'absolute',
+              right: 48,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <PlayArrowIcon />
+          </IconButton>
+        </Tooltip>
         <IconButton
           aria-label="close"
           onClick={onClose}
