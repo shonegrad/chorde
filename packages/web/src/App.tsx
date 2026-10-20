@@ -103,8 +103,6 @@ function SongEditorRoute() {
           onSave={async (savedSong: Song) => {
             try {
               await saveSong(savedSong);
-              notifySuccess('Song saved!');
-              navigate(`/song/${savedSong.id}`);
             } catch {
               notifyError('Failed to save song');
             }
@@ -180,6 +178,7 @@ function SongListView() {
   const urlArtist = searchParams.get('artist');
   const urlKey = searchParams.get('key');
   const urlFavourite = searchParams.get('favourite');
+  const urlMine = searchParams.get('mine');
 
   // The URL is the single source of truth for the active filter, so the
   // browser's back and forward buttons work as expected.
@@ -188,8 +187,9 @@ function SongListView() {
     if (urlArtist) return { type: 'artist', value: urlArtist };
     if (urlKey) return { type: 'key', value: urlKey };
     if (urlFavourite) return { type: 'favourite', value: urlFavourite };
+    if (urlMine) return { type: 'mine', value: urlMine };
     return null;
-  }, [urlTag, urlArtist, urlKey, urlFavourite]);
+  }, [urlTag, urlArtist, urlKey, urlFavourite, urlMine]);
 
   const filteredSongs = useMemo(() => {
     if (!activeFilter) return songs;
@@ -198,6 +198,9 @@ function SongListView() {
       if (activeFilter.type === 'artist') return song.artist === activeFilter.value;
       if (activeFilter.type === 'key') return song.key === activeFilter.value;
       if (activeFilter.type === 'favourite') return Boolean(song.favorite);
+      if (activeFilter.type === 'mine') {
+        return song.origin === 'user' || song.origin === 'import';
+      }
       return true;
     });
   }, [songs, activeFilter]);

@@ -34,6 +34,7 @@ const mixSong = (overrides: Partial<Song> & { content: string }): Song => ({
     ...(overrides.attribution ?? {}),
   },
   rightsStatus: 'open' as const,
+  origin: 'builtin' as const,
   createdAt: overrides.createdAt ?? NOW,
   updatedAt: overrides.updatedAt ?? NOW,
   hash: overrides.hash ?? simpleHash(overrides.content),
@@ -61,6 +62,7 @@ This little light of mine, I'm [F]gonna let it [C]shine
       verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
+    origin: 'builtin' as const,
   }),
   mixSong({
     id: 'mix-pack-when-the-saints-go-marching-in',
@@ -83,5 +85,6 @@ When the [C7]saints go marching [F]in`,
       verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
+    origin: 'builtin' as const,
   }),
 ];

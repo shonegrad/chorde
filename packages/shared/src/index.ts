@@ -18,6 +18,9 @@ export interface SongAttribution {
   verifiedBy: 'auto' | 'manual';
 }
 
+/** Where a song came from. */
+export type SongOrigin = 'builtin' | 'import' | 'user';
+
 export interface Song {
   id: string;
   title: string;
@@ -30,8 +33,14 @@ export interface Song {
   key?: string;
   bpm?: number;
   timeSignature?: string;
+  /** How long the song takes, e.g. "4:28". */
+  duration?: string;
+  /** Notes for whoever is playing, e.g. "play quietly here". */
+  notes?: string;
   /** Marked as a favourite, so it can be found again quickly. */
   favorite?: boolean;
+  /** Whether this is one of the built-in songs, an import, or your own. */
+  origin?: SongOrigin;
   attribution: SongAttribution;
   rightsStatus: 'open' | 'conditional' | 'unknown' | 'restricted';
   createdAt: string | number;
@@ -59,7 +68,7 @@ export type ViewMode = 'grid' | 'list';
 export type ParsedSong = ParsedLine[];
 
 export interface SongFilter {
-  type: 'tag' | 'artist' | 'key' | 'favourite';
+  type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine';
   value: string;
 }
 

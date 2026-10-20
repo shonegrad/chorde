@@ -29,13 +29,14 @@ import PersonIcon from '@mui/icons-material/Person';
 import KeyIcon from '@mui/icons-material/Key';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import StarIcon from '@mui/icons-material/Star';
+import EditIcon from '@mui/icons-material/Edit';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 interface NavigationMenuProps {
   songs: Song[];
-  activeFilter: { type: 'tag' | 'artist' | 'key' | 'favourite'; value: string } | null;
+  activeFilter: { type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine'; value: string } | null;
   onFilterChange: (
-    filter: { type: 'tag' | 'artist' | 'key' | 'favourite'; value: string } | null
+    filter: { type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine'; value: string } | null
   ) => void;
   onSettingsNav?: () => void;
   onImportNav?: () => void;
@@ -125,12 +126,20 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
 
   const favouriteCount = useMemo(() => songs.filter((song) => song.favorite).length, [songs]);
 
+  const mineCount = useMemo(
+    () => songs.filter((song) => song.origin === 'user' || song.origin === 'import').length,
+    [songs]
+  );
+
   const availableKeys = useMemo(() => {
     const keySet = new Set(songs.map((s) => s.key).filter(Boolean) as string[]);
     return ALL_KEYS.filter((key) => keySet.has(key));
   }, [songs]);
 
-  const handleFilterClick = (type: 'tag' | 'artist' | 'key' | 'favourite', value: string) => {
+  const handleFilterClick = (
+    type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine',
+    value: string
+  ) => {
     if (activeFilter?.type === type && activeFilter?.value === value) {
       onFilterChange(null);
     } else {
@@ -205,6 +214,22 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 primary="All Songs"
                 secondary={`${songs.length} total`}
                 primaryTypographyProps={{ fontWeight: !activeFilter ? 'bold' : 'normal' }}
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={activeFilter?.type === 'mine'}
+              onClick={() => handleFilterClick('mine', 'true')}
+            >
+              <EditIcon sx={{ mr: 2, color: 'action.active' }} />
+              <ListItemText
+                primary="My Songs"
+                secondary={`${mineCount} ${mineCount === 1 ? 'song' : 'songs'}`}
+                primaryTypographyProps={{
+                  fontWeight: activeFilter?.type === 'mine' ? 'bold' : 'normal',
+                }}
               />
             </ListItemButton>
           </ListItem>

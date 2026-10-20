@@ -262,6 +262,50 @@ test.describe('Chorde E2E - Online search', () => {
   });
 });
 
+test.describe('Chorde E2E - Writing desk', () => {
+  test('writes a song and keeps it', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'New Song' }).click();
+    await expect(page.getByRole('heading', { name: 'New Song' })).toBeVisible();
+
+    await page.getByLabel('Title').fill('A Song of My Own');
+    await page.getByLabel('Artist').fill('Me');
+
+    const songBox = page.getByLabel('Song');
+    await songBox.click();
+    await songBox.type('[G]Hello there [C]my friend');
+
+    // The editor saves on its own, so nothing is lost.
+    await expect(page.getByText(/Saved at/)).toBeVisible({ timeout: 10000 });
+
+    // And it ends up among your own songs.
+    await page.goto('./');
+    await openNavigation(page);
+    await page.getByRole('button', { name: /^My Songs/ }).click();
+
+    await expect(page.getByRole('heading', { name: 'A Song of My Own' })).toBeVisible();
+  });
+
+  test('offers the chords of the key first', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'New Song' }).click();
+    await expect(page.getByRole('heading', { name: 'New Song' })).toBeVisible();
+
+    await page.getByLabel('Key').click();
+    await page.getByRole('option', { name: 'G', exact: true }).click();
+
+    const palette = page.getByLabel('Chord palette');
+    await expect(palette).toBeVisible();
+
+    const chords = await palette.getByRole('button').allTextContents();
+    expect(chords.slice(0, 3)).toEqual(['G', 'Am', 'Bm']);
+  });
+});
+
 test.describe('Chorde E2E - Mobile', () => {
   test.use({ viewport: { width: 390, height: 780 } });
 

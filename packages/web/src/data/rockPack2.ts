@@ -34,6 +34,7 @@ const rockSong = (overrides: Partial<Song> & { content: string }): Song => ({
     ...(overrides.attribution ?? {}),
   },
   rightsStatus: 'open' as const,
+  origin: 'builtin' as const,
   createdAt: overrides.createdAt ?? NOW,
   updatedAt: overrides.updatedAt ?? NOW,
   hash: overrides.hash ?? simpleHash(overrides.content),
@@ -61,6 +62,7 @@ And [C]perhaps she'll [D7]weep for [G]me`,
       verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
+    origin: 'builtin' as const,
   }),
   rockSong({
     id: 'rock2-pack-i-am-a-man-of-constant-sorrow',
@@ -83,6 +85,7 @@ The [G]place where I was [D7]born and [G]raised`,
       verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
+    origin: 'builtin' as const,
   }),
   rockSong({
     id: 'rock2-pack-shady-grove',
@@ -105,6 +108,7 @@ Shady [Em]grove, my darling
       verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
+    origin: 'builtin' as const,
   }),
   rockSong({
     id: 'rock2-pack-cripple-creek',
@@ -127,6 +131,7 @@ Shady [Em]grove, my darling
       verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
+    origin: 'builtin' as const,
   }),
   rockSong({
     id: 'rock2-pack-i-aint-got-nobody',
@@ -148,5 +153,6 @@ I [G7]ain't got nobody, so [F]sad and [C]lonely
       verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
+    origin: 'builtin' as const,
   }),
 ];

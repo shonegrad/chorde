@@ -74,7 +74,7 @@ interface SongListProps {
   onCreate: () => void;
   onImportNav: () => void;
   onChordsNav: () => void;
-  activeFilter?: { type: 'tag' | 'artist' | 'key' | 'favourite'; value: string } | null;
+  activeFilter?: { type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine'; value: string } | null;
   onClearFilter?: () => void;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
@@ -390,8 +390,13 @@ export const SongList: React.FC<SongListProps> = ({
                 ? 'Artist'
                 : activeFilter.type === 'favourite'
                   ? 'Favourites'
-                  : 'Tag'}
-            : {activeFilter.type === 'favourite' ? '' : activeFilter.value}
+                  : activeFilter.type === 'mine'
+                    ? 'My Songs'
+                    : 'Tag'}
+            :{' '}
+            {activeFilter.type === 'favourite' || activeFilter.type === 'mine'
+              ? ''
+              : activeFilter.value}
           </strong>
         </Alert>
       )}

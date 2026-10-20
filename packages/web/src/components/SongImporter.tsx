@@ -115,6 +115,7 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
         verifiedBy: 'auto',
       },
       rightsStatus: isPublicDomain(license) ? 'open' : 'unknown',
+      origin: 'import' as const,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       hash: simpleHash(content),

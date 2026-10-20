@@ -34,6 +34,7 @@ const rockSong = (overrides: Partial<Song> & { content: string }): Song => ({
     ...(overrides.attribution ?? {}),
   },
   rightsStatus: 'open' as const,
+  origin: 'builtin' as const,
   createdAt: overrides.createdAt ?? NOW,
   updatedAt: overrides.updatedAt ?? NOW,
   hash: overrides.hash ?? simpleHash(overrides.content),
@@ -67,5 +68,6 @@ The [C]pale and the [C]lily and [C]blue
       verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
+    origin: 'builtin' as const,
   }),
 ];
