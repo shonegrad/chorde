@@ -111,11 +111,16 @@ const sharpToFlat = (note: string): string => SHARP_TO_FLAT[note] ?? note;
  * The chords to offer, best first.
  *
  * The chords of the key come first, then everything that starts with what has
- * been typed.
+ * been typed. With nothing typed and no key yet, the open shapes are offered,
+ * which are the ones you reach for most.
  */
 export const suggestChords = (query: string, key?: string, limit = 24): string[] => {
   const trimmed = query.trim().toLowerCase();
   const inKey = chordsInKey(key ?? '');
+
+  if (!trimmed && inKey.length === 0) {
+    return openChords().slice(0, limit);
+  }
 
   const startsWith: string[] = [];
   const contains: string[] = [];
@@ -134,6 +139,13 @@ export const suggestChords = (query: string, key?: string, limit = 24): string[]
 
   return Array.from(new Set([...inKeyFirst, ...startsWith, ...contains])).slice(0, limit);
 };
+
+/** The shapes that can be played without moving up the neck. */
+const openChords = (): string[] =>
+  Object.values(CHORD_LIBRARY)
+    .filter((definition) => definition.variations.some((variation) => variation.suffix === 'open'))
+    .map((definition) => definition.name)
+    .sort((a, b) => a.length - b.length || a.localeCompare(b));
 
 /**
  * The chords in a song that do not fit its key.
