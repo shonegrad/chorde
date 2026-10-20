@@ -1,4 +1,4 @@
-const s=a=>{let e=0;for(let r=0;r<a.length;r++){const n=a.charCodeAt(r);e=(e<<5)-e+n,e=e&e}return Math.abs(e).toString(36)},o=new Date().toISOString(),t=a=>({id:a.id??crypto.randomUUID(),title:a.title??"Untitled",artist:a.artist??"Unknown Artist",content:a.content,format:"chordpro",capo:a.capo??0,tags:a.tags??[],key:a.key??"C",bpm:a.bpm??120,timeSignature:a.timeSignature??"4/4",attribution:{sourceName:"Jazz Standard",sourceUrl:"",license:"unknown",author:a.artist,notes:"",verifiedBy:"auto",...a.attribution??{}},rightsStatus:"restricted",createdAt:a.createdAt??o,updatedAt:a.updatedAt??o,hash:a.hash??s(a.content)}),i=[t({id:"jazz-pack-all-of-me",title:"All of Me",artist:"Gerald Marks & Seymour Simons",tags:["Jazz","Standard","Swing"],key:"C",bpm:120,content:`{title: All of Me}
+import{_ as s}from"./index-C7HOqiRt.js";const i=a=>{let e=0;for(let r=0;r<a.length;r++){const n=a.charCodeAt(r);e=(e<<5)-e+n,e=e&e}return Math.abs(e).toString(36)},o=new Date().toISOString(),t=a=>({id:a.id??s(),title:a.title??"Untitled",artist:a.artist??"Unknown Artist",content:a.content,format:"chordpro",capo:a.capo??0,tags:a.tags??[],key:a.key??"C",bpm:a.bpm??120,timeSignature:a.timeSignature??"4/4",attribution:{sourceName:"Jazz Standard",sourceUrl:"",license:"unknown",author:a.artist,notes:"",verifiedBy:"auto",...a.attribution??{}},rightsStatus:"restricted",createdAt:a.createdAt??o,updatedAt:a.updatedAt??o,hash:a.hash??i(a.content)}),l=[t({id:"jazz-pack-all-of-me",title:"All of Me",artist:"Gerald Marks & Seymour Simons",tags:["Jazz","Standard","Swing"],key:"C",bpm:120,content:`{title: All of Me}
 {artist: Gerald Marks & Seymour Simons}
 {key: C}
 
@@ -503,4 +503,4 @@ The way you sip your tea
 {start_of_verse}
 [Fmaj7]  [Em7b5]  [A7]  [Dm7]
 [Gm7]  [C7]  [Fmaj7]  [Fmaj7]
-{end_of_verse}`})];export{i as JAZZ_PACK};
+{end_of_verse}`})];export{l as JAZZ_PACK};

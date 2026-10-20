@@ -1,4 +1,4 @@
-const s=t=>{let a=0;for(let o=0;o<t.length;o++){const i=t.charCodeAt(o);a=(a<<5)-a+i,a=a&a}return Math.abs(a).toString(36)},n=new Date().toISOString(),e=t=>({id:t.id??crypto.randomUUID(),title:t.title??"Untitled",artist:t.artist??"Unknown Artist",content:t.content,format:"chordpro",capo:t.capo??0,tags:t.tags??[],key:t.key??"C",bpm:t.bpm??120,timeSignature:t.timeSignature??"4/4",attribution:{sourceName:"Traditional",sourceUrl:"",license:"unknown",author:t.artist,notes:"",verifiedBy:"auto",...t.attribution??{}},rightsStatus:"restricted",createdAt:t.createdAt??n,updatedAt:t.updatedAt??n,hash:t.hash??s(t.content)}),r=[e({id:"rock-pack-wildwood-flower",title:"Wildwood Flower",artist:"Traditional Carter Family",tags:["Folk","Traditional","Bluegrass","Easy"],key:"C",bpm:100,content:`{start_of_verse}
+import{_ as s}from"./index-C7HOqiRt.js";const r=t=>{let a=0;for(let o=0;o<t.length;o++){const i=t.charCodeAt(o);a=(a<<5)-a+i,a=a&a}return Math.abs(a).toString(36)},n=new Date().toISOString(),e=t=>({id:t.id??s(),title:t.title??"Untitled",artist:t.artist??"Unknown Artist",content:t.content,format:"chordpro",capo:t.capo??0,tags:t.tags??[],key:t.key??"C",bpm:t.bpm??120,timeSignature:t.timeSignature??"4/4",attribution:{sourceName:"Traditional",sourceUrl:"",license:"unknown",author:t.artist,notes:"",verifiedBy:"auto",...t.attribution??{}},rightsStatus:"restricted",createdAt:t.createdAt??n,updatedAt:t.updatedAt??n,hash:t.hash??r(t.content)}),h=[e({id:"rock-pack-wildwood-flower",title:"Wildwood Flower",artist:"Traditional Carter Family",tags:["Folk","Traditional","Bluegrass","Easy"],key:"C",bpm:100,content:`{start_of_verse}
 [C]Oh, I'll twine with my [C]mingles and [C]waving black hair
 With the [C]roses so red and the [C]lilies so fair
 And the [C]myrtle so bright with the [C]emerald dew
@@ -44,4 +44,4 @@ Then [G]Jesus came like a [C]stranger in the [G]night
 [G]I saw the light, I saw the [C]light
 No more [G]darkness, no more [D7]night
 Now I'm so [G]happy, no sorrow in [C]sight
-[D7]Praise the Lord, I saw the [G]light`})];export{r as ROCK_PACK};
+[D7]Praise the Lord, I saw the [G]light`})];export{h as ROCK_PACK};
