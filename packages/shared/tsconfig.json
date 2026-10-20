@@ -13,6 +13,7 @@
     "sourceMap": true,
     "composite": true,
     "outDir": "./dist",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
     "rootDir": "./src"
   },
   "include": ["src"],

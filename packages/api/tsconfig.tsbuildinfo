@@ -1,1 +1,0 @@
-{"root":["./src/index.ts","./src/adapters/base.ts","./src/adapters/chordproorg.ts","./src/adapters/hymnary.ts","./src/adapters/openhymnal.ts","./src/lib/ranking.ts","./src/middleware/ratelimiter.ts","./src/routes/search.ts","./src/routes/song.ts","./src/schemas/index.ts"],"version":"5.9.3"}
