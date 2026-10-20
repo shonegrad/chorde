@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run validate:songs && tsc -b && vite build",
+    "build": "npm run validate:songs && tsc -b && vite build && npm run verify:build",
     "validate:songs": "vitest run src/lib/__tests__/songValidation.test.ts",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -14,7 +14,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "verify:build": "node scripts/verify-build.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

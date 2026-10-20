@@ -1,10 +1,29 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { copyFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+/**
+ * GitHub Pages serves 404.html for any path it does not know, so copying the
+ * built index.html there lets deep links such as /chorde/song/123 work instead
+ * of returning a 404 page.
+ */
+const spaFallback = (): Plugin => ({
+  name: 'spa-fallback',
+  closeBundle() {
+    const outDir = resolve(__dirname, 'dist');
+    const index = resolve(outDir, 'index.html');
+    if (existsSync(index)) {
+      copyFileSync(index, resolve(outDir, '404.html'));
+    }
+  },
+});
 
 export default defineConfig({
   plugins: [
     react(),
+    spaFallback(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['vite.svg'],
