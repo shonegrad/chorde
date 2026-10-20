@@ -4,8 +4,13 @@ import { OpenHymnalAdapter } from '../adapters/openhymnal.js';
 import { HymnaryAdapter } from '../adapters/hymnary.js';
 import { ChordProOrgAdapter } from '../adapters/chordproorg.js';
 import { SearchQuerySchema } from '../schemas/index.js';
+import { dedupeResults, rankResults } from '../lib/ranking.js';
+import type { SearchResult } from '../types.js';
 
 const app = new Hono();
+
+/** How many results get their details read from the song files. */
+const ENRICH_LIMIT = 10;
 
 // Initialize adapters
 const adapters = [new OpenHymnalAdapter(), new HymnaryAdapter(), new ChordProOrgAdapter()];
@@ -51,12 +56,47 @@ app.get('/search', zValidator('query', SearchQuerySchema), async (c) => {
 
   // Every result carries the license of the source it came from, so the client
   // can decide whether an import needs a rights confirmation.
-  const flatResults = settled.flatMap(({ adapter, results }) =>
+  const withLicenses = settled.flatMap(({ adapter, results }) =>
     results.map((result) => ({
       ...result,
       license: result.license ?? adapter.license ?? 'unknown',
     }))
   );
+
+  // Rank once before enriching, so the effort of reading the song files is
+  // spent on the best matches rather than on whatever the source listed first.
+  const preliminarilyRanked = rankResults(withLicenses, query);
+  const worthEnriching = new Set(
+    preliminarilyRanked.slice(0, ENRICH_LIMIT).map((result) => `${result.source}:${result.id}`)
+  );
+
+  const enrichmentByKey = new Map<string, SearchResult>();
+
+  await Promise.all(
+    settled.map(async ({ adapter, results }) => {
+      if (typeof adapter.enrichResults !== 'function') return;
+
+      const targets = results.filter((result) =>
+        worthEnriching.has(`${result.source}:${result.id}`)
+      );
+      if (targets.length === 0) return;
+
+      try {
+        const enriched = await adapter.enrichResults(targets, targets.length);
+        enriched.forEach((result) => enrichmentByKey.set(`${result.source}:${result.id}`, result));
+      } catch {
+        // Keep the results as they are if the details cannot be read.
+      }
+    })
+  );
+
+  // Put the closest match first, and do not list the same song twice.
+  const merged = preliminarilyRanked.map((result) => {
+    const enriched = enrichmentByKey.get(`${result.source}:${result.id}`);
+    if (!enriched) return result;
+    return { ...enriched, license: enriched.license ?? result.license };
+  });
+  const flatResults = dedupeResults(rankResults(merged, query));
 
   // A source that failed is reported separately rather than silently returning
   // "no results", which is indistinguishable from a genuine miss.

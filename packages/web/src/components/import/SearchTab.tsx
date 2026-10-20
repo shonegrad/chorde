@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
   Button,
   Stack,
+  Chip,
   CircularProgress,
   Alert,
   InputAdornment,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { searchApi } from '../../services/searchApi';
-import type { SearchResult, ImportSource } from '../../types';
+import type { SearchResult, ImportSource, Source } from '../../types';
 import { SearchResults } from './SearchResults';
 
 interface SearchTabProps {
@@ -34,6 +35,31 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
   const [preview, setPreview] = useState<string | undefined>(undefined);
   const [previewLoading, setPreviewLoading] = useState(false);
 
+  const [sources, setSources] = useState<Source[]>([]);
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
+
+  // The available sources are needed before a search can be narrowed down.
+  useEffect(() => {
+    let cancelled = false;
+    searchApi
+      .getSources()
+      .then((available) => {
+        if (!cancelled) setSources(available);
+      })
+      .catch(() => {
+        // The list of sources is a nicety; a search still works without it.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const toggleSource = (id: string) => {
+    setSelectedSources((previous) =>
+      previous.includes(id) ? previous.filter((source) => source !== id) : [...previous, id]
+    );
+  };
+
   const handleSearch = async () => {
     if (!query.trim()) return;
 
@@ -45,7 +71,10 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
     setPreview(undefined);
 
     try {
-      const response = await searchApi.search(query);
+      const response = await searchApi.search(
+        query,
+        selectedSources.length > 0 ? selectedSources : undefined
+      );
       setResults(response.results);
       setFailedSources(response.failedSources ?? []);
     } catch (err) {
@@ -139,6 +168,35 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
           {loading ? <CircularProgress size={24} /> : 'Search'}
         </Button>
       </Stack>
+
+      {/* Sources to search */}
+      {sources.length > 1 && (
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ gap: 1 }}>
+          {sources.map((source) => {
+            const selected = selectedSources.includes(source.id);
+            return (
+              <Chip
+                key={source.id}
+                label={source.name}
+                color={selected ? 'primary' : 'default'}
+                variant={selected ? 'filled' : 'outlined'}
+                onClick={() => toggleSource(source.id)}
+                clickable
+                aria-pressed={selected}
+              />
+            );
+          })}
+          {selectedSources.length > 0 && (
+            <Chip
+              label="All sources"
+              size="small"
+              variant="outlined"
+              onClick={() => setSelectedSources([])}
+              clickable
+            />
+          )}
+        </Stack>
+      )}
 
       {/* Error Alert */}
       {error && (

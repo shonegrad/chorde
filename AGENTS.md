@@ -48,6 +48,7 @@ Package-specific scripts live in each `packages/*/package.json` (e.g. `test:e2e`
 - `packages/web/src/services/searchApi.ts` — API client
 - `packages/api/src/index.ts` — Hono server + CORS config
 - `packages/api/src/routes/search.ts` — Search route + source adapters
+- `packages/api/src/lib/ranking.ts` — Result ranking and de-duplication
 - `packages/api/src/routes/song.ts` — Song fetch route
 - `packages/api/src/adapters/` — Source adapters (OpenHymnal, Hymnary, ChordProOrg)
 - `packages/shared/src/index.ts` — Shared types (Song, SourceAdapter, etc.)

@@ -9,6 +9,12 @@ export abstract class BaseAdapter implements SourceAdapter {
   abstract search(query: string): Promise<SearchResult[]>;
   abstract fetchSong(id: string): Promise<SongContent>;
 
+  /**
+   * Optional: fill in details that only the song file knows, such as the
+   * writer or the key. Only the first few results are usually enriched.
+   */
+  enrichResults?(results: SearchResult[]): Promise<SearchResult[]>;
+
   normalizeChordPro(content: string): string {
     // Ensure consistent ChordPro formatting
     return content.trim();

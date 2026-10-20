@@ -33,5 +33,12 @@ export default defineConfig({
       timeout: 120000,
       url: 'http://localhost:5173/chorde/',
     },
+    {
+      command: 'npm run dev:api',
+      cwd: '../..',
+      reuseExistingServer: !process.env.CI,
+      timeout: 60000,
+      url: 'http://localhost:3001/api/sources',
+    },
   ],
 });

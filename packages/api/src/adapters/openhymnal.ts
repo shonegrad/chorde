@@ -19,6 +19,83 @@ export class OpenHymnalAdapter extends BaseAdapter {
   cacheTimestamp: number = 0;
   private readonly CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
+  /** Details read from the hymn files, kept so they are only fetched once. */
+  private detailCache = new Map<
+    string,
+    { title?: string; artist?: string; key?: string; fetchedAt: number }
+  >();
+
+  /**
+   * Fill in the artist and key for the first few results.
+   *
+   * The file index only knows the file names, so the details have to be read
+   * from the hymns themselves. Only the top results are read, and the answer
+   * is kept for a while.
+   */
+  async enrichResults(results: SearchResult[], limit = 8): Promise<SearchResult[]> {
+    const top = results.slice(0, limit);
+
+    const enriched = await Promise.all(
+      top.map(async (result) => {
+        const details = await this.fetchDetails(result.id);
+        if (!details) return result;
+
+        return {
+          ...result,
+          title: details.title ?? result.title,
+          artist:
+            result.artist && result.artist !== 'Unknown'
+              ? result.artist
+              : (details.artist ?? 'Traditional'),
+          key: result.key ?? details.key,
+        };
+      })
+    );
+
+    return [...enriched, ...results.slice(limit)];
+  }
+
+  private async fetchDetails(
+    id: string
+  ): Promise<{ title?: string; artist?: string; key?: string } | null> {
+    const cached = this.detailCache.get(id);
+    if (cached && Date.now() - cached.fetchedAt < this.CACHE_TTL) {
+      return { title: cached.title, artist: cached.artist, key: cached.key };
+    }
+
+    const filename = decodeURIComponent(id);
+
+    try {
+      const response = await fetch(`${this.baseUrl}/${encodeURIComponent(filename)}`);
+      if (!response.ok) {
+        this.detailCache.set(id, { fetchedAt: Date.now() });
+        return null;
+      }
+
+      const text = await response.text();
+
+      // Only spaces and tabs, so an empty field does not swallow the next line.
+      const title = text.match(/^Title:[ \t]*(.+)$/m)?.[1]?.trim();
+      // The credit line can list several writers; the first one leads.
+      const artistLine = text.match(/^Artist:[ \t]*(.*)$/m)?.[1]?.trim();
+      const artist = artistLine ? artistLine.split(';')[0].trim() : undefined;
+      const key = text.match(/^Key:[ \t]*\[?([^\]\n]+)\]?/m)?.[1]?.trim();
+
+      const details = {
+        title: title || undefined,
+        artist: artist || undefined,
+        key: key || undefined,
+        fetchedAt: Date.now(),
+      };
+      this.detailCache.set(id, details);
+
+      return { title: details.title, artist: details.artist, key: details.key };
+    } catch {
+      this.detailCache.set(id, { fetchedAt: Date.now() });
+      return null;
+    }
+  }
+
   private async fetchIndex(): Promise<HymnIndex[]> {
     if (this.indexCache && Date.now() - this.cacheTimestamp < this.CACHE_TTL) {
       return this.indexCache;

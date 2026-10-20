@@ -48,7 +48,7 @@ vi.mock('../adapters/hymnary.js', () => ({
           {
             id: 'amazing-grace',
             source: 'hymnary',
-            title: 'Amazing Grace',
+            title: 'Amazing Grace (words only)',
             artist: 'John Newton',
             hasChords: false,
           },

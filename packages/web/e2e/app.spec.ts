@@ -221,6 +221,47 @@ test.describe('Chorde E2E - Organising the library', () => {
   });
 });
 
+test.describe('Chorde E2E - Online search', () => {
+  test('finds the closest match first', async ({ page }) => {
+    await page.goto('./import');
+    await expect(page.getByRole('heading', { name: 'Import Song' })).toBeVisible({
+      timeout: 15000,
+    });
+
+    const searchTab = page.getByRole('tab', { name: /search online/i });
+    // Online search is only available in a development build.
+    if (!(await searchTab.isVisible())) {
+      test.skip(true, 'Online search is disabled in this build.');
+      return;
+    }
+
+    await searchTab.click();
+    await page.getByPlaceholder(/search for a song/i).fill('amazing grace');
+    await page.getByRole('button', { name: 'Search' }).click();
+
+    await expect(page.getByText(/results? found/)).toBeVisible({ timeout: 45000 });
+
+    const titles = await page.getByRole('heading', { level: 6 }).allTextContents();
+    expect(titles[0]).toBe('Amazing Grace');
+  });
+
+  test('shows the sources that can be searched', async ({ page }) => {
+    await page.goto('./import');
+    await expect(page.getByRole('heading', { name: 'Import Song' })).toBeVisible({
+      timeout: 15000,
+    });
+
+    const searchTab = page.getByRole('tab', { name: /search online/i });
+    if (!(await searchTab.isVisible())) {
+      test.skip(true, 'Online search is disabled in this build.');
+      return;
+    }
+
+    await searchTab.click();
+    await expect(page.getByText('OpenHymnal')).toBeVisible({ timeout: 30000 });
+  });
+});
+
 test.describe('Chorde E2E - Mobile', () => {
   test.use({ viewport: { width: 390, height: 780 } });
 

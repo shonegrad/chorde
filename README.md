@@ -8,7 +8,8 @@
 - **Chords Over Lyrics**: Each chord sits directly above the word it belongs to, the way printed
   chord sheets are laid out.
 - **Search-Based Import**: Search and import songs from public domain sources (OpenHymnal, etc.).
-  Hidden in production builds until a search API host is configured - see
+  The closest match comes first, the same song is never listed twice, and the writer and key are
+  shown with each result. Hidden in production builds until a search API host is configured - see
   [DEPLOYMENT.md](./DEPLOYMENT.md).
 - **Interactive Chord Library**:
   - Browse chords and view multiple finger positions (variations).

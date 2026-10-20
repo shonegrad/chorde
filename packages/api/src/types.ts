@@ -42,4 +42,6 @@ export interface SourceAdapter {
   name: string;
   search(query: string): Promise<SearchResult[]>;
   fetchSong(id: string): Promise<SongContent>;
+  /** Optional: fill in details that only the song file knows. */
+  enrichResults?(results: SearchResult[]): Promise<SearchResult[]>;
 }

@@ -15,6 +15,16 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import type { SearchResult } from '../../services/searchApi';
 
+const LICENSE_LABELS: Record<string, string> = {
+  'public-domain': 'Public domain',
+  'creative-commons-by': 'CC BY',
+  'creative-commons-by-sa': 'CC BY-SA',
+  'creative-commons-nc': 'CC BY-NC',
+  'creative-commons-zero': 'CC0',
+  custom: 'Custom terms',
+  unknown: 'Unknown licence',
+};
+
 interface SearchResultItemProps {
   result: SearchResult;
   onImport: (result: SearchResult) => void;
@@ -48,11 +58,10 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
             )}
             {result.license && (
               <Chip
-                label={result.license}
+                label={LICENSE_LABELS[result.license] ?? result.license}
                 size="small"
                 sx={{
-                  textTransform: 'capitalize',
-                  color: result.license === 'public-domain' ? 'success' : 'warning',
+                  color: result.license === 'public-domain' ? 'success.main' : 'warning.main',
                 }}
               />
             )}
