@@ -111,10 +111,14 @@ chorde/
 
 ## 📖 Documentation
 
-- [Search Import Guide](./SEARCH_IMPORT_GUIDE.md) - **NEW** - How to use and extend the search-based import feature
+- [Handover](./HANDOVER.md) - **Start here** - the state of the project, the rules it lives by, and what to do next
+- [Roadmap](./ROADMAP.md) - what has been done and what is planned
+- [Agent Instructions](./AGENTS.md) - the commands, the key files and the conventions
+- [Search Import Guide](./SEARCH_IMPORT_GUIDE.md) - how to use and extend the search-based import
 - [Song Import Guide](./SONG_IMPORT_GUIDE.md)
 - [Library Status](./SONG_LIBRARY_STATUS.md)
 - [Development Guide](./DEVELOPMENT.md)
+- [Deployment](./DEPLOYMENT.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 
 ## 🔍 New: Search-Based Import
@@ -129,8 +133,16 @@ Users can now search for songs from public domain sources and import them direct
 Currently supported sources:
 
 - **OpenHymnal** - Public domain hymns in ChordPro format
+- **Hymnary.org** - Public domain hymn texts
+- **ChordPro.org** - Example songs
+
+The closest match comes first, the same song is only listed once, and the writer and key are shown
+with each result.
 
 See [SEARCH_IMPORT_GUIDE.md](./SEARCH_IMPORT_GUIDE.md) for details on adding new sources.
+
+> Online search needs the API, which is not hosted yet, so the tab is hidden in the deployed app.
+> It works in development with `npm run dev:all`.
 
 ## 🤝 Contributing
 

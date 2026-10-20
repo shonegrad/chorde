@@ -19,10 +19,30 @@ For development guidelines and best practices, see [DEVELOPMENT.md](./DEVELOPMEN
 - We use **TypeScript** for type safety. Please ensure there are no type errors.
 - We use **ESLint** for linting. Run `npm run lint` before committing.
 - Follow the existing project structure.
+- **Do not put a button inside a button.** It is invalid markup and the inner button silently
+  stops working.
+
+## Before you add a song
+
+Only public domain material ships with the app, and it has to be the **song** that is out of
+copyright, not just a particular recording of it. Add the song to the reviewed list in
+`packages/web/src/lib/__tests__/songValidation.test.ts` as well - that test is what keeps the
+repository honest.
+
+## Before you send a pull request
+
+```bash
+npm run lint
+npm run format:check
+npm run test
+```
+
+The end-to-end tests run with `npm run test:e2e -w @chorde/web`.
 
 ## Reporting Bugs
 
 If you find a bug, please create an issue describing:
+
 - What you expected to happen.
 - What actually happened.
 - Steps to reproduce the issue.

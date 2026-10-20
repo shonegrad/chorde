@@ -25,9 +25,10 @@ ChordPro is a simple text format for guitar chords:
 {end_of_chorus}
 ```
 
-## Method 1: Manual Addition to seedSongs.ts
+## Method 1: Adding a song to the built-in library
 
-1. Open `packages/web/src/data/seedSongs.ts`
+1. Open the pack you want to add it to in `packages/web/src/data/` - `seedSongs.ts`,
+   `rockPack.ts`, `rockPack2.ts` or `mixPack.ts`
 2. Add a new song object:
 
 ```typescript
@@ -47,6 +48,7 @@ ChordPro is a simple text format for guitar chords:
         verifiedBy: 'manual',
     },
     rightsStatus: 'open',
+    origin: 'builtin',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     content: `{start_of_verse}

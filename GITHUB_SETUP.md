@@ -1,5 +1,8 @@
 # GitHub Repository Setup Guide
 
+> The repository already exists at https://github.com/shonegrad/chorde. This guide is only for
+> setting up a new one, for a fork or a fresh start.
+
 ## Option 1: Using GitHub Web Interface (Recommended)
 
 1. **Create Repository on GitHub**:

@@ -3,6 +3,8 @@
 ## Prerequisites
 
 - Ensure all changes are committed and pushed to `main`.
+- The shared package is built first, because the web app and the API both compile against it.
+  `npm run build` at the root does this in the right order.
 
 ## Environment variables
 
@@ -35,6 +37,18 @@ npm run deploy
 
 This runs `predeploy` (builds the web app) then `deploy` (publishes `packages/web/dist` to GitHub
 Pages via `gh-pages` CLI).
+
+The build also checks the result: the build fails if `dist/404.html` is missing (deep links would
+return a 404 page) or if a `localhost` address has found its way into the bundle. Run it on its own
+with `npm run verify:build -w @chorde/web`.
+
+**If the Pages workflow fails** with "Failed to get ID Token" or "socket hang up", that is GitHub's
+infrastructure rather than the code. Re-run it:
+
+```bash
+gh run list --limit 1
+gh run rerun <run-id>
+```
 
 To enable online search, build with the flag set:
 

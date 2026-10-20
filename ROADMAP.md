@@ -27,7 +27,7 @@ and restore; light and dark themes; an offline installable app; keyboard control
 works on a phone; a writing desk with autosave, undo and a chord palette; and key detection that
 works out the key of a song from its chords.
 
-## Milestone 1 — Make it true
+## Milestone 1 — Make it true ✅
 
 _Remove every song that is not public domain, and make the documentation match reality._
 _Fix the chord lookup so no chord is missing a diagram, and check that every shape in the library
@@ -38,7 +38,7 @@ _Remove the dead code and the duplicated types._
 **Done when** every built-in song is public domain, every chord has a correct shape, and the
 count-in lands on the beat.
 
-## Milestone 2 — The writing desk
+## Milestone 2 — The writing desk ✅
 
 _Transcribing and writing your own songs has to be dependable, because that is what you will do
 most._
@@ -55,7 +55,7 @@ most._
 
 **Done when** you can write a whole song without losing anything and without leaving the editor.
 
-## Milestone 3 — Rehearsal and performance
+## Milestone 3 — Rehearsal and performance ✅
 
 _Setlists carry per-song transposition, capo and notes, and a target key._
 _A full-screen performance view: count-in, auto-advance, and the next song without leaving the
@@ -80,20 +80,30 @@ Comments and playing instructions (`{comment:}`, `{gc:}`), `{define:}`, `{durati
 files, Jazz Grilles chord grids, real tab blocks, and the original column alignment so a chord
 written mid-word keeps its place.
 
-## Milestone 6 — Sound
+## Milestone 6 — Sound — next
 
 A metronome, a count-in locked to the tempo, chord progression playback, a guitar tone that is
 not a sine wave, and audio preferences.
+
+The metronome and the count-in are done. The rest of the audio engine is written but unreachable:
+`playNote`, `playChord`, `playScale` and `stopAllSounds` are never called, and
+`saveAudioPreferences` is never called, so the volume and the waveform are permanently at their
+defaults with no way to change them.
 
 ## Milestone 7 — More ways in
 
 Import OnSong, legacy `.crd` and ZIP folders locally. MusicXML and Guitar Pro are deliberately out
 of scope for now.
 
-## Milestone 8 — A smarter library
+## Milestone 8 — A smarter library ✅
 
 Key detection when a song has no `{key:}`, the chords that fit a key, scale diagrams, a "songs in
 this key" view, and a setlist that knows the running time.
+
+Done: the key is worked out from the chords, the song viewer says so and offers to save it, every
+chord says what it is made of and where it sits in the key, and the chord library has a key
+reference. Still to do: a "songs in this key" view that also finds the songs you could transpose
+into it, and the running time on a setlist.
 
 ## Milestone 9 — Cloud sync and accounts
 
@@ -101,6 +111,11 @@ Optional, and only if it stays optional. Your library is yours; sync is a conven
 requirement.
 
 ## Milestone 10 — Other languages
+
+## Next
+
+Milestone 6 (sound), then Milestone 4 (real notation). Both are written up in
+[HANDOVER.md](./HANDOVER.md).
 
 ## Not doing
 

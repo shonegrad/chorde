@@ -2,6 +2,25 @@
 
 **Note**: This document contains guidelines specifically for AI agents working on the Chorde project.
 
+## Start here
+
+- [HANDOVER.md](./HANDOVER.md) — the state of the project, the rules it lives by, and what to do next
+- [ROADMAP.md](./ROADMAP.md) — the plan
+- [AGENTS.md](./AGENTS.md) — the commands, the key files and the conventions
+
+## Setting up
+
+```bash
+npm install
+```
+
+This also builds `packages/shared`, which the web app and the API both compile against. If you
+change the shared types, rebuild it:
+
+```bash
+npm run build -w @chorde/shared
+```
+
 ## User Command: "commit+push"
 
 When the user says "commit+push", execute the following steps in order:
@@ -24,6 +43,14 @@ git push
 npm run deploy
 ```
 
+The Pages workflow sometimes fails with a transient GitHub Actions error ("Failed to get ID Token",
+"socket hang up"). That is GitHub's infrastructure, not the code. Re-run it:
+
+```bash
+gh run list --limit 1
+gh run rerun <run-id>
+```
+
 ## Port Management
 
 **Check the port where the app is running, and if it is already running on a port, use it - don't spin up a new instance.**
@@ -32,6 +59,7 @@ When working with the development server:
 
 - Always check if `npm run dev` is already running before starting a new instance
 - The default development port is `5173`
+- The API runs on `3001`
 - Reuse the existing dev server to avoid port conflicts
 
 ## Version Management
@@ -68,6 +96,8 @@ This helps keep your workspace clean and ensures you're always viewing the most 
 - Run `npm run lint` before committing
 - Follow the existing project structure
 - Use meaningful variable and function names
+- **Do not put a button inside a button.** It is invalid markup and the inner button silently stops
+  working. Keep action buttons as siblings of the thing they act on.
 
 ## Testing Changes
 
@@ -76,6 +106,21 @@ This helps keep your workspace clean and ensures you're always viewing the most 
 3. Test your changes thoroughly
 4. Check browser console for errors
 5. Test on both desktop and mobile viewports (if UI changes)
+
+The unit tests run without a browser:
+
+```bash
+npm run test                       # every workspace
+npm run test -w @chorde/web        # one workspace
+npx vitest run src/lib/music.test.ts   # one file
+```
+
+The end-to-end tests start the dev server and the API themselves:
+
+```bash
+npm run test:e2e -w @chorde/web               # Chromium, WebKit and a phone
+npx playwright test --project=chromium         # one browser, while working
+```
 
 ## Git Workflow
 
