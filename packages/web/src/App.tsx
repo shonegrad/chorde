@@ -259,7 +259,7 @@ function SongListView() {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <Box sx={{ display: 'flex', height: 'var(--app-height)' }}>
       <NavigationMenu
         songs={songs}
         activeFilter={activeFilter}

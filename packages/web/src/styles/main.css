@@ -13,6 +13,8 @@
 :root {
   /* Legacy variables - prefer theme.customTokens in new code */
   --nav-height: 60px;
+  /* The height available to a screen, less the bottom bar on a phone. */
+  --app-height: 100vh;
   --bg-color: #18181b;
   --surface-color: #27272a;
   --surface-hover: #27272a;
@@ -103,6 +105,15 @@
 
 #main-content:focus {
   outline: none;
+}
+
+/* Room for the bottom navigation bar on small screens. */
+body[data-bottom-nav='true'] {
+  --app-height: calc(100vh - 72px);
+}
+
+body[data-bottom-nav='true'] #main-content {
+  padding-bottom: 72px;
 }
 
 /* Respect the user's motion preferences. */

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -33,7 +33,21 @@ export const MobileNav: React.FC = () => {
 
   const path = location.pathname;
   // The song viewer is a performance view and takes the whole screen.
-  if (!isMobile || path.startsWith('/song/')) return null;
+  const visible = isMobile && !path.startsWith('/song/');
+
+  // Let the page add room for the bar so it does not cover the content.
+  useEffect(() => {
+    if (visible) {
+      document.body.dataset.bottomNav = 'true';
+    } else {
+      delete document.body.dataset.bottomNav;
+    }
+    return () => {
+      delete document.body.dataset.bottomNav;
+    };
+  }, [visible]);
+
+  if (!visible) return null;
 
   const current = ACTIONS.findIndex((action) => {
     if (action.path === '/') return path === '/';

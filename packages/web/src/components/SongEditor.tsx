@@ -78,7 +78,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
   return (
     <Container
       maxWidth="lg"
-      sx={{ py: 4, height: '100vh', display: 'flex', flexDirection: 'column' }}
+      sx={{ py: 4, height: 'var(--app-height)', display: 'flex', flexDirection: 'column' }}
     >
       <Typography variant="h4" component="h2" gutterBottom fontWeight="bold">
         {initialSong ? 'Edit Song' : 'New Song'}

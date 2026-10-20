@@ -102,7 +102,7 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   };
 
   return (
-    <Box sx={{ p: 3, height: '100vh', overflowY: 'auto' }}>
+    <Box sx={{ p: 3, height: 'var(--app-height)', overflowY: 'auto' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Button variant="contained" size="small" onClick={onBack}>
           Back

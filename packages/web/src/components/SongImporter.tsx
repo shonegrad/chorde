@@ -214,7 +214,7 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
   return (
     <Container
       maxWidth="lg"
-      sx={{ py: 4, height: '100vh', display: 'flex', flexDirection: 'column' }}
+      sx={{ py: 4, height: 'var(--app-height)', display: 'flex', flexDirection: 'column' }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" component="h1" fontWeight="bold">
