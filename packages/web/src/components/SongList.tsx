@@ -288,7 +288,7 @@ export const SongList: React.FC<SongListProps> = ({
         }}
       >
         <Typography variant="h3" component="h1" fontWeight="bold">
-          My Songs ({filtered.length})
+          Songs ({filtered.length})
         </Typography>
 
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>

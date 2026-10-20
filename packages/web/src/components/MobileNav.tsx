@@ -32,8 +32,9 @@ export const MobileNav: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
 
   const path = location.pathname;
-  // The song viewer is a performance view and takes the whole screen.
-  const visible = isMobile && !path.startsWith('/song/');
+  // The performance views take the whole screen.
+  const isPerformance = path.startsWith('/song/') || path.endsWith('/play');
+  const visible = isMobile && !isPerformance;
 
   // Let the page add room for the bar so it does not cover the content.
   useEffect(() => {

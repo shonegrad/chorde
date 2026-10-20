@@ -103,9 +103,8 @@ describe('SongList', () => {
   it('shows song count in header', () => {
     renderWithTheme(<SongList {...defaultProps} />);
 
-    // The component shows "My Songs (2)" format
-    expect(screen.getByText(/My Songs/)).toBeInTheDocument();
-    expect(screen.getByText('2', { exact: false })).toBeInTheDocument();
+    // The component shows "Songs (2)" format
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Songs (2)');
   });
 
   it('sorts the songs by the chosen order', () => {

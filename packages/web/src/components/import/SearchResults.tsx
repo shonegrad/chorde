@@ -156,17 +156,18 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         {results.length} {results.length === 1 ? 'result' : 'results'} found
       </Typography>
-      <Stack spacing={2}>
+      <Stack spacing={2} role="list" aria-label="Search results">
         {results.map((result) => (
-          <SearchResultItem
-            key={`${result.source}-${result.id}`}
-            result={result}
-            onImport={onImport}
-            onExpand={onExpand}
-            expanded={expandedId === `${result.source}-${result.id}`}
-            preview={expandedId === `${result.source}-${result.id}` ? preview : undefined}
-            loading={expandedId === `${result.source}-${result.id}` && loading}
-          />
+          <div role="listitem" key={`${result.source}-${result.id}`}>
+            <SearchResultItem
+              result={result}
+              onImport={onImport}
+              onExpand={onExpand}
+              expanded={expandedId === `${result.source}-${result.id}`}
+              preview={expandedId === `${result.source}-${result.id}` ? preview : undefined}
+              loading={expandedId === `${result.source}-${result.id}` && loading}
+            />
+          </div>
         ))}
       </Stack>
     </Box>

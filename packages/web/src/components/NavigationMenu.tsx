@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSetlistStore } from '../store/setlistStore';
 import type { Song } from '../types';
 import { APP_VERSION } from '../version';
@@ -24,12 +24,15 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloseIcon from '@mui/icons-material/Close';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
+import DownloadIcon from '@mui/icons-material/Download';
 import AddIcon from '@mui/icons-material/Add';
 import PersonIcon from '@mui/icons-material/Person';
 import KeyIcon from '@mui/icons-material/Key';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import StarIcon from '@mui/icons-material/Star';
 import EditIcon from '@mui/icons-material/Edit';
+import QueueMusicIcon from '@mui/icons-material/QueueMusic';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 interface NavigationMenuProps {
@@ -38,9 +41,6 @@ interface NavigationMenuProps {
   onFilterChange: (
     filter: { type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine'; value: string } | null
   ) => void;
-  onSettingsNav?: () => void;
-  onImportNav?: () => void;
-  onChordsNav?: () => void;
   open: boolean;
   onClose?: () => void;
 }
@@ -81,19 +81,23 @@ const ALL_KEYS = [
   'Bm',
 ];
 
+/**
+ * The way round the app.
+ *
+ * On a big screen it is always there, beside the music. On a phone it is a
+ * drawer that slides in, and the bottom bar carries the main places.
+ */
 export const NavigationMenu: React.FC<NavigationMenuProps> = ({
   songs,
   activeFilter,
   onFilterChange,
-  onSettingsNav,
-  onImportNav,
-  onChordsNav,
   open,
   onClose,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const navigate = useNavigate();
+  const location = useLocation();
   const setlists = useSetlistStore((s) => s.setlists);
   const createSetlist = useSetlistStore((s) => s.createSetlist);
 
@@ -101,6 +105,8 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
   const [artistsExpanded, setArtistsExpanded] = React.useState(false);
   const [tagsExpanded, setTagsExpanded] = React.useState(false);
   const [setlistsExpanded, setSetlistsExpanded] = React.useState(false);
+
+  const path = location.pathname;
 
   const artists = useMemo(() => {
     const artistMap = new Map<string, number>();
@@ -136,6 +142,10 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
     return ALL_KEYS.filter((key) => keySet.has(key));
   }, [songs]);
 
+  const closeIfMobile = () => {
+    if (isMobile && onClose) onClose();
+  };
+
   const handleFilterClick = (
     type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine',
     value: string
@@ -145,23 +155,32 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
     } else {
       onFilterChange({ type, value });
     }
-    if (isMobile && onClose) {
-      onClose();
-    }
+    closeIfMobile();
   };
 
   const handleClearAll = () => {
     onFilterChange(null);
-    if (isMobile && onClose) {
-      onClose();
-    }
+    closeIfMobile();
   };
 
+  const goTo = (target: string) => {
+    navigate(target);
+    closeIfMobile();
+  };
+
+  /** Whether a place in the app is the one being looked at. */
+  const isHere = (target: string): boolean =>
+    target === '/' ? path === '/' : path.startsWith(target);
+
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box
+      component="nav"
+      aria-label="Main"
+      sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6" fontWeight="bold">
-          Browse
+          Chorde
         </Typography>
         {isMobile && onClose && (
           <IconButton onClick={onClose} size="small" aria-label="Close navigation menu">
@@ -207,16 +226,54 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
         }}
       >
         <List sx={{ py: 0 }}>
+          {/* Where you can go */}
           <ListItem disablePadding>
-            <ListItemButton selected={!activeFilter} onClick={handleClearAll}>
+            <ListItemButton
+              selected={isHere('/')}
+              aria-current={isHere('/') ? 'page' : undefined}
+              onClick={() => {
+                handleClearAll();
+                goTo('/');
+              }}
+            >
               <MusicNoteIcon sx={{ mr: 2, color: 'action.active' }} />
               <ListItemText
-                primary="All Songs"
-                secondary={`${songs.length} total`}
-                primaryTypographyProps={{ fontWeight: !activeFilter ? 'bold' : 'normal' }}
+                primary="Songs"
+                secondary={`${songs.length} ${songs.length === 1 ? 'song' : 'songs'}`}
+                primaryTypographyProps={{ fontWeight: isHere('/') ? 'bold' : 'normal' }}
               />
             </ListItemButton>
           </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={isHere('/chords')}
+              aria-current={isHere('/chords') ? 'page' : undefined}
+              onClick={() => goTo('/chords')}
+            >
+              <LibraryMusicIcon sx={{ mr: 2, color: 'action.active' }} />
+              <ListItemText
+                primary="Chords"
+                primaryTypographyProps={{ fontWeight: isHere('/chords') ? 'bold' : 'normal' }}
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={isHere('/import')}
+              aria-current={isHere('/import') ? 'page' : undefined}
+              onClick={() => goTo('/import')}
+            >
+              <DownloadIcon sx={{ mr: 2, color: 'action.active' }} />
+              <ListItemText
+                primary="Import"
+                primaryTypographyProps={{ fontWeight: isHere('/import') ? 'bold' : 'normal' }}
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <Divider sx={{ my: 1 }} />
 
           <ListItem disablePadding>
             <ListItemButton
@@ -285,8 +342,6 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
             </List>
           </Collapse>
 
-          <Divider sx={{ my: 1 }} />
-
           <ListItem disablePadding>
             <ListItemButton onClick={() => setArtistsExpanded(!artistsExpanded)}>
               <PersonIcon sx={{ mr: 2, color: 'action.active' }} />
@@ -320,8 +375,6 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
               ))}
             </List>
           </Collapse>
-
-          <Divider sx={{ my: 1 }} />
 
           <ListItem disablePadding>
             <ListItemButton onClick={() => setTagsExpanded(!tagsExpanded)}>
@@ -361,7 +414,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
 
           <ListItem disablePadding>
             <ListItemButton onClick={() => setSetlistsExpanded(!setlistsExpanded)}>
-              <MusicNoteIcon sx={{ mr: 2, color: 'action.active' }} />
+              <QueueMusicIcon sx={{ mr: 2, color: 'action.active' }} />
               <ListItemText primary="Setlists" />
               <Badge badgeContent={setlists.length} color="primary" sx={{ mr: 2 }}>
                 <Box sx={{ width: 0 }} />
@@ -378,6 +431,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   if (name) {
                     const sl = createSetlist(name);
                     navigate(`/setlist/${sl.id}`);
+                    closeIfMobile();
                   }
                 }}
               >
@@ -388,10 +442,8 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 <ListItemButton
                   key={sl.id}
                   sx={{ pl: 7 }}
-                  onClick={() => {
-                    navigate(`/setlist/${sl.id}`);
-                    if (isMobile && onClose) onClose();
-                  }}
+                  selected={isHere(`/setlist/${sl.id}`)}
+                  onClick={() => goTo(`/setlist/${sl.id}`)}
                 >
                   <ListItemText primary={sl.name} secondary={`${sl.songs.length} songs`} />
                 </ListItemButton>
@@ -401,28 +453,17 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
 
           <Divider sx={{ my: 1 }} />
 
-          {onImportNav && (
-            <ListItem disablePadding>
-              <ListItemButton onClick={onImportNav}>
-                <MusicNoteIcon sx={{ mr: 2, color: 'action.active' }} />
-                <ListItemText primary="Import Songs" />
-              </ListItemButton>
-            </ListItem>
-          )}
-
-          {onChordsNav && (
-            <ListItem disablePadding>
-              <ListItemButton onClick={onChordsNav}>
-                <LocalOfferIcon sx={{ mr: 2, color: 'action.active' }} />
-                <ListItemText primary="Chord Library" />
-              </ListItemButton>
-            </ListItem>
-          )}
-
           <ListItem disablePadding>
-            <ListItemButton onClick={() => onSettingsNav?.()}>
+            <ListItemButton
+              selected={isHere('/settings')}
+              aria-current={isHere('/settings') ? 'page' : undefined}
+              onClick={() => goTo('/settings')}
+            >
               <SettingsIcon sx={{ mr: 2, color: 'action.active' }} />
-              <ListItemText primary="Settings" />
+              <ListItemText
+                primary="Settings"
+                primaryTypographyProps={{ fontWeight: isHere('/settings') ? 'bold' : 'normal' }}
+              />
             </ListItemButton>
           </ListItem>
         </List>
@@ -471,7 +512,9 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
           width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           position: 'relative',
-          height: '100vh',
+          // The sidebar is as tall as the app, so it stays in view while the
+          // music scrolls past it.
+          height: '100%',
           borderRight: `1px solid ${theme.palette.divider}`,
         },
       }}

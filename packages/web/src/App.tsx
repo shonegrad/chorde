@@ -1,5 +1,14 @@
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+  useNavigate,
+  useParams,
+  useLocation,
+  useOutletContext,
+} from 'react-router-dom';
 import { useLibraryStore } from './store/libraryStore';
 import { useSetlistStore } from './store/setlistStore';
 import { createId } from './lib/id';
@@ -9,7 +18,8 @@ import { NavigationMenu } from './components/NavigationMenu';
 import { StorageWarning } from './components/StorageWarning';
 import { MobileNav } from './components/MobileNav';
 import ErrorBoundary from './components/ErrorBoundary';
-import type { Song, SongFilter } from './types';
+import { useLibraryFilter } from './lib/useLibraryFilter';
+import type { Song } from './types';
 import { Box, IconButton, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
@@ -150,6 +160,36 @@ function SongImporterRoute() {
   );
 }
 
+/**
+ * The way round the app.
+ *
+ * On a big screen the sidebar is always there, and the music scrolls beside
+ * it. On a phone it slides in when it is wanted, and the bottom bar carries
+ * the main places.
+ */
+function AppLayout() {
+  const songs = useLibraryStore((s) => s.songs);
+  const [activeFilter, setFilter] = useLibraryFilter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
+  const [navOpen, setNavOpen] = useState(false);
+
+  return (
+    <Box sx={{ display: 'flex', height: 'var(--app-height)' }}>
+      <NavigationMenu
+        songs={songs}
+        activeFilter={activeFilter}
+        onFilterChange={setFilter}
+        open={navOpen}
+        onClose={isMobile ? () => setNavOpen(false) : undefined}
+      />
+      <Box sx={{ flexGrow: 1, minWidth: 0, overflow: 'auto' }}>
+        <Outlet context={{ openNav: () => setNavOpen(true) }} />
+      </Box>
+    </Box>
+  );
+}
+
 function SongListView() {
   const songs = useLibraryStore((s) => s.songs);
   const saveSong = useLibraryStore((s) => s.saveSong);
@@ -160,39 +200,13 @@ function SongListView() {
   const addSongToSetlist = useSetlistStore((s) => s.addSong);
   const { notifySuccess, notifyError } = useNotification();
   const navigate = useNavigate();
-  const location = useLocation();
   const theme = useTheme();
   // noSsr keeps the first render in step with the real viewport, so the
   // drawer does not flash open on a phone before it is closed again.
   const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
-  const [navOpen, setNavOpen] = useState(!isMobile);
+  const { openNav } = useOutletContext<{ openNav: () => void }>();
 
-  // Keep the drawer in step with the screen size, so rotating a phone does
-  // not leave it open or stuck closed. Adjusting during render avoids an
-  // extra pass of rendering.
-  const [lastIsMobile, setLastIsMobile] = useState(isMobile);
-  if (lastIsMobile !== isMobile) {
-    setLastIsMobile(isMobile);
-    setNavOpen(!isMobile);
-  }
-
-  const searchParams = new URLSearchParams(location.search);
-  const urlTag = searchParams.get('tag');
-  const urlArtist = searchParams.get('artist');
-  const urlKey = searchParams.get('key');
-  const urlFavourite = searchParams.get('favourite');
-  const urlMine = searchParams.get('mine');
-
-  // The URL is the single source of truth for the active filter, so the
-  // browser's back and forward buttons work as expected.
-  const activeFilter = useMemo<SongFilter | null>(() => {
-    if (urlTag) return { type: 'tag', value: urlTag };
-    if (urlArtist) return { type: 'artist', value: urlArtist };
-    if (urlKey) return { type: 'key', value: urlKey };
-    if (urlFavourite) return { type: 'favourite', value: urlFavourite };
-    if (urlMine) return { type: 'mine', value: urlMine };
-    return null;
-  }, [urlTag, urlArtist, urlKey, urlFavourite, urlMine]);
+  const [activeFilter] = useLibraryFilter();
 
   const filteredSongs = useMemo(() => {
     if (!activeFilter) return songs;
@@ -265,52 +279,32 @@ function SongListView() {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: 'var(--app-height)' }}>
-      <NavigationMenu
-        songs={songs}
-        activeFilter={activeFilter}
-        onFilterChange={(newFilter) => {
-          if (newFilter) {
-            navigate(`/?${newFilter.type}=${encodeURIComponent(newFilter.value)}`, {
-              replace: true,
-            });
-          } else {
-            navigate('/', { replace: true });
-          }
-        }}
-        onSettingsNav={() => navigate('/settings')}
-        onChordsNav={() => navigate('/chords')}
+    <Box>
+      {isMobile && (
+        <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+          <IconButton onClick={openNav} aria-label="Open navigation menu">
+            <MenuIcon />
+          </IconButton>
+        </Box>
+      )}
+      <SongList
+        songs={filteredSongs}
+        allSongs={songs}
+        onSelect={(song: Song) => navigate(`/song/${song.id}`)}
+        onCreate={() => navigate('/song/new')}
         onImportNav={() => navigate('/import')}
-        open={navOpen}
-        onClose={isMobile ? () => setNavOpen(!navOpen) : undefined}
+        onChordsNav={() => navigate('/chords')}
+        activeFilter={activeFilter}
+        onClearFilter={() => navigate('/', { replace: true })}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onToggleFavorite={handleToggleFavorite}
+        onDeleteSongs={handleDeleteSongs}
+        onDuplicateSong={handleDuplicateSong}
+        onTagSongs={handleTagSongs}
+        onAddToSetlist={handleAddToSetlist}
+        setlists={setlists.map((setlist) => ({ id: setlist.id, name: setlist.name }))}
       />
-      <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-        {isMobile && (
-          <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={() => setNavOpen(!navOpen)} aria-label="Open navigation menu">
-              <MenuIcon />
-            </IconButton>
-          </Box>
-        )}
-        <SongList
-          songs={filteredSongs}
-          allSongs={songs}
-          onSelect={(song: Song) => navigate(`/song/${song.id}`)}
-          onCreate={() => navigate('/song/new')}
-          onImportNav={() => navigate('/import')}
-          onChordsNav={() => navigate('/chords')}
-          activeFilter={activeFilter}
-          onClearFilter={() => navigate('/', { replace: true })}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-          onToggleFavorite={handleToggleFavorite}
-          onDeleteSongs={handleDeleteSongs}
-          onDuplicateSong={handleDuplicateSong}
-          onTagSongs={handleTagSongs}
-          onAddToSetlist={handleAddToSetlist}
-          setlists={setlists.map((setlist) => ({ id: setlist.id, name: setlist.name }))}
-        />
-      </Box>
     </Box>
   );
 }
@@ -344,47 +338,52 @@ function App() {
 
       <main id="main-content" ref={mainRef} tabIndex={-1}>
         <Routes>
-          <Route path="/" element={<SongListView />} />
+          {/* The screens with the sidebar beside them. */}
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<SongListView />} />
+            <Route path="/import" element={<SongImporterRoute />} />
+            <Route
+              path="/chords"
+              element={
+                <ErrorBoundary>
+                  <Suspense fallback={LoadingFallback}>
+                    <ChordBrowser onBack={() => navigate('/')} />
+                  </Suspense>
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path="/setlist/:id"
+              element={
+                <ErrorBoundary>
+                  <Suspense fallback={LoadingFallback}>
+                    <SetlistViewer />
+                  </Suspense>
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ErrorBoundary>
+                  <Suspense fallback={LoadingFallback}>
+                    <Settings onBack={() => navigate('/')} />
+                  </Suspense>
+                </ErrorBoundary>
+              }
+            />
+          </Route>
+
+          {/* The performance screens take the whole screen. */}
           <Route path="/song/:id" element={<SongViewerRoute />} />
           <Route path="/song/:id/edit" element={<SongEditorRoute />} />
           <Route path="/song/new" element={<SongEditorRoute />} />
-          <Route path="/import" element={<SongImporterRoute />} />
-          <Route
-            path="/chords"
-            element={
-              <ErrorBoundary>
-                <Suspense fallback={LoadingFallback}>
-                  <ChordBrowser onBack={() => navigate('/')} />
-                </Suspense>
-              </ErrorBoundary>
-            }
-          />
           <Route
             path="/setlist/:id/play"
             element={
               <ErrorBoundary>
                 <Suspense fallback={LoadingFallback}>
                   <SetlistPlayer />
-                </Suspense>
-              </ErrorBoundary>
-            }
-          />
-          <Route
-            path="/setlist/:id"
-            element={
-              <ErrorBoundary>
-                <Suspense fallback={LoadingFallback}>
-                  <SetlistViewer />
-                </Suspense>
-              </ErrorBoundary>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ErrorBoundary>
-                <Suspense fallback={LoadingFallback}>
-                  <Settings onBack={() => navigate('/')} />
                 </Suspense>
               </ErrorBoundary>
             }

@@ -18,9 +18,9 @@ test.describe('Chorde E2E - Song List', () => {
   });
 
   test('shows the song list heading with a song count', async ({ page }) => {
-    const heading = page.getByRole('heading', { name: /my songs/i });
+    const heading = page.getByRole('heading', { name: /songs/i });
     await expect(heading).toBeVisible({ timeout: 15000 });
-    await expect(heading).toHaveText(/My Songs \(\d+\)/);
+    await expect(heading).toHaveText(/Songs \(\d+\)/);
   });
 
   test('lists songs from the seeded library', async ({ page }) => {
@@ -35,8 +35,8 @@ test.describe('Chorde E2E - Song List', () => {
 
     const before = await page.getByRole('heading', { level: 2 }).count();
     await searchInput.fill('amazing');
-    await expect(page.getByRole('heading', { name: /my songs/i })).not.toHaveText(
-      new RegExp(`My Songs \\(${before}\\)`)
+    await expect(page.getByRole('heading', { name: /songs/i })).not.toHaveText(
+      new RegExp(`Songs \\(${before}\\)`)
     );
 
     const after = await page.getByRole('heading', { level: 2 }).count();
@@ -53,23 +53,66 @@ test.describe('Chorde E2E - Song List', () => {
 test.describe('Chorde E2E - Navigation', () => {
   test('opens the chord library', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('button', { name: 'Chord Library' }).first().click();
 
     await expect(page.getByRole('heading', { name: 'Chord Library' })).toBeVisible();
   });
 
+  test('keeps the sidebar in view on a big screen', async ({ page }) => {
+    // On a phone the sidebar is a drawer that slides in, so it is not in view.
+    const size = page.viewportSize();
+    test.skip(Boolean(size && size.width < 900), 'The sidebar is a drawer on a small screen.');
+
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    const sidebar = page.getByRole('navigation', { name: 'Main' });
+    await expect(sidebar).toBeVisible();
+
+    await sidebar.getByRole('button', { name: 'Chords', exact: true }).click();
+    await expect(page).toHaveURL(/\/chords/);
+    await expect(page.getByRole('heading', { name: 'Chord Library' })).toBeVisible();
+
+    // The sidebar is still there on the next screen.
+    await expect(sidebar).toBeVisible();
+
+    await sidebar.getByRole('button', { name: 'Settings', exact: true }).click();
+    await expect(page).toHaveURL(/\/settings/);
+    await expect(sidebar).toBeVisible();
+  });
+
+  test('shows where you are in the sidebar', async ({ page }) => {
+    const size = page.viewportSize();
+    test.skip(Boolean(size && size.width < 900), 'The sidebar is a drawer on a small screen.');
+
+    await page.goto('./chords');
+    await expect(page.getByRole('heading', { name: 'Chord Library' })).toBeVisible({
+      timeout: 15000,
+    });
+
+    const sidebar = page.getByRole('navigation', { name: 'Main' });
+    await expect(sidebar.getByRole('button', { name: 'Chords', exact: true })).toHaveAttribute(
+      'aria-current',
+      'page'
+    );
+    await expect(sidebar.getByRole('button', { name: /^Songs \d+ songs?$/ })).not.toHaveAttribute(
+      'aria-current',
+      'page'
+    );
+  });
+
   test('opens the settings screen and can go back', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await openNavigation(page);
     await page.getByRole('button', { name: 'Settings' }).click();
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Back' }).click();
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible();
   });
 
   test('opens the import screen', async ({ page }) => {
@@ -84,7 +127,7 @@ test.describe('Chorde E2E - Navigation', () => {
 test.describe('Chorde E2E - Song Viewer', () => {
   test('opens a song and shows its title', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('heading', { level: 2 }).first().click();
 
@@ -94,7 +137,7 @@ test.describe('Chorde E2E - Song Viewer', () => {
 
   test('transposes the song and shows the new key', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('heading', { level: 2 }).first().click();
     await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
@@ -109,7 +152,7 @@ test.describe('Chorde E2E - Song Viewer', () => {
 
   test('offers the Nashville display mode', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('heading', { level: 2 }).first().click();
     await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
@@ -125,7 +168,7 @@ test.describe('Chorde E2E - Song Viewer', () => {
 test.describe('Chorde E2E - Setlists', () => {
   test('creates a setlist from the navigation drawer', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     page.once('dialog', async (dialog) => {
       await dialog.accept('E2E Setlist');
@@ -142,7 +185,7 @@ test.describe('Chorde E2E - Setlists', () => {
 test.describe('Chorde E2E - Organising the library', () => {
   test('favourites a song and filters by favourites', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     const favouriteButton = page.getByRole('button', { name: /^Favourite / }).first();
     const songName = (await favouriteButton.getAttribute('aria-label')) ?? '';
@@ -152,13 +195,13 @@ test.describe('Chorde E2E - Organising the library', () => {
     await page.getByRole('button', { name: /^Favourites/ }).click();
 
     await expect(page).toHaveURL(/favourite=true/);
-    await expect(page.getByRole('heading', { name: /my songs \(1\)/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /songs \(1\)/i })).toBeVisible();
     expect(songName).not.toBe('');
   });
 
   test('sorts the library by artist', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     const sortSelect = page.getByRole('combobox', { name: 'Sort by' });
     await sortSelect.click();
@@ -174,21 +217,21 @@ test.describe('Chorde E2E - Organising the library', () => {
 
   test('finds a song by its lyrics', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     const search = page.getByPlaceholder(/search songs, artists/i);
     await search.fill('wretch');
-    await expect(page.getByRole('heading', { name: /my songs \(0\)/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /songs \(0\)/i })).toBeVisible();
 
     await page.getByRole('button', { name: /titles and artists only/i }).click();
-    await expect(page.getByRole('heading', { name: /my songs \(1\)/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /songs \(1\)/i })).toBeVisible();
   });
 
   test('deletes songs in bulk', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
-    const heading = page.getByRole('heading', { name: /my songs/i });
+    const heading = page.getByRole('heading', { name: /songs/i });
     const before = Number((await heading.textContent())?.match(/\((\d+)\)/)?.[1] ?? '0');
     expect(before).toBeGreaterThan(2);
 
@@ -206,7 +249,7 @@ test.describe('Chorde E2E - Organising the library', () => {
     await page.getByRole('button', { name: 'Delete', exact: true }).first().click();
     await page.getByRole('button', { name: 'Delete', exact: true }).last().click();
 
-    await expect(heading).toContainText(`My Songs (${before - 2})`);
+    await expect(heading).toContainText(`Songs (${before - 2})`);
   });
 
   test('exports the library as a backup file', async ({ page }) => {
@@ -241,7 +284,10 @@ test.describe('Chorde E2E - Online search', () => {
 
     await expect(page.getByText(/results? found/)).toBeVisible({ timeout: 45000 });
 
-    const titles = await page.getByRole('heading', { level: 6 }).allTextContents();
+    const titles = await page
+      .getByRole('list', { name: 'Search results' })
+      .getByRole('heading', { level: 6 })
+      .allTextContents();
     expect(titles[0]).toBe('Amazing Grace');
   });
 
@@ -280,7 +326,7 @@ test.describe('Chorde E2E - Finding your way around the library', () => {
 
   test('says what a chord is made of and where it sits in the key', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('heading', { level: 2 }).first().click();
     await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
@@ -299,7 +345,7 @@ test.describe('Chorde E2E - Finding your way around the library', () => {
 test.describe('Chorde E2E - Performing a setlist', () => {
   test('plays through a setlist', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     page.once('dialog', async (dialog) => {
       await dialog.accept('E2E Set');
@@ -334,7 +380,7 @@ test.describe('Chorde E2E - Performing a setlist', () => {
 test.describe('Chorde E2E - Writing desk', () => {
   test('writes a song and keeps it', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('button', { name: 'New Song' }).click();
     await expect(page.getByRole('heading', { name: 'New Song' })).toBeVisible();
@@ -359,7 +405,7 @@ test.describe('Chorde E2E - Writing desk', () => {
 
   test('offers the chords of the key first', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('button', { name: 'New Song' }).click();
     await expect(page.getByRole('heading', { name: 'New Song' })).toBeVisible();
@@ -392,7 +438,7 @@ test.describe('Chorde E2E - Mobile', () => {
 
   test('leaves the song viewer full screen', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('heading', { level: 2 }).first().click();
     await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
@@ -406,7 +452,7 @@ test.describe('Chorde E2E - Accessibility', () => {
     page,
   }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     const firstFocusable = await page.evaluate(() => {
       const focusable = document.querySelectorAll(
@@ -420,7 +466,7 @@ test.describe('Chorde E2E - Accessibility', () => {
 
   test('the skip link moves the focus to the content', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     const skipLink = page.getByRole('link', { name: /skip to content/i });
     await skipLink.focus();
@@ -431,7 +477,7 @@ test.describe('Chorde E2E - Accessibility', () => {
 
   test('transposes a song with the arrow keys', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('heading', { level: 2 }).first().click();
     await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
@@ -446,7 +492,7 @@ test.describe('Chorde E2E - Accessibility', () => {
 
   test('shows the keyboard shortcuts', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('heading', { level: 2 }).first().click();
     await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
