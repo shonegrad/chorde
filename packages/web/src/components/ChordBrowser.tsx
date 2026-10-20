@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import { CHORD_LIBRARY } from '../data/chordLibrary';
+import { CHORD_LIBRARY, type ChordVariation } from '../data/chordLibrary';
 import { ChordDiagram } from './ChordDiagram';
 import { ChordDiagramEditor } from './ChordDiagramEditor';
 import { ChordModal } from './ChordModal';
@@ -27,6 +27,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
 
 // Chord type categories
 const CHORD_TYPES = [
@@ -50,18 +51,32 @@ interface ChordBrowserProps {
   onBack?: () => void;
 }
 
+/** A chord shape the user drew themselves. */
+interface CustomChord {
+  chordName: string;
+  fullName: string;
+  variations: ChordVariation[];
+}
+
 export default function ChordBrowser({ onBack }: ChordBrowserProps) {
   const [selectedType, setSelectedType] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChord, setSelectedChord] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [playingChord, setPlayingChord] = useState<string | null>(null);
+  const [customChords, setCustomChords] = useState<CustomChord[]>([]);
 
   // Get all chords as array
-  const allChords = Object.values(CHORD_LIBRARY).map((def) => ({
-    chordName: def.name,
-    ...def,
-  }));
+  const allChords = useMemo(
+    () => [
+      ...Object.values(CHORD_LIBRARY).map((def) => ({
+        chordName: def.name,
+        ...def,
+      })),
+      ...customChords,
+    ],
+    [customChords]
+  );
 
   // Filter chords
   const filteredChords = useMemo(() => {
@@ -133,13 +148,22 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
     setTimeout(() => setPlayingChord(null), 1500);
   };
 
+  const handleSaveCustomChord = (variation: ChordVariation) => {
+    const name = `Custom ${customChords.length + 1}`;
+    setCustomChords((prev) => [
+      ...prev,
+      { chordName: name, fullName: `${name} (your shape)`, variations: [variation] },
+    ]);
+    setEditorOpen(false);
+  };
+
   const editorDialog = (
     <Dialog open={editorOpen} onClose={() => setEditorOpen(false)} maxWidth="sm" fullWidth>
       <DialogTitle>Custom Chord</DialogTitle>
       <DialogContent>
         <ChordDiagramEditor
           chordName="Custom"
-          onSave={() => setEditorOpen(false)}
+          onSave={handleSaveCustomChord}
           onClose={() => setEditorOpen(false)}
         />
       </DialogContent>
@@ -194,6 +218,15 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
               clickable
             />
           ))}
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={() => setEditorOpen(true)}
+            sx={{ ml: 'auto' }}
+          >
+            Create custom chord
+          </Button>
         </Stack>
       </Box>
 

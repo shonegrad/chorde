@@ -1,4 +1,5 @@
 import type { Song } from '../types';
+import { createId } from './id';
 
 const simpleHash = (str: string): string => {
   let hash = 0;
@@ -131,7 +132,7 @@ export const normalizeSong = (song: Partial<Song> & { content: string }): Song =
   const now = new Date().toISOString();
 
   return {
-    id: song.id || crypto.randomUUID(),
+    id: song.id || createId(),
     title: song.title || 'Untitled',
     artist: song.artist || 'Unknown Artist',
     content: song.content,

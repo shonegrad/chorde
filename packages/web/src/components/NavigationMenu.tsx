@@ -150,7 +150,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
           Browse
         </Typography>
         {isMobile && onClose && (
-          <IconButton onClick={onClose} size="small">
+          <IconButton onClick={onClose} size="small" aria-label="Close navigation menu">
             <CloseIcon />
           </IconButton>
         )}

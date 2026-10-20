@@ -3,6 +3,7 @@ export interface Source {
   name: string;
   icon?: string;
   enabled: boolean;
+  license?: string;
 }
 
 export type SourceLicense =
@@ -32,6 +33,8 @@ export interface SongContent {
     capo?: number;
   };
   license?: string;
+  sourceName?: string;
+  sourceUrl?: string;
 }
 
 export interface SourceAdapter {

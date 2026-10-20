@@ -244,6 +244,7 @@ export class HymnaryAdapter extends BaseAdapter {
       artist: hymn.author,
       preview: hymn.lyrics.split('\n')[0],
       hasChords: false,
+      license: this.license,
     }));
   }
 
@@ -254,6 +255,8 @@ export class HymnaryAdapter extends BaseAdapter {
       return {
         chordPro: `{title: Hymn Not Found}\n{artist: Unknown}\n\nHymn content not available.`,
         metadata: { title: 'Hymn Not Found', artist: 'Unknown' },
+        license: this.license,
+        sourceName: this.name,
       };
     }
 
@@ -267,6 +270,9 @@ export class HymnaryAdapter extends BaseAdapter {
         artist: metadata.artist ?? 'Unknown',
         ...metadata,
       },
+      license: this.license,
+      sourceName: this.name,
+      sourceUrl: `https://hymnary.org/text/${hymn.id}`,
     };
   }
 

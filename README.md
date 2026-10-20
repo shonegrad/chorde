@@ -5,17 +5,25 @@
 ## ✨ Features
 
 - **ChordPro Support**: Parse and render songs with chord embedding.
+- **Chords Over Lyrics**: Each chord sits directly above the word it belongs to, the way printed
+  chord sheets are laid out.
 - **Search-Based Import**: Search and import songs from public domain sources (OpenHymnal, etc.).
+  Hidden in production builds until a search API host is configured - see
+  [DEPLOYMENT.md](./DEPLOYMENT.md).
 - **Interactive Chord Library**:
   - Browse chords and view multiple finger positions (variations).
   - **Strumming Audio Preview**: Listen to realistic guitar strum playback with position-based timing.
-- **Dynamic Transposition**: Instantly change the key of any song.
+- **Dynamic Transposition**: Instantly change the key of any song, with the new key shown by name
+  and chords spelled to match the new key signature.
+- **Capo Support**: Shows the key the song actually sounds in for the selected capo.
 - **Smart Song Viewer**:
-  - Auto-scroll with adjustable speed.
-  - Multiple display modes: Chords, Tabs, and Notation.
+  - Auto-scroll paced by tempo, with an optional count-in and click track.
+  - Multiple display modes: Chords, Nashville Numbers, Tabs, and Notation.
   - Loop sections for practice.
+  - Performance mode (fullscreen) for playing from a music stand.
+  - Remembers your text size, display mode and per-song transposition.
 - **Collapsible Navigation**: Browse by Keys, Artists, and Genres with item count badges.
-- **Local Storage**: Your library is saved locally in your browser.
+- **Local Storage**: Your library is saved locally in your browser and works offline.
 - **Nashville Number System**: View songs in numbers for universal playability.
 - **Performance**: Lazy loading for large song libraries.
 - **Responsive Design**: Works great on desktop and tablets.

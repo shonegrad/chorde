@@ -33,6 +33,8 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 
 interface SongListProps {
   songs: Song[];
+  /** The whole library, used to show every available tag even while filtered. */
+  allSongs?: Song[];
   onSelect: (song: Song) => void;
   onCreate: () => void;
   onImportNav: () => void;
@@ -45,6 +47,7 @@ interface SongListProps {
 
 export const SongList: React.FC<SongListProps> = ({
   songs,
+  allSongs,
   onSelect,
   onCreate,
   onImportNav,
@@ -57,10 +60,11 @@ export const SongList: React.FC<SongListProps> = ({
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
-  // Extract all unique tags for local filtering within current view
+  // Every tag in the library, so a tag can be switched to without clearing
+  // the current filter first.
   const allTags = useMemo(
-    () => Array.from(new Set(songs.flatMap((s) => s.tags || []))).sort(),
-    [songs]
+    () => Array.from(new Set((allSongs ?? songs).flatMap((s) => s.tags || []))).sort(),
+    [allSongs, songs]
   );
 
   const filtered = useMemo(

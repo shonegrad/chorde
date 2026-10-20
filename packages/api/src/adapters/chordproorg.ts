@@ -197,6 +197,7 @@ export class ChordProOrgAdapter extends BaseAdapter {
       artist: song.artist,
       key: song.key,
       hasChords: true,
+      license: this.license,
     }));
   }
 
@@ -207,6 +208,8 @@ export class ChordProOrgAdapter extends BaseAdapter {
       return {
         chordPro: `{title: Song Not Found}\n{artist: Unknown}\n\nSong content not available.`,
         metadata: { title: 'Song Not Found', artist: 'Unknown' },
+        license: this.license,
+        sourceName: this.name,
       };
     }
 
@@ -219,6 +222,9 @@ export class ChordProOrgAdapter extends BaseAdapter {
         artist: metadata.artist ?? 'Unknown',
         ...metadata,
       },
+      license: this.license,
+      sourceName: this.name,
+      sourceUrl: `https://chordpro.org/${song.id}`,
     };
   }
 }

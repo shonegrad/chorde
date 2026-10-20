@@ -7,6 +7,7 @@ vi.mock('../adapters/openhymnal.js', () => ({
   OpenHymnalAdapter: class {
     id = 'openhymnal';
     name = 'OpenHymnal';
+    license = 'public-domain';
     async search(query: string) {
       if (query.includes('Amazing')) {
         return [
@@ -40,6 +41,7 @@ vi.mock('../adapters/hymnary.js', () => ({
   HymnaryAdapter: class {
     id = 'hymnary';
     name = 'Hymnary.org';
+    license = 'public-domain';
     async search(query: string) {
       if (query.includes('Amazing')) {
         return [
@@ -67,6 +69,7 @@ vi.mock('../adapters/chordproorg.js', () => ({
   ChordProOrgAdapter: class {
     id = 'chordpro';
     name = 'ChordPro.org';
+    license = 'unknown';
     async search(query: string) {
       if (query.includes('Let')) {
         return [
@@ -105,11 +108,17 @@ describe('Search Routes', () => {
       const res = await app.request('/api/sources');
       expect(res.status).toBe(200);
       const sources = (await res.json()) as { id: string; name: string; enabled: boolean }[];
-      expect(sources).toHaveLength(4);
+      expect(sources).toHaveLength(3);
       expect(sources.map((s) => s.id)).toContain('openhymnal');
       expect(sources.map((s) => s.id)).toContain('hymnary');
       expect(sources.map((s) => s.id)).toContain('chordpro');
-      expect(sources.map((s) => s.id)).toContain('session');
+    });
+
+    it('reports the license of each source', async () => {
+      const res = await app.request('/api/sources');
+      const sources = (await res.json()) as { id: string; license?: string }[];
+      const openhymnal = sources.find((s) => s.id === 'openhymnal');
+      expect(openhymnal?.license).toBe('public-domain');
     });
 
     it('marks all sources as enabled', async () => {

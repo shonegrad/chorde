@@ -26,17 +26,23 @@ Package-specific scripts live in each `packages/*/package.json` (e.g. `test:e2e`
 
 ## Environment variables
 
-- `packages/web/.env` — `VITE_API_URL=http://localhost:3001` (copy from `.env.example`)
+- `packages/web/.env.development` — `VITE_API_URL=http://localhost:3001` (dev only; copy from
+  `.env.example`). Production builds must not bake in a localhost URL — see `DEPLOYMENT.md`.
 - `packages/api/.env` — `PORT=3001`, `CORS_ORIGIN=<production origin>`
 
 ## Key files
 
-- `packages/web/src/App.tsx` — Routing
-- `packages/web/src/context/AppContext.tsx` — Library state (IndexedDB + seed songs)
+- `packages/web/src/App.tsx` — Routing. The URL query string is the single source of truth for the
+  active library filter.
+- `packages/web/src/store/libraryStore.ts` — Zustand library state (IndexedDB + seed songs)
 - `packages/web/src/lib/libraryStore.ts` — IndexedDB + localStorage library store
 - `packages/web/src/lib/chordPro.ts` — ChordPro parser
-- `packages/web/src/lib/music.ts` — Chord transposition
-- `packages/web/src/services/searchApi.ts` — API client (defaults to localhost:3001)
+- `packages/web/src/lib/music.ts` — Chord/key transposition (key-aware enharmonic spelling)
+- `packages/web/src/lib/preferences.ts` — Persisted viewer preferences
+- `packages/web/src/lib/settings.ts` — App settings (stage mode) shared by Settings and SongViewer
+- `packages/web/src/lib/features.ts` — Feature flags (online search)
+- `packages/web/src/components/SongBody.tsx` — Chord-over-lyric rendering
+- `packages/web/src/services/searchApi.ts` — API client
 - `packages/api/src/index.ts` — Hono server + CORS config
 - `packages/api/src/routes/search.ts` — Search route + source adapters
 - `packages/api/src/routes/song.ts` — Song fetch route
@@ -46,12 +52,15 @@ Package-specific scripts live in each `packages/*/package.json` (e.g. `test:e2e`
 ## Testing
 
 - Unit tests: Vitest (`*.test.ts`, `*.test.tsx`)
-- E2E tests: Playwright (`packages/web/e2e/app.spec.ts`)
+- E2E tests: Playwright (`packages/web/e2e/app.spec.ts`) — runs against Chromium, WebKit and a
+  mobile viewport; Playwright starts the dev server itself.
 - Run `npm run test` for unit tests; `npm run test:e2e` for E2E (requires dev servers running)
 
 ## Lint
 
-ESLint with TypeScript rules; Prettier for formatting. Run `npm run lint` and `npm run format:check` before committing.
+ESLint with TypeScript rules; Prettier for formatting. Run `npm run lint` and `npm run format:check`
+before committing. CI runs both, plus the unit tests, the type check, the build and the Playwright
+suite.
 
 ## Deployment
 

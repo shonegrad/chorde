@@ -46,6 +46,7 @@ class ErrorBoundary extends Component<Props, State> {
       // Default fallback UI
       return (
         <Box
+          role="alert"
           sx={{
             display: 'flex',
             alignItems: 'center',

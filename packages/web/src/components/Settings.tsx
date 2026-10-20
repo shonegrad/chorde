@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Alert,
   Box,
   Button,
   Divider,
@@ -11,57 +10,10 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-
-const SETTINGS_STORAGE_KEY = 'chorde_settings';
-
-interface AppSettings {
-  cloudSync: {
-    lastBackupAt: string | null;
-    lastRestoreAt: string | null;
-  };
-  stageMode: {
-    defaultBpm: number;
-    beatsPerLine: number;
-    countInBeats: number;
-    clickSoundEnabled: boolean;
-    lockTempo: boolean;
-  };
-}
-
-const defaultSettings: AppSettings = {
-  cloudSync: {
-    lastBackupAt: null,
-    lastRestoreAt: null,
-  },
-  stageMode: {
-    defaultBpm: 120,
-    beatsPerLine: 4,
-    countInBeats: 4,
-    clickSoundEnabled: true,
-    lockTempo: false,
-  },
-};
+import { useAppSettings } from '../lib/settings';
 
 export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [settings, setSettings] = useState<AppSettings>(() => {
-    const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (stored) {
-      try {
-        return { ...defaultSettings, ...JSON.parse(stored) };
-      } catch {
-        return defaultSettings;
-      }
-    }
-    return defaultSettings;
-  });
-  const driveConfigured = Boolean(
-    import.meta.env.VITE_GDRIVE_CLIENT_ID && import.meta.env.VITE_GDRIVE_API_KEY
-  );
-
-  const updateSettings = (next: AppSettings) => {
-    setSettings(next);
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(next));
-  };
+  const [settings, updateSettings] = useAppSettings();
 
   return (
     <Box sx={{ p: 3, height: '100vh', overflowY: 'auto' }}>
@@ -78,32 +30,11 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       <Stack spacing={4}>
         <Box>
           <Typography variant="h6" fontWeight="bold">
-            CloudSync
+            Stage Mode
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Google Drive backup wiring is scaffolded for Phase 1, but full connection flow still
-            needs hardening.
-          </Typography>
-          {!driveConfigured ? (
-            <Alert severity="info">
-              Add `VITE_GDRIVE_CLIENT_ID` and `VITE_GDRIVE_API_KEY` to enable Drive setup.
-            </Alert>
-          ) : (
-            <Alert severity="success">Google Drive credentials detected.</Alert>
-          )}
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            Last backup: {settings.cloudSync.lastBackupAt ?? 'Never'}
-          </Typography>
-          <Typography variant="body2">
-            Last restore: {settings.cloudSync.lastRestoreAt ?? 'Never'}
-          </Typography>
-        </Box>
-
-        <Divider />
-
-        <Box>
-          <Typography variant="h6" fontWeight="bold">
-            Stage Mode
+            These values are used when you open a song for playing: the starting tempo, how the
+            auto-scroll is paced, and whether a count-in is played before scrolling starts.
           </Typography>
           <Stack spacing={3} sx={{ mt: 2, maxWidth: 420 }}>
             <Box>
@@ -112,6 +43,7 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 value={settings.stageMode.defaultBpm}
                 min={40}
                 max={208}
+                aria-label="Default BPM"
                 onChange={(_, value) =>
                   updateSettings({
                     ...settings,
@@ -130,6 +62,7 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 min={1}
                 max={8}
                 step={1}
+                aria-label="Beats per line"
                 onChange={(_, value) =>
                   updateSettings({
                     ...settings,
@@ -148,6 +81,7 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 min={0}
                 max={8}
                 step={1}
+                aria-label="Count-in beats"
                 onChange={(_, value) =>
                   updateSettings({
                     ...settings,
@@ -161,6 +95,7 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               control={
                 <Switch
                   checked={settings.stageMode.clickSoundEnabled}
+                  inputProps={{ 'aria-label': 'Enable click sound' }}
                   onChange={(event) =>
                     updateSettings({
                       ...settings,
@@ -176,6 +111,7 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               control={
                 <Switch
                   checked={settings.stageMode.lockTempo}
+                  inputProps={{ 'aria-label': 'Lock tempo by default' }}
                   onChange={(event) =>
                     updateSettings({
                       ...settings,
@@ -196,8 +132,8 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             About
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Chorde is a local-first songbook with import, search, sync scaffolding, and stage mode
-            controls.
+            Chorde is a local-first songbook. Your library is stored in this browser, so it stays
+            private and works offline.
           </Typography>
           <Link
             href="https://github.com/shonegrad/chorde"

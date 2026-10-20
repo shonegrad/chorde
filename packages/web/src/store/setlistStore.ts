@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { createId } from '../lib/id';
 
 export interface Setlist {
   id: string;
@@ -49,7 +50,7 @@ export const useSetlistStore = create<SetlistState>((set, get) => ({
   createSetlist: (name) => {
     const now = new Date().toISOString();
     const setlist: Setlist = {
-      id: crypto.randomUUID(),
+      id: createId(),
       name,
       songIds: [],
       createdAt: now,

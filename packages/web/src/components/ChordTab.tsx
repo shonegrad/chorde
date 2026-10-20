@@ -29,6 +29,8 @@ export const ChordTab: React.FC<ChordTabProps> = React.memo(
         height={svgHeight}
         viewBox={`0 0 ${width + leftMargin} ${svgHeight}`}
         style={{ overflow: 'visible', verticalAlign: 'bottom' }}
+        role="img"
+        aria-label={`${chord} guitar tab`}
       >
         {/* String labels */}
         {showLabels &&

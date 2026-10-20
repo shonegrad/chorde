@@ -66,6 +66,7 @@ export interface Source {
   name: string;
   icon?: string;
   enabled: boolean;
+  license?: LicenseType;
 }
 
 export interface SearchResult {
@@ -76,6 +77,8 @@ export interface SearchResult {
   key?: string;
   preview?: string;
   hasChords?: boolean;
+  /** License the source publishes its material under, when known. */
+  license?: LicenseType;
 }
 
 export interface SongContent {
@@ -86,6 +89,11 @@ export interface SongContent {
     key?: string;
     capo?: number;
   };
+  /** License the source publishes this particular song under, when known. */
+  license?: LicenseType;
+  /** Human readable name of the source, used for attribution. */
+  sourceName?: string;
+  sourceUrl?: string;
 }
 
 export interface SourceAdapter {

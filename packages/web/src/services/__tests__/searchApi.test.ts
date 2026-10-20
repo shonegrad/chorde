@@ -5,6 +5,8 @@ const mockFetch = vi.fn();
 
 vi.stubGlobal('fetch', mockFetch);
 
+const requestedUrl = (callIndex = 0): string => mockFetch.mock.calls[callIndex][0] as string;
+
 describe('searchApi', () => {
   beforeEach(() => {
     mockFetch.mockReset();
@@ -23,7 +25,7 @@ describe('searchApi', () => {
 
       const sources = await searchApi.getSources();
       expect(sources).toEqual(mockSources);
-      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/api/sources'));
+      expect(requestedUrl()).toContain('/api/sources');
     });
 
     it('throws error when fetch fails', async () => {
@@ -46,7 +48,7 @@ describe('searchApi', () => {
 
       const result = await searchApi.search('test query');
       expect(result).toEqual(mockResponse);
-      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('q=test+query'));
+      expect(requestedUrl()).toContain('q=test+query');
     });
 
     it('includes sources filter when provided', async () => {
@@ -56,15 +58,23 @@ describe('searchApi', () => {
       });
 
       await searchApi.search('test', ['openhymnal', 'hymnary']);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('sources=openhymnal%2Chymnary')
-      );
+      expect(requestedUrl()).toContain('sources=openhymnal%2Chymnary');
     });
 
     it('throws error when search fails', async () => {
       mockFetch.mockResolvedValueOnce({ ok: false });
 
       await expect(searchApi.search('test')).rejects.toThrow('Search failed');
+    });
+
+    it('surfaces the retry delay when the server rate limits the request', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        headers: new Headers({ 'Retry-After': '30' }),
+      });
+
+      await expect(searchApi.search('test')).rejects.toThrow(/Too many requests.*30s/);
     });
   });
 
@@ -81,9 +91,7 @@ describe('searchApi', () => {
 
       const result = await searchApi.fetchSong('openhymnal', 'test-id');
       expect(result).toEqual(mockSong);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/song/openhymnal/test-id')
-      );
+      expect(requestedUrl()).toContain('/api/song/openhymnal/test-id');
     });
 
     it('throws error when fetch fails', async () => {

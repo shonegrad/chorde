@@ -72,6 +72,8 @@ export const ChordStaff: React.FC<ChordStaffProps> = React.memo(
         height={totalHeight}
         viewBox={`0 0 ${width} ${totalHeight}`}
         style={{ overflow: 'visible', verticalAlign: 'bottom' }}
+        role="img"
+        aria-label={`${chord} chord notation`}
       >
         {/* Clef - G clef (treble) */}
         <text x={4} y={8} fontSize={14} fill={theme.palette.text.secondary}>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Song } from '../types';
+import { createId } from '../lib/id';
 import { TextField, Button, Stack, Typography, Container, Paper } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -25,7 +26,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
-      id: initialSong?.id || crypto.randomUUID(),
+      id: initialSong?.id || createId(),
       title,
       artist,
       content,
@@ -45,7 +46,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
       rightsStatus: initialSong?.rightsStatus || 'unknown',
       createdAt: initialSong?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      hash: initialSong?.hash || crypto.randomUUID(),
+      hash: initialSong?.hash || createId(),
     });
   };
 

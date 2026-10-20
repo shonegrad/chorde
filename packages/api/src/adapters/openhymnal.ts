@@ -84,6 +84,7 @@ export class OpenHymnalAdapter extends BaseAdapter {
           artist: hymn.artist || 'Unknown',
           key: hymn.key || undefined,
           hasChords: true,
+          license: this.license,
         });
       }
     }
@@ -113,12 +114,17 @@ export class OpenHymnalAdapter extends BaseAdapter {
           artist: metadata.artist ?? 'Unknown',
           ...metadata,
         },
+        license: this.license,
+        sourceName: this.name,
+        sourceUrl: `${this.baseUrl}/${filename}`,
       };
     } catch (error) {
       console.error(`Error fetching song ${filename}:`, error);
       return {
         chordPro: `{title: ${filename.replace(/\.(onsong|chordpro)$/, '')}}\n{artist: Unknown}\n\nSong content unavailable.`,
         metadata: { title: filename.replace(/\.(onsong|chordpro)$/, ''), artist: 'Unknown' },
+        license: this.license,
+        sourceName: this.name,
       };
     }
   }

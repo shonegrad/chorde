@@ -12,23 +12,38 @@ import './styles/main.css';
 
 const root = createRoot(document.getElementById('root')!);
 
+const removeBootSplash = () => {
+  document.getElementById('boot-splash')?.remove();
+};
+
+const renderApp = () => {
+  root.render(
+    <StrictMode>
+      <BrowserRouter basename="/chorde">
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <NotificationProvider>
+            <ErrorBoundary>
+              <App />
+              <NetworkStatus />
+            </ErrorBoundary>
+          </NotificationProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </StrictMode>
+  );
+};
+
+// The boot splash in index.html covers the gap until the library has loaded.
+// The app renders even when loading fails, so a storage error never leaves the
+// user staring at a blank page.
 useLibraryStore
   .getState()
   .loadSongs()
-  .then(() => {
-    root.render(
-      <StrictMode>
-        <BrowserRouter basename="/chorde">
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <NotificationProvider>
-              <ErrorBoundary>
-                <App />
-                <NetworkStatus />
-              </ErrorBoundary>
-            </NotificationProvider>
-          </ThemeProvider>
-        </BrowserRouter>
-      </StrictMode>
-    );
+  .catch((error) => {
+    console.error('Failed to load library:', error);
+  })
+  .finally(() => {
+    removeBootSplash();
+    renderApp();
   });

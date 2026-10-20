@@ -1,13 +1,20 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import type { Song, SongSection, DisplayMode } from '../types';
 import { parseChordPro } from '../lib/chordPro';
 import { exportToChordPro, exportToPdf } from '../lib/export';
-import { transposeChord } from '../lib/music';
-import { chordToNashville } from '../lib/nashville';
-import { ChordStaff } from './ChordStaff';
+import { transposeChord, transposeKey, keyPrefersFlats } from '../lib/music';
+import { useAppSettings } from '../lib/settings';
+import {
+  loadSongPreferences,
+  loadViewerPreferences,
+  saveSongPreferences,
+  saveViewerPreferences,
+  MAX_FONT_SIZE,
+  MIN_FONT_SIZE,
+} from '../lib/preferences';
+import { SongBody } from './SongBody';
 import { ChordModal } from './ChordModal';
 import { SectionNav } from './SectionNav';
-import { ChordTab } from './ChordTab';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import {
   AppBar,
@@ -31,7 +38,6 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
@@ -41,7 +47,9 @@ import AddIcon from '@mui/icons-material/Add';
 import TextDecreaseIcon from '@mui/icons-material/TextDecrease';
 import TextIncreaseIcon from '@mui/icons-material/TextIncrease';
 import DownloadIcon from '@mui/icons-material/Download';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import EditIcon from '@mui/icons-material/Edit';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import '../styles/SongViewer.css';
 
 interface SongViewerProps {
@@ -59,34 +67,64 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   onTagClick,
   onArtistClick,
 }) => {
-  const theme = useTheme();
-  const [transpose, setTranspose] = useState(0);
-  const [fontSize, setFontSize] = useState(20);
-  const [capo, setCapo] = useState(song.capo || 0);
+  const [settings] = useAppSettings();
+  const stageMode = settings.stageMode;
+
+  const initialPrefs = useMemo(() => loadViewerPreferences(), []);
+  const initialSongPrefs = useMemo(() => loadSongPreferences(song.id), [song.id]);
+
+  const [transpose, setTranspose] = useState(initialSongPrefs.transpose);
+  const [fontSize, setFontSize] = useState(initialPrefs.fontSize);
+  const [capo, setCapo] = useState(initialSongPrefs.capo || song.capo || 0);
   const [selectedChord, setSelectedChord] = useState<string | null>(null);
   const [autoScroll, setAutoScroll] = useState(false);
-  const [manualScrollSpeed, setManualScrollSpeed] = useState<number | null>(null); // manual override from slider
-  const scrollSpeedRef = useRef(40); // ref to track scroll speed without triggering effect reset
+  const [manualScrollSpeed, setManualScrollSpeed] = useState<number | null>(null);
+  const scrollSpeedRef = useRef(40);
   const [loopMode, setLoopMode] = useState(false);
-  const [loopSection, setLoopSection] = useState<number | null>(null); // Index of section to loop
-  const [displayMode, setDisplayMode] = useState<DisplayMode>('chords');
+  const [loopSection, setLoopSection] = useState<number | null>(null);
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(initialPrefs.displayMode);
+  const [countIn, setCountIn] = useState<number>(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const contentContainerRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameRef = useRef<number | null>(null);
   const lastScrollTimeRef = useRef<number>(0);
-  const scrollAccumulatorRef = useRef<number>(0); // accumulate fractional pixels for smooth slow scrolling
+  const scrollAccumulatorRef = useRef<number>(0);
 
-  // BPM and tempo controls
-  const [bpm, setBpm] = useState<number | null>(song.bpm ?? null); // Current BPM (song's or override)
-  const [overrideBpm, setOverrideBpm] = useState<number | null>(null); // Manual BPM override
-  const [lockTempo, setLockTempo] = useState(false); // Prevent accidental tempo changes
-  const [countIn, setCountIn] = useState<number>(0); // Count-in progress
-  const [clickSoundEnabled] = useState<boolean>(true); // Click sound for count-in
+  // Tempo controls
+  const [bpm, setBpm] = useState<number | null>(song.bpm ?? null);
+  const [lockTempo, setLockTempo] = useState(stageMode.lockTempo);
 
-  // Audio context for click sound
+  // Audio context for the count-in click
   const audioCtxRef = useRef<AudioContext | null>(null);
   const lastTapTimeRef = useRef<number>(0);
   const tapTimesRef = useRef<number[]>([]);
+
+  // Remember the view preferences and the per-song transposition.
+  useEffect(() => {
+    saveViewerPreferences({ fontSize, displayMode });
+  }, [fontSize, displayMode]);
+
+  useEffect(() => {
+    saveSongPreferences(song.id, { transpose, capo });
+  }, [song.id, transpose, capo]);
+
+  // The key the chords are written in, and the key they sound in.
+  const writtenKey = song.key;
+  const transposedKey = useMemo(
+    () => (writtenKey ? transposeKey(writtenKey, transpose) : undefined),
+    [writtenKey, transpose]
+  );
+  // A capo transposes the sounding pitch without changing the written chords.
+  const soundingKey = useMemo(() => {
+    if (!transposedKey) return undefined;
+    return capo > 0 ? transposeKey(transposedKey, capo) : transposedKey;
+  }, [transposedKey, capo]);
+
+  const preferFlats = useMemo(
+    () => keyPrefersFlats(transposedKey ?? writtenKey),
+    [transposedKey, writtenKey]
+  );
 
   const parsedContent = useMemo(() => {
     const parsed = parseChordPro(song.content);
@@ -96,10 +134,10 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       ...line,
       items: line.items.map((item) => ({
         ...item,
-        chord: item.chord ? transposeChord(item.chord, transpose) : undefined,
+        chord: item.chord ? transposeChord(item.chord, transpose, { preferFlats }) : undefined,
       })),
     }));
-  }, [song.content, transpose]);
+  }, [song.content, transpose, preferFlats]);
 
   const sections = useMemo(() => {
     const extracted: SongSection[] = [];
@@ -111,30 +149,26 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     return extracted;
   }, [parsedContent]);
 
-  const jumpToSection = (lineIndex: number) => {
+  const jumpToSection = useCallback((lineIndex: number) => {
     const lineElement = lineRefs.current[lineIndex];
     if (lineElement && contentContainerRef.current) {
       lineElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  };
+  }, []);
 
   // BPM-based scroll speed calculation
   const computedScrollSpeed = useMemo(() => {
-    const beatsPerLine = 4;
+    const beatsPerLine = stageMode.beatsPerLine;
     const pixelPerBeat = 40;
-    let calculatedBpm = song.bpm ?? 120;
-    const effectiveOverrideBpm = lockTempo ? null : overrideBpm;
-    if (effectiveOverrideBpm !== null) {
-      calculatedBpm = effectiveOverrideBpm;
-    }
+    const calculatedBpm = bpm ?? stageMode.defaultBpm;
     return (calculatedBpm / 60) * beatsPerLine * pixelPerBeat;
-  }, [song.bpm, overrideBpm, lockTempo]);
+  }, [bpm, stageMode.beatsPerLine, stageMode.defaultBpm]);
 
   useEffect(() => {
     scrollSpeedRef.current = computedScrollSpeed;
   }, [computedScrollSpeed]);
 
-  // Auto-scroll effect with looping support and count-in
+  // Auto-scroll effect with looping support
   useEffect(() => {
     if (!autoScroll || !contentContainerRef.current) {
       if (animationFrameRef.current) {
@@ -148,7 +182,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       if (!contentContainerRef.current || !autoScroll) return;
 
       const now = Date.now();
-      const deltaTime = (now - lastScrollTimeRef.current) / 1000; // seconds
+      const deltaTime = (now - lastScrollTimeRef.current) / 1000;
       lastScrollTimeRef.current = now;
 
       // Calculate scroll amount and accumulate fractional pixels
@@ -159,7 +193,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       const pixelsToScroll = Math.floor(scrollAccumulatorRef.current);
       if (pixelsToScroll > 0) {
         contentContainerRef.current.scrollTop += pixelsToScroll;
-        scrollAccumulatorRef.current -= pixelsToScroll; // keep the fractional remainder
+        scrollAccumulatorRef.current -= pixelsToScroll;
       }
 
       // Check if we've reached the loop end
@@ -167,7 +201,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         const currentSection = sections[loopSection];
         const nextSection = sections[loopSection + 1];
 
-        // Find the end of current section (start of next section or end of song)
         const sectionEndLine = nextSection ? nextSection.lineIndex : parsedContent.length;
         const sectionEndElement = lineRefs.current[sectionEndLine - 1];
 
@@ -175,7 +208,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
           const containerTop = contentContainerRef.current.getBoundingClientRect().top;
           const elementBottom = sectionEndElement.getBoundingClientRect().bottom;
 
-          // If we've scrolled past the section, loop back
           if (elementBottom <= containerTop + 100) {
             jumpToSection(currentSection.lineIndex);
             return;
@@ -196,7 +228,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     };
 
     lastScrollTimeRef.current = Date.now();
-    scrollAccumulatorRef.current = 0; // reset accumulator on start
+    scrollAccumulatorRef.current = 0;
     animationFrameRef.current = requestAnimationFrame(scroll);
 
     return () => {
@@ -204,11 +236,12 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [autoScroll, loopMode, loopSection, sections, parsedContent.length]);
+  }, [autoScroll, loopMode, loopSection, sections, parsedContent.length, jumpToSection]);
 
   // Play click sound for count-in
-  const playClickSound = () => {
-    // Create audio context if needed
+  const playClickSound = useCallback(() => {
+    if (!stageMode.clickSoundEnabled) return;
+
     if (!audioCtxRef.current) {
       const AudioContextCtor =
         window.AudioContext ||
@@ -217,44 +250,33 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       audioCtxRef.current = new AudioContextCtor();
     }
 
-    const ctx = audioCtxRef.current!;
+    const ctx = audioCtxRef.current;
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
 
-    // Configure the click sound
     oscillator.type = 'square';
-    oscillator.frequency.value = 1000; // Hz
-    gainNode.gain.value = 0.1; // Volume
+    oscillator.frequency.value = 1000;
+    gainNode.gain.value = 0.1;
 
-    // Connect and play
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
 
-    // Play for a short duration
     const now = ctx.currentTime;
     oscillator.start(now);
-    oscillator.stop(now + 0.1); // 100ms duration
-  };
+    oscillator.stop(now + 0.1);
+  }, [stageMode.clickSoundEnabled]);
 
-  // Handle count-in before starting auto-scroll
+  // Count-in before auto-scrolling starts
   useEffect(() => {
-    if (countIn > 0 && autoScroll) {
-      const interval = setInterval(() => {
-        setCountIn((prev) => prev - 1);
-        // Play click sound if enabled
-        if (clickSoundEnabled) {
-          playClickSound();
-        }
-      }, 1000); // Decrement every second
+    if (countIn <= 0 || !autoScroll) return;
 
-      return () => clearInterval(interval);
-    }
+    const interval = setInterval(() => {
+      setCountIn((prev) => prev - 1);
+      playClickSound();
+    }, 1000);
 
-    if (countIn === 0 && autoScroll) {
-      // Actually start scrolling after count-in completes
-      // The scroll effect above will handle the actual scrolling
-    }
-  }, [countIn, autoScroll, clickSoundEnabled]);
+    return () => clearInterval(interval);
+  }, [countIn, autoScroll, playClickSound]);
 
   // Handle tap tempo
   const handleTapTempo = () => {
@@ -280,7 +302,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         const avgInterval = totalInterval / (tapTimesRef.current.length - 1);
         const calculatedBpm = Math.round(60000 / avgInterval);
 
-        setOverrideBpm(calculatedBpm);
         setBpm(calculatedBpm);
       }
     }
@@ -289,19 +310,24 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   };
 
   const toggleAutoScroll = () => {
-    setAutoScroll((prev) => !prev);
+    setAutoScroll((prev) => {
+      const next = !prev;
+      // Start the count-in when the scroll is switched on.
+      if (next && stageMode.countInBeats > 0) {
+        setCountIn(stageMode.countInBeats);
+      }
+      return next;
+    });
   };
 
   const toggleLoopMode = () => {
     const newLoopMode = !loopMode;
     setLoopMode(newLoopMode);
 
-    // If enabling loop mode and we have sections, default to looping the first section
     if (newLoopMode && sections.length > 0 && loopSection === null) {
       setLoopSection(0);
     }
 
-    // If disabling loop mode, clear the loop section
     if (!newLoopMode) {
       setLoopSection(null);
     }
@@ -314,22 +340,33 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     jumpToSection(sections[sectionIndex].lineIndex);
   };
 
-  // Convert chord to display format based on current mode
-  const convertChordDisplay = (chord: string): string => {
-    if (!chord) return '';
-
-    switch (displayMode) {
-      case 'chords':
-        return chord;
-      case 'nashville':
-        return chordToNashville(chord, song.key || 'C');
-      case 'tabs':
-      case 'notation':
-        return ''; // Will render component directly
-      default:
-        return chord;
+  // Fullscreen (performance mode)
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+        setIsFullscreen(true);
+      } else {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    } catch {
+      // Fullscreen can be refused by the browser; the button simply does nothing.
     }
   };
+
+  useEffect(() => {
+    const handleChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', handleChange);
+    return () => document.removeEventListener('fullscreenchange', handleChange);
+  }, []);
+
+  const resetTranspose = () => {
+    setTranspose(0);
+    setCapo(0);
+  };
+
+  const keyLabel = transposedKey ?? writtenKey;
 
   return (
     <Box
@@ -343,7 +380,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       {/* Header Controls */}
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
-          <IconButton edge="start" onClick={onClose} sx={{ mr: 2 }}>
+          <IconButton edge="start" onClick={onClose} sx={{ mr: 2 }} aria-label="Back to library">
             <ArrowBackIcon />
           </IconButton>
 
@@ -351,7 +388,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             direction="row"
             spacing={2}
             alignItems="center"
-            sx={{ flexGrow: 1, overflowX: 'auto' }}
+            sx={{ flexGrow: 1, overflowX: 'auto', pb: 0.5 }}
           >
             {/* Tempo Controls */}
             <Paper
@@ -359,13 +396,19 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               sx={{ p: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}
             >
               <Tooltip title="Tap to set tempo">
-                <IconButton onClick={handleTapTempo} color="default" disabled={lockTempo}>
+                <IconButton
+                  onClick={handleTapTempo}
+                  color="default"
+                  disabled={lockTempo}
+                  aria-label="Tap tempo"
+                >
                   <MusicNoteIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
               <Typography
                 variant="body2"
                 sx={{ minWidth: 40, textAlign: 'center', fontWeight: 'bold' }}
+                aria-label={`Tempo ${bpm ?? 'not set'} beats per minute`}
               >
                 {bpm !== null ? bpm : '--'}
               </Typography>
@@ -373,6 +416,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                 onClick={() => setBpm((prev) => (prev !== null ? prev - 1 : null))}
                 disabled={lockTempo || (bpm !== null && bpm <= 40)}
                 color="default"
+                aria-label="Decrease tempo"
               >
                 <RemoveIcon fontSize="small" />
               </IconButton>
@@ -380,12 +424,17 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                 onClick={() => setBpm((prev) => (prev !== null ? prev + 1 : null))}
                 disabled={lockTempo || (bpm !== null && bpm >= 208)}
                 color="default"
+                aria-label="Increase tempo"
               >
                 <AddIcon fontSize="small" />
               </IconButton>
               <FormControlLabel
                 control={
-                  <Switch checked={lockTempo} onChange={(e) => setLockTempo(e.target.checked)} />
+                  <Switch
+                    checked={lockTempo}
+                    onChange={(e) => setLockTempo(e.target.checked)}
+                    inputProps={{ 'aria-label': 'Lock tempo' }}
+                  />
                 }
                 label="Lock"
                 sx={{ ml: 1 }}
@@ -398,10 +447,19 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               sx={{ p: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}
             >
               <Tooltip title={autoScroll ? 'Stop Auto-Scroll' : 'Start Auto-Scroll'}>
-                <IconButton onClick={toggleAutoScroll} color={autoScroll ? 'primary' : 'default'}>
+                <IconButton
+                  onClick={toggleAutoScroll}
+                  color={autoScroll ? 'primary' : 'default'}
+                  aria-label={autoScroll ? 'Stop auto-scroll' : 'Start auto-scroll'}
+                >
                   {autoScroll ? <PauseIcon /> : <PlayArrowIcon />}
                 </IconButton>
               </Tooltip>
+              {countIn > 0 && (
+                <Typography variant="caption" color="primary" fontWeight="bold" aria-live="polite">
+                  {countIn}
+                </Typography>
+              )}
               {autoScroll && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Box sx={{ width: 120, mx: 1 }}>
@@ -442,6 +500,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                   onChange={toggleLoopMode}
                   size="small"
                   color="primary"
+                  aria-label="Loop section"
                 >
                   <LoopIcon fontSize="small" sx={{ mr: 1 }} />
                   {loopMode && loopSection !== null ? sections[loopSection].label : 'Loop'}
@@ -450,9 +509,14 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             )}
 
             {/* Capo Control */}
-            <FormControl size="small" variant="outlined" sx={{ minWidth: 80 }}>
+            <FormControl size="small" variant="outlined" sx={{ minWidth: 90 }}>
               <InputLabel>Capo</InputLabel>
-              <Select value={capo} onChange={(e) => setCapo(Number(e.target.value))} label="Capo">
+              <Select
+                value={capo}
+                onChange={(e) => setCapo(Number(e.target.value))}
+                label="Capo"
+                inputProps={{ 'aria-label': 'Capo position' }}
+              >
                 <MenuItem value={0}>None</MenuItem>
                 {Array.from({ length: 12 }, (_, i) => (
                   <MenuItem key={i + 1} value={i + 1}>
@@ -464,15 +528,36 @@ export const SongViewer: React.FC<SongViewerProps> = ({
 
             {/* Key Transpose */}
             <Paper variant="outlined" sx={{ p: 0.5, display: 'flex', alignItems: 'center' }}>
-              <IconButton size="small" onClick={() => setTranspose((t) => t - 1)}>
+              <IconButton
+                onClick={() => setTranspose((t) => t - 1)}
+                aria-label="Transpose down one semitone"
+              >
                 <RemoveIcon fontSize="small" />
               </IconButton>
-              <Typography variant="body2" sx={{ mx: 1, minWidth: 20, textAlign: 'center' }}>
+              <Typography
+                variant="body2"
+                sx={{ mx: 1, minWidth: 20, textAlign: 'center' }}
+                aria-label={`Transpose offset ${transpose} semitones`}
+              >
                 {transpose > 0 ? `+${transpose}` : transpose < 0 ? transpose : '0'}
               </Typography>
-              <IconButton size="small" onClick={() => setTranspose((t) => t + 1)}>
+              <IconButton
+                onClick={() => setTranspose((t) => t + 1)}
+                aria-label="Transpose up one semitone"
+              >
                 <AddIcon fontSize="small" />
               </IconButton>
+              {transpose !== 0 && (
+                <Tooltip title="Reset transposition and capo">
+                  <IconButton
+                    onClick={resetTranspose}
+                    size="small"
+                    aria-label="Reset transposition"
+                  >
+                    <Typography variant="caption">Reset</Typography>
+                  </IconButton>
+                </Tooltip>
+              )}
             </Paper>
 
             {/* Display Mode */}
@@ -481,28 +566,63 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               exclusive
               onChange={(_, newMode) => newMode && setDisplayMode(newMode)}
               size="small"
+              aria-label="Display mode"
             >
               <ToggleButton value="chords">Chords</ToggleButton>
+              <ToggleButton value="nashville">Nashville</ToggleButton>
               <ToggleButton value="tabs">Tabs</ToggleButton>
               <ToggleButton value="notation">Notes</ToggleButton>
             </ToggleButtonGroup>
 
             {/* Font Size */}
-            <Box>
-              <IconButton size="small" onClick={() => setFontSize((s) => Math.max(12, s - 2))}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <IconButton
+                onClick={() => setFontSize((s) => Math.max(MIN_FONT_SIZE, s - 2))}
+                aria-label="Decrease text size"
+              >
                 <TextDecreaseIcon />
               </IconButton>
-              <IconButton size="small" onClick={() => setFontSize((s) => Math.min(48, s + 2))}>
+              <Typography
+                variant="caption"
+                sx={{ minWidth: 26, textAlign: 'center', color: 'text.secondary' }}
+                aria-label={`Text size ${fontSize} pixels`}
+              >
+                {fontSize}
+              </Typography>
+              <IconButton
+                onClick={() => setFontSize((s) => Math.min(MAX_FONT_SIZE, s + 2))}
+                aria-label="Increase text size"
+              >
                 <TextIncreaseIcon />
               </IconButton>
             </Box>
 
-            <IconButton onClick={() => exportToChordPro(song)} title="Download">
-              <DownloadIcon />
-            </IconButton>
-            <IconButton onClick={() => exportToPdf(song)} title="Export PDF">
-              <DownloadIcon />
-            </IconButton>
+            <Tooltip title="Performance mode (fullscreen)">
+              <IconButton
+                onClick={toggleFullscreen}
+                color={isFullscreen ? 'primary' : 'default'}
+                aria-label="Toggle performance mode"
+              >
+                <FullscreenIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Download ChordPro file">
+              <IconButton
+                onClick={() => exportToChordPro(song, { transpose, capo, preferFlats })}
+                aria-label="Download ChordPro file"
+              >
+                <DownloadIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Print / save as PDF">
+              <IconButton
+                onClick={() => exportToPdf(song, { transpose, capo, preferFlats })}
+                aria-label="Print or save as PDF"
+              >
+                <PictureAsPdfIcon />
+              </IconButton>
+            </Tooltip>
             <Button variant="contained" startIcon={<EditIcon />} onClick={onEdit} size="small">
               Edit
             </Button>
@@ -531,8 +651,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         sx={{
           flexGrow: 1,
           overflowY: 'auto',
-          p: 4,
-          scrollBehavior: autoScroll ? 'auto' : 'smooth', // auto for programmatic, smooth for manual
+          p: { xs: 2, md: 4 },
+          scrollBehavior: autoScroll ? 'auto' : 'smooth',
           fontSize: `${fontSize}px`,
         }}
       >
@@ -541,22 +661,20 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             <Typography variant="h3" fontWeight="bold" gutterBottom>
               {song.title}
             </Typography>
-            <Tooltip title="View all songs by this artist">
-              <Typography
-                variant="h5"
-                color="text.secondary"
-                gutterBottom
-                sx={{
-                  cursor: onArtistClick ? 'pointer' : 'default',
-                  '&:hover': onArtistClick
-                    ? { color: 'primary.main', textDecoration: 'underline' }
-                    : {},
-                }}
-                onClick={() => onArtistClick && onArtistClick(song.artist)}
+            {onArtistClick ? (
+              <Button
+                variant="text"
+                color="inherit"
+                onClick={() => onArtistClick(song.artist)}
+                sx={{ fontSize: '1.5rem', fontWeight: 400, color: 'text.secondary' }}
               >
                 {song.artist}
+              </Button>
+            ) : (
+              <Typography variant="h5" color="text.secondary" gutterBottom>
+                {song.artist}
               </Typography>
-            </Tooltip>
+            )}
             <Stack direction="row" spacing={1} justifyContent="center" sx={{ mt: 2 }}>
               {song.tags?.map((tag) => (
                 <Chip
@@ -569,96 +687,48 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                 />
               ))}
             </Stack>
-            {capo > 0 && (
-              <Chip
-                label={`CAPO ${capo}`}
-                color="primary"
-                variant="outlined"
-                sx={{ mt: 2, fontWeight: 'bold' }}
-              />
+
+            {/* Key, transposition and capo summary */}
+            {(keyLabel || capo > 0) && (
+              <Stack
+                direction="row"
+                spacing={1}
+                justifyContent="center"
+                sx={{ mt: 2, flexWrap: 'wrap', rowGap: 1 }}
+              >
+                {keyLabel && (
+                  <Chip
+                    label={
+                      transpose !== 0 && writtenKey
+                        ? `Key ${keyLabel} (from ${writtenKey})`
+                        : `Key ${keyLabel}`
+                    }
+                    color="primary"
+                    variant="outlined"
+                    sx={{ fontWeight: 'bold' }}
+                  />
+                )}
+                {capo > 0 && (
+                  <Chip
+                    label={`Capo ${capo}${soundingKey ? ` · sounds in ${soundingKey}` : ''}`}
+                    color="primary"
+                    variant="outlined"
+                    sx={{ fontWeight: 'bold' }}
+                  />
+                )}
+              </Stack>
             )}
           </Box>
 
-          <Box>
-            {parsedContent.map((line, i) => (
-              <div
-                key={i}
-                ref={(el: HTMLDivElement | null) => {
-                  lineRefs.current[i] = el;
-                }}
-                className={`song-line ${displayMode === 'tabs' || displayMode === 'notation' ? 'expanded-spacing' : ''}`}
-              >
-                {line.section && (
-                  <div
-                    className={`section-label ${displayMode === 'tabs' || displayMode === 'notation' ? 'expanded-spacing' : ''}`}
-                    style={{
-                      borderTop:
-                        line.section.label !== 'Intro'
-                          ? `1px dashed ${theme.palette.divider}`
-                          : 'none',
-                      paddingTop:
-                        line.section.label !== 'Intro' ? theme.spacing(6) : theme.spacing(2),
-                    }}
-                  >
-                    {line.section.label}
-                  </div>
-                )}
-
-                {line.items.map((item, j) => {
-                  if (!item.chord && (!item.lyric || item.lyric.trim() === '')) {
-                    return null;
-                  }
-
-                  const isLyricEmpty = !item.lyric || item.lyric.trim() === '';
-
-                  return (
-                    <div
-                      key={j}
-                      className="chord-lyric-pair"
-                      style={{
-                        marginRight: isLyricEmpty
-                          ? line.section?.label === 'Intro'
-                            ? theme.spacing(6)
-                            : theme.spacing(2)
-                          : undefined,
-                      }}
-                    >
-                      <div
-                        onClick={item.chord ? () => setSelectedChord(item.chord!) : undefined}
-                        className={`chord-display ${item.chord ? 'clickable' : ''} ${displayMode === 'notation' || displayMode === 'tabs' ? 'notation-mode' : ''}`}
-                      >
-                        {item.chord ? (
-                          displayMode === 'notation' ? (
-                            <ChordStaff chord={item.chord} />
-                          ) : displayMode === 'tabs' ? (
-                            <ChordTab chord={item.chord} showLabels={j === 0} />
-                          ) : (
-                            convertChordDisplay(item.chord)
-                          )
-                        ) : (
-                          '\u00A0'
-                        )}
-                      </div>
-                      {!isLyricEmpty && item.lyric && (
-                        <span
-                          style={{
-                            whiteSpace: 'pre-wrap',
-                            fontFamily: 'inherit',
-                            fontSize: 'inherit',
-                            lineHeight: 1.5,
-                            color: theme.palette.text.primary,
-                          }}
-                          className="lyric"
-                        >
-                          {item.lyric}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </Box>
+          <SongBody
+            lines={parsedContent}
+            displayMode={displayMode}
+            songKey={soundingKey ?? transposedKey ?? writtenKey ?? 'C'}
+            onChordClick={(chord) => setSelectedChord(chord)}
+            onLineRef={(index, element) => {
+              lineRefs.current[index] = element;
+            }}
+          />
 
           {/* Spacer for scrolling to bottom */}
           <Box sx={{ height: '30vh' }} />

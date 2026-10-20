@@ -10,12 +10,18 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { searchApi } from '../../services/searchApi';
-import type { SearchResult } from '../../services/searchApi';
+import type { SearchResult, ImportSource } from '../../types';
 import { SearchResults } from './SearchResults';
 
 interface SearchTabProps {
-  onImport: (chordPro: string) => void;
+  onImport: (chordPro: string, source?: ImportSource) => void;
   onCancel: () => void;
+}
+
+interface FailedSource {
+  source: string;
+  name: string;
+  error: string;
 }
 
 export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
@@ -23,6 +29,7 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [failedSources, setFailedSources] = useState<FailedSource[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | undefined>(undefined);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -33,12 +40,14 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
     setLoading(true);
     setError(null);
     setResults([]);
+    setFailedSources([]);
     setExpandedId(null);
     setPreview(undefined);
 
     try {
       const response = await searchApi.search(query);
       setResults(response.results);
+      setFailedSources(response.failedSources ?? []);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Search failed';
       if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
@@ -83,7 +92,11 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
   const handleImport = async (result: SearchResult) => {
     try {
       const songContent = await searchApi.fetchSong(result.source, result.id);
-      onImport(songContent.chordPro);
+      onImport(songContent.chordPro, {
+        name: songContent.sourceName ?? result.source,
+        url: songContent.sourceUrl,
+        license: songContent.license ?? result.license,
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to import song';
       setError(
@@ -92,8 +105,9 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSearch();
     }
   };
@@ -107,7 +121,7 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
           placeholder="Search for a song... (e.g., Amazing Grace)"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -130,6 +144,17 @@ export const SearchTab: React.FC<SearchTabProps> = ({ onImport, onCancel }) => {
       {error && (
         <Alert severity="error" onClose={() => setError(null)}>
           {error}
+        </Alert>
+      )}
+
+      {/* Sources that could not be reached */}
+      {failedSources.length > 0 && (
+        <Alert severity="warning" onClose={() => setFailedSources([])}>
+          {failedSources.length === 1
+            ? `${failedSources[0].name} could not be searched: ${failedSources[0].error}`
+            : `${failedSources.length} sources could not be searched: ${failedSources
+                .map((source) => source.name)
+                .join(', ')}`}
         </Alert>
       )}
 

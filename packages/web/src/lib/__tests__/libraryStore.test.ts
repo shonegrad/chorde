@@ -29,9 +29,10 @@ describe('LocalLibraryStore', () => {
     attribution: {
       sourceName: 'Test',
       sourceUrl: '',
-      license: 'Public Domain',
+      license: 'public-domain',
       author: 'Test Author',
       notes: 'Test notes',
+      verifiedBy: 'auto',
     },
     rightsStatus: 'open' as const,
     createdAt: new Date().toISOString(),

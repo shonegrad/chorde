@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Snackbar, Alert, type AlertColor } from '@mui/material';
+import { Alert, type AlertColor } from '@mui/material';
 
 interface Notification {
   message: string;
@@ -26,9 +26,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const notify = useCallback((message: string, severity: AlertColor = 'info') => {
     const id = nextId++;
     setNotifications((prev) => [...prev, { message, severity, id }]);
-    setTimeout(() => {
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
-    }, 5000);
+
+    // Errors stay until they are dismissed, so a failure is never missed.
+    if (severity !== 'error') {
+      setTimeout(() => {
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+      }, 5000);
+    }
   }, []);
 
   const notifyError = useCallback((message: string) => notify(message, 'error'), [notify]);
@@ -51,25 +55,35 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      {notifications.map((n) => (
-        <Snackbar
-          key={n.id}
-          open
-          autoHideDuration={5000}
-          onClose={() => handleClose(n.id)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          sx={{ bottom: { bottom: 16 + notifications.indexOf(n) * 60 } }}
-        >
+      <div
+        aria-live="polite"
+        aria-atomic="false"
+        style={{
+          position: 'fixed',
+          bottom: 16,
+          left: 0,
+          right: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 8,
+          pointerEvents: 'none',
+          zIndex: 1400,
+        }}
+      >
+        {notifications.map((n) => (
           <Alert
+            key={n.id}
             onClose={() => handleClose(n.id)}
             severity={n.severity}
             variant="filled"
-            sx={{ width: '100%' }}
+            role={n.severity === 'error' ? 'alert' : 'status'}
+            sx={{ width: 'auto', pointerEvents: 'auto' }}
           >
             {n.message}
           </Alert>
-        </Snackbar>
-      ))}
+        ))}
+      </div>
     </NotificationContext.Provider>
   );
 }

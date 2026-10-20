@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright artifacts
+packages/web/test-results/
+packages/web/playwright-report/
+packages/web/blob-report/

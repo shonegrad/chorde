@@ -3,18 +3,12 @@ import { zValidator } from '@hono/zod-validator';
 import { OpenHymnalAdapter } from '../adapters/openhymnal.js';
 import { HymnaryAdapter } from '../adapters/hymnary.js';
 import { ChordProOrgAdapter } from '../adapters/chordproorg.js';
-import { SessionAdapter } from '../adapters/session.js';
 import { SongParamsSchema } from '../schemas/index.js';
 
 const app = new Hono();
 
 // Initialize adapters
-const adapters = [
-  new OpenHymnalAdapter(),
-  new HymnaryAdapter(),
-  new ChordProOrgAdapter(),
-  new SessionAdapter(),
-];
+const adapters = [new OpenHymnalAdapter(), new HymnaryAdapter(), new ChordProOrgAdapter()];
 
 // GET /api/song/:source/:id - Get full song content
 app.get('/song/:source/:id', zValidator('param', SongParamsSchema), async (c) => {

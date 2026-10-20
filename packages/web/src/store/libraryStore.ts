@@ -2,22 +2,17 @@ import { create } from 'zustand';
 import type { Song, ViewMode } from '../types';
 import { IndexedDBLibraryStore } from '../lib/libraryStore';
 
-export interface SongFilter {
-  type: 'tag' | 'artist' | 'key';
-  value: string;
-}
-
 interface LibraryState {
   songs: Song[];
   loading: boolean;
-  filter: SongFilter | null;
+  /** False when the browser refused to give us persistent storage. */
+  storageAvailable: boolean;
   viewMode: ViewMode;
   store: IndexedDBLibraryStore;
   loadSongs: () => Promise<void>;
   saveSong: (song: Song) => Promise<void>;
   deleteSong: (id: string) => Promise<void>;
   resetLibrary: () => Promise<void>;
-  setFilter: (filter: SongFilter | null) => void;
   setViewMode: (mode: ViewMode) => void;
 }
 
@@ -38,7 +33,7 @@ const VIEW_MODE_KEY = 'chorde_view_mode';
 export const useLibraryStore = create<LibraryState>((set, get) => ({
   songs: [],
   loading: true,
-  filter: null,
+  storageAvailable: true,
   viewMode: ((): ViewMode => {
     const stored = localStorage.getItem(VIEW_MODE_KEY);
     return stored === 'list' || stored === 'grid' ? (stored as ViewMode) : 'grid';
@@ -50,19 +45,20 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     try {
       const seedSongs = await loadSeedSongs();
       const stored = await store.listSongs();
-      if (stored.length === 0) {
-        await store.bulkUpsert(seedSongs);
-        set({ songs: seedSongs, loading: false });
-      } else {
-        const storedIds = new Set(stored.map((s) => s.id));
-        const merged = [...stored, ...seedSongs.filter((s) => !storedIds.has(s.id))];
-        await store.bulkUpsert(merged);
-        set({ songs: merged, loading: false });
+      const storedIds = new Set(stored.map((s) => s.id));
+      // Only write the seed songs that are missing, instead of rewriting the
+      // whole library on every single start.
+      const missing = seedSongs.filter((song) => !storedIds.has(song.id));
+
+      if (missing.length > 0) {
+        await store.bulkUpsert(missing);
       }
+
+      set({ songs: [...stored, ...missing], loading: false, storageAvailable: true });
     } catch (e) {
       console.error('Failed to initialize library:', e);
       const seedSongs = await loadSeedSongs();
-      set({ songs: seedSongs, loading: false });
+      set({ songs: seedSongs, loading: false, storageAvailable: false });
     }
   },
 
@@ -81,11 +77,17 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
   resetLibrary: async () => {
     const store = get().store;
     const seedSongs = await loadSeedSongs();
+    // Remove everything first so a reset really resets.
+    const existing = await store.listSongs();
+    const seedIds = new Set(seedSongs.map((song) => song.id));
+    for (const song of existing) {
+      if (!seedIds.has(song.id)) {
+        await store.deleteSong(song.id);
+      }
+    }
     await store.bulkUpsert(seedSongs);
     set({ songs: seedSongs });
   },
-
-  setFilter: (filter) => set({ filter }),
 
   setViewMode: (mode) => {
     set({ viewMode: mode });

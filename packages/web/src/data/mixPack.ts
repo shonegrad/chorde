@@ -1,4 +1,5 @@
 import type { Song } from '../types';
+import { createId } from '../lib/id';
 
 const simpleHash = (str: string): string => {
   let hash = 0;
@@ -13,7 +14,7 @@ const simpleHash = (str: string): string => {
 const NOW = new Date().toISOString();
 
 const mixSong = (overrides: Partial<Song> & { content: string }): Song => ({
-  id: overrides.id ?? crypto.randomUUID(),
+  id: overrides.id ?? createId(),
   title: overrides.title ?? 'Untitled',
   artist: overrides.artist ?? 'Unknown Artist',
   content: overrides.content,
