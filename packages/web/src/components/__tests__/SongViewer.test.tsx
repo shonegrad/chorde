@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within, act } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { SongViewer } from '../SongViewer';
 import theme from '../../theme';
@@ -164,6 +164,36 @@ describe('SongViewer', () => {
     expect(screen.getByRole('button', { name: /start auto-scroll/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /download chordpro file/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /print or save as pdf/i })).toBeInTheDocument();
+  });
+
+  it('counts in on the beat rather than once a second', () => {
+    vi.useFakeTimers();
+    // The scrolling loop is not what is being tested here, and in a browser
+    // without a layout it would stop the count-in straight away.
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(0);
+
+    try {
+      renderViewer({ ...song, bpm: 120 });
+
+      fireEvent.click(screen.getByRole('button', { name: /start auto-scroll/i }));
+
+      // The count-in starts at four beats.
+      expect(screen.getByText('4')).toBeInTheDocument();
+
+      // At 120 beats a minute a beat is half a second.
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+      expect(screen.getByText('3')).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+      expect(screen.getByText('2')).toBeInTheDocument();
+    } finally {
+      raf.mockRestore();
+      vi.useRealTimers();
+    }
   });
 
   describe('keyboard shortcuts', () => {

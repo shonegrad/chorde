@@ -56,21 +56,6 @@
   --border-color: #e7e5e4;
 }
 
-/* Clickable chords - used in SongViewer */
-.clickable-chord {
-  cursor: pointer;
-  transition:
-    transform 0.1s,
-    color 0.2s;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-}
-
-.clickable-chord:hover {
-  transform: translateY(-1px);
-  text-decoration-color: var(--primary-color);
-}
-
 /* Visually hidden, but still announced by screen readers. */
 .sr-only {
   position: absolute;

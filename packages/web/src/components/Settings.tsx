@@ -36,7 +36,7 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { preference, setPreference, mode } = useThemeMode();
 
   const songs = useLibraryStore((s) => s.songs);
-  const saveSong = useLibraryStore((s) => s.saveSong);
+  const bulkUpsert = useLibraryStore((s) => s.bulkUpsert);
   const resetLibrary = useLibraryStore((s) => s.resetLibrary);
   const setlists = useSetlistStore((s) => s.setlists);
   const replaceSetlists = useSetlistStore((s) => s.replaceSetlists);
@@ -77,9 +77,8 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setPendingRestore(null);
 
     try {
-      for (const song of snapshot.songs) {
-        await saveSong(song);
-      }
+      // One transaction for the whole library rather than one per song.
+      await bulkUpsert(snapshot.songs);
       if (snapshot.setlists.length > 0) {
         replaceSetlists(snapshot.setlists);
       }

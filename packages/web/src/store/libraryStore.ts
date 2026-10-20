@@ -18,6 +18,7 @@ interface LibraryState {
   saveSong: (song: Song) => Promise<void>;
   deleteSong: (id: string) => Promise<void>;
   deleteSongs: (ids: string[]) => Promise<void>;
+  bulkUpsert: (songs: Song[]) => Promise<void>;
   resetLibrary: () => Promise<void>;
   setViewMode: (mode: ViewMode) => void;
 }
@@ -86,6 +87,15 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     }
     const removed = new Set(ids);
     set((state) => ({ songs: state.songs.filter((s) => !removed.has(s.id)) }));
+  },
+
+  bulkUpsert: async (songs) => {
+    const store = get().store;
+    await store.bulkUpsert(songs);
+    const merged = new Map<string, Song>();
+    get().songs.forEach((song) => merged.set(song.id, song));
+    songs.forEach((song) => merged.set(song.id, song));
+    set({ songs: Array.from(merged.values()) });
   },
 
   resetLibrary: async () => {

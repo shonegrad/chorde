@@ -141,6 +141,18 @@ export const exportToPdf = (song: Song, options: ExportOptions = {}) => {
 
   const key = soundingKey(song, options);
   const originalKey = song.key;
+  const attribution = [
+    song.attribution?.sourceName,
+    song.attribution?.author,
+    song.attribution?.notes,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  const source = song.attribution?.sourceUrl
+    ? `<p class="source">Source: <a href="${escapeHtml(song.attribution.sourceUrl)}">${escapeHtml(
+        song.attribution.sourceUrl
+      )}</a></p>`
+    : '';
 
   win.document.write(`<!DOCTYPE html>
 <html>
@@ -158,6 +170,7 @@ export const exportToPdf = (song: Song, options: ExportOptions = {}) => {
     .chord { display: block; font-family: 'Courier New', monospace; font-weight: bold; font-size: 0.85em; }
     .word { display: block; white-space: nowrap; }
     .lyric { white-space: pre-wrap; }
+    .attribution, .source { color: #666; font-size: 0.8rem; margin: 0.25rem 0; }
     @media print {
       body { margin: 0; max-width: none; }
       .line { break-inside: avoid; }
@@ -172,6 +185,8 @@ export const exportToPdf = (song: Song, options: ExportOptions = {}) => {
     ${originalKey && key && originalKey !== key ? ` (written in ${escapeHtml(originalKey)})` : ''}
     ${options.capo ? ` &middot; Capo ${options.capo}` : ''}
   </div>
+  ${attribution ? `<p class="attribution">${escapeHtml(attribution)}</p>` : ''}
+  ${source}
   <hr />
   ${body}
   <script>window.onload = () => { window.print(); }</script>

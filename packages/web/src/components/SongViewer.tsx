@@ -42,6 +42,7 @@ import {
   List,
   ListItem,
   ListItemButton,
+  Link,
   Switch,
   ToggleButton,
   ToggleButtonGroup,
@@ -103,6 +104,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [loopSection, setLoopSection] = useState<number | null>(null);
   const [displayMode, setDisplayMode] = useState<DisplayMode>(initialPrefs.displayMode);
   const [countIn, setCountIn] = useState<number>(0);
+  const [activeSection, setActiveSection] = useState<number | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [setlistOpen, setSetlistOpen] = useState(false);
@@ -176,6 +178,26 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       lineElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, []);
+
+  /*
+   * Work out which section is being looked at, so the section buttons can show
+   * where you are in the song.
+   */
+  const handleScroll = useCallback(() => {
+    const container = contentContainerRef.current;
+    if (!container || sections.length === 0) return;
+
+    const containerTop = container.getBoundingClientRect().top;
+    let current = 0;
+
+    for (let index = 0; index < sections.length; index += 1) {
+      const element = lineRefs.current[sections[index].lineIndex];
+      if (!element) continue;
+      if (element.getBoundingClientRect().top - containerTop <= 80) current = index;
+    }
+
+    setActiveSection((previous) => (previous === current ? previous : current));
+  }, [sections]);
 
   // BPM-based scroll speed calculation
   const computedScrollSpeed = useMemo(() => {
@@ -260,44 +282,55 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   }, [autoScroll, loopMode, loopSection, sections, parsedContent.length, jumpToSection]);
 
   // Play click sound for count-in
-  const playClickSound = useCallback(() => {
-    if (!stageMode.clickSoundEnabled) return;
+  const playClickSound = useCallback(
+    (accent = false) => {
+      if (!stageMode.clickSoundEnabled) return;
 
-    if (!audioCtxRef.current) {
-      const AudioContextCtor =
-        window.AudioContext ||
-        (window as unknown as { webkitAudioContext?: new () => AudioContext }).webkitAudioContext;
-      if (!AudioContextCtor) return;
-      audioCtxRef.current = new AudioContextCtor();
-    }
+      if (!audioCtxRef.current) {
+        const AudioContextCtor =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext?: new () => AudioContext }).webkitAudioContext;
+        if (!AudioContextCtor) return;
+        audioCtxRef.current = new AudioContextCtor();
+      }
 
-    const ctx = audioCtxRef.current;
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
+      const ctx = audioCtxRef.current;
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
 
-    oscillator.type = 'square';
-    oscillator.frequency.value = 1000;
-    gainNode.gain.value = 0.1;
+      oscillator.type = 'square';
+      // The first beat is louder and higher, so it is easy to hear where the
+      // song starts.
+      oscillator.frequency.value = accent ? 1400 : 1000;
+      gainNode.gain.value = accent ? 0.16 : 0.09;
 
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
 
-    const now = ctx.currentTime;
-    oscillator.start(now);
-    oscillator.stop(now + 0.1);
-  }, [stageMode.clickSoundEnabled]);
+      const now = ctx.currentTime;
+      oscillator.start(now);
+      oscillator.stop(now + 0.1);
+    },
+    [stageMode.clickSoundEnabled]
+  );
 
-  // Count-in before auto-scrolling starts
+  /*
+   * Count-in before the auto-scroll starts.
+   *
+   * The click lands on the beat, so the count is measured in the tempo of the
+   * song rather than in seconds.
+   */
   useEffect(() => {
     if (countIn <= 0 || !autoScroll) return;
 
-    const interval = setInterval(() => {
-      setCountIn((prev) => prev - 1);
-      playClickSound();
-    }, 1000);
+    const beat = 60000 / (bpm ?? stageMode.defaultBpm);
+    const timer = setTimeout(() => {
+      playClickSound(countIn === stageMode.countInBeats);
+      setCountIn((prev) => Math.max(0, prev - 1));
+    }, beat);
 
-    return () => clearInterval(interval);
-  }, [countIn, autoScroll, playClickSound]);
+    return () => clearTimeout(timer);
+  }, [countIn, autoScroll, bpm, stageMode.defaultBpm, stageMode.countInBeats, playClickSound]);
 
   // Handle tap tempo
   const handleTapTempo = () => {
@@ -736,13 +769,18 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             bgcolor: 'background.paper',
           }}
         >
-          <SectionNav sections={sections} onJumpToSection={handleSectionClick} />
+          <SectionNav
+            sections={sections}
+            onJumpToSection={handleSectionClick}
+            activeSection={activeSection}
+          />
         </Box>
       )}
 
       {/* Song Content */}
       <Box
         ref={contentContainerRef}
+        onScroll={handleScroll}
         sx={{
           flexGrow: 1,
           overflowY: 'auto',
@@ -851,6 +889,32 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                   />
                 )}
               </Stack>
+            )}
+
+            {/* Where the song came from and what may be done with it. */}
+            {(song.attribution?.sourceName || song.attribution?.notes) && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ mt: 2, display: 'block', maxWidth: 480, mx: 'auto' }}
+              >
+                {song.attribution.sourceName}
+                {song.attribution.author ? ` · ${song.attribution.author}` : ''}
+                {song.attribution.notes ? ` — ${song.attribution.notes}` : ''}
+                {song.attribution.sourceUrl ? (
+                  <>
+                    {' '}
+                    <Link
+                      href={song.attribution.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      sx={{ color: 'inherit' }}
+                    >
+                      Source
+                    </Link>
+                  </>
+                ) : null}
+              </Typography>
             )}
           </Box>
 

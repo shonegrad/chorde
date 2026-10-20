@@ -148,7 +148,7 @@ export const parseChordPro = (content: string): ParsedSong => {
 
     // Check for section directives
     const sectionMatch = line.match(
-      /\{(start_of_|sov|soc|sob|soi|soo|sos|start_of_tab|end_of_tab)([^}]*)\}/i
+      /\{(start_of_tab|end_of_tab|start_of_|sov|soc|sob|soi|soo|sos)([^}]*)\}/i
     );
     if (sectionMatch) {
       const directive = sectionMatch[1].toLowerCase();

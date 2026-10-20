@@ -96,6 +96,8 @@ app.get('/search', zValidator('query', SearchQuerySchema), async (c) => {
     if (!enriched) return result;
     return { ...enriched, license: enriched.license ?? result.license };
   });
+  // The titles are only known once the details have been read, so the results
+  // are ranked again to put them in the right order.
   const flatResults = dedupeResults(rankResults(merged, query));
 
   // A source that failed is reported separately rather than silently returning
