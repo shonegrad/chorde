@@ -21,9 +21,11 @@ being worked on, and what is deliberately not being done.
 
 Working today: ChordPro import from text, files, folders and the web; a chord-over-lyrics reader
 that puts each chord above its word; transposition with key-aware spelling; capo with the sounding
-key; Nashville numbers; setlists; favourites; tags; sorting; searching inside lyrics; bulk actions;
-library backup and restore; light and dark themes; an offline installable app; keyboard control;
-and navigation that works on a phone.
+key; Nashville numbers; setlists that carry how each song is played, and a performance view that
+plays through them; favourites; tags; sorting; searching inside lyrics; bulk actions; library backup
+and restore; light and dark themes; an offline installable app; keyboard control; navigation that
+works on a phone; a writing desk with autosave, undo and a chord palette; and key detection that
+works out the key of a song from its chords.
 
 ## Milestone 1 — Make it true
 
