@@ -42,6 +42,33 @@ To enable online search, build with the flag set:
 VITE_ENABLE_ONLINE_SEARCH=true VITE_API_URL=https://your-api-host npm run deploy
 ```
 
+## Deploying the search API (optional)
+
+The web app works entirely without the API. If you want online search, the API in `packages/api`
+has to be running somewhere and the web build has to be told where it is.
+
+The API needs two settings:
+
+| Variable      | Purpose                                                       |
+| ------------- | ------------------------------------------------------------- |
+| `PORT`        | The port to listen on. Defaults to `3001`.                    |
+| `CORS_ORIGIN` | The origin of the web app, e.g. `https://shonegrad.github.io` |
+
+```bash
+cd packages/api
+PORT=3001 CORS_ORIGIN=https://your-web-host npm run build
+node dist/index.js
+```
+
+Then build the web app with the address of the API:
+
+```bash
+VITE_ENABLE_ONLINE_SEARCH=true VITE_API_URL=https://your-api-host npm run deploy
+```
+
+If the API is served from the same origin as the web app, leave `VITE_API_URL` out and only set
+`VITE_ENABLE_ONLINE_SEARCH=true`; the app then calls `/api/...` on its own host.
+
 ## Verifying Deployment
 
 After the command completes, visit:
