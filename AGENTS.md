@@ -59,7 +59,8 @@ The URL query string is the single source of truth for the library filter
 
 ### The web app
 
-- `packages/web/src/App.tsx` — Routing and the library filter
+- `packages/web/src/App.tsx` — Routing, and the layout that holds the sidebar
+- `packages/web/src/lib/useLibraryFilter.ts` — The library filter, read from the URL
 - `packages/web/src/store/libraryStore.ts` — Zustand library state (IndexedDB + seed songs)
 - `packages/web/src/store/setlistStore.ts` — Setlists, including how each song is played
 - `packages/web/src/lib/libraryStore.ts` — The IndexedDB store. Opens the database lazily
@@ -71,6 +72,10 @@ The URL query string is the single source of truth for the library filter
 - `packages/web/src/lib/editorHistory.ts` — Undo, redo and earlier versions
 - `packages/web/src/lib/preferences.ts` — Persisted viewer preferences
 - `packages/web/src/lib/settings.ts` — App settings (stage mode) shared by Settings and SongViewer
+- `packages/web/src/lib/audio.ts` — The only place that makes a sound: the guitar tone, the click
+  and the audio preferences
+- `packages/web/src/lib/voicings.ts` — A chord name turned into the notes it plays
+- `packages/web/src/lib/progression.ts` — The chords of a song, in order
 - `packages/web/src/lib/features.ts` — Feature flags (online search)
 - `packages/web/src/lib/backup.ts` — Library backup format
 - `packages/web/src/lib/useAutoScroll.ts` — The scrolling used by the reader and the performer
@@ -80,6 +85,7 @@ The URL query string is the single source of truth for the library filter
 - `packages/web/src/components/SongEditor.tsx` — The writing desk
 - `packages/web/src/components/SongViewer.tsx` — Reading a song
 - `packages/web/src/components/SetlistPlayer.tsx` — Performing a setlist
+- `packages/web/src/components/NavigationMenu.tsx` — The sidebar: every place in the app
 - `packages/web/src/components/MobileNav.tsx` — Bottom navigation for small screens
 - `packages/web/src/components/editor/` — The chord palette and the metronome
 - `packages/web/src/context/ThemeModeContext.tsx` — Light and dark themes

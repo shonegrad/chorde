@@ -30,8 +30,8 @@ that is what the app is actually for.
 |                |                                                                |
 | -------------- | -------------------------------------------------------------- |
 | Built-in songs | 16, all public domain, checked by a test                       |
-| Unit tests     | 305 (234 web, 68 api, 3 shared)                                |
-| E2E tests      | 93, across Chromium, WebKit and a mobile viewport              |
+| Unit tests     | 347 (276 web, 68 api, 3 shared)                                |
+| E2E tests      | 111, across Chromium, WebKit and a mobile viewport             |
 | Deploy         | GitHub Pages, <https://shonegrad.github.io/chorde/>            |
 | API            | Not hosted. Online search is hidden in production until it is. |
 
@@ -46,8 +46,15 @@ that is what the app is actually for.
   through them: count-in on the beat, auto-advance, printable running order.
 - **Organising** — favourites, tags, sorting, searching inside lyrics, bulk actions, "My Songs",
   backup and restore.
+- **Getting about** — on a big screen a sidebar sits beside the music and stays in view, so every
+  place in the app is one click away and you can see where you are. On a phone it is a drawer and
+  a bottom bar.
 - **Finding** — the key of a song is worked out from its chords, and every chord says where it sits
   in the key.
+- **Hearing** — the chords of a song can be played in the reader and on stage, a chord can be
+  played from its diagram, and a scale can be played from the chord library. The tone is a guitar
+  rather than a beep, and the volume, the tone and whether there is sound at all are set in the
+  settings.
 
 ### What is known to be wrong
 
@@ -77,24 +84,13 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
    Do not write a second scrolling loop.
 6. **Keep the chord over its word.** The chord is absolutely positioned so a wide chord never
    pushes the lyrics apart. Do not go back to letting the chord take up room.
+7. **All sound goes through `lib/audio.ts`.** The count-in, the metronome and the chords all play
+   through it, so they follow the volume and the tone the user has chosen. A component that makes
+   its own noise is a component that ignores the settings.
 
 ## The next thing to do
 
-**Milestone 6 — sound.** The metronome exists and works; the rest of the audio engine is written
-but unreachable:
-
-- `packages/web/src/lib/audio.ts` has `playNote`, `playChord`, `playScale` and `stopAllSounds`, none
-  of which are called. `saveAudioPreferences` is never called, so the volume and the waveform are
-  permanently at their defaults with no way to change them.
-- The only sound in the app is a sine-wave strum on a chord card in the chord library.
-- The count-in click is a square wave, and it does accent the first beat of each bar.
-
-The smallest useful slice: a guitar-ish tone (a filtered sawtooth rather than the sine wave it uses
-now), audio preferences with a way to change them, and playing the chord progression of the song
-being read.
-
-**After that, Milestone 4 — real notation** with VexFlow. The research is done and the decisions
-are made:
+**Milestone 4 — real notation** with VexFlow. The research is done and the decisions are made:
 
 - `vexflow@5.0.0`, **pinned exactly** (there has been no npm release in 19 months).
 - Import from `vexflow/core` — 89 KB gzipped. The default entry is 676 KB and cannot be
@@ -110,11 +106,26 @@ are made:
 - Its SVG is not portable (it writes font codepoints, not paths), so the print sheet must keep
   using our own renderer.
 
+Milestone 6 (sound) is done. The parts worth knowing:
+
+- `packages/web/src/lib/audio.ts` is the only place that makes a sound. It is a guitar tone: two
+  sawtooth waves a few cents apart through a lowpass filter that falls as the note decays. The
+  count-in click and the metronome go through it as well, so they follow the same settings.
+- `lib/voicings.ts` turns a chord name into the notes it plays. It uses a shape from the chord
+  library when there is one, and works the notes out when there is not.
+- `lib/progression.ts` reads the chords of a song in order. A chord that follows itself is kept
+  once; a chord that comes back later is kept, because that is what the song does.
+- The volume, the tone and whether there is any sound are set in the settings, and the old
+  waveform preference is folded into the new tone rather than lost.
+
 ## Things to know before you touch the code
 
 - **The React Compiler is on** and it is strict. It rejects a `useCallback` with the wrong
   dependencies, and a hook called after an early return. If the compiler complains, the fix is
   usually to move the hook up or to correct the dependency list — not to disable it.
+- **It also rejects `setState` inside an effect.** That is why the chord playback remembers the
+  chords it started and compares them with the chords on the screen, rather than stopping the
+  sound in an effect.
 - **A hook in another module can confuse it.** `usePreparedSong` had to become a plain function
   wrapped in `useMemo` at the call site, because the compiler would not track the hook properly.
 - **The library store opens the database lazily**, on first use, not in its constructor, so the

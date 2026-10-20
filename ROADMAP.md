@@ -21,11 +21,13 @@ being worked on, and what is deliberately not being done.
 
 Working today: ChordPro import from text, files, folders and the web; a chord-over-lyrics reader
 that puts each chord above its word; transposition with key-aware spelling; capo with the sounding
-key; Nashville numbers; setlists that carry how each song is played, and a performance view that
-plays through them; favourites; tags; sorting; searching inside lyrics; bulk actions; library backup
-and restore; light and dark themes; an offline installable app; keyboard control; navigation that
-works on a phone; a writing desk with autosave, undo and a chord palette; and key detection that
-works out the key of a song from its chords.
+key; Nashville numbers; a sidebar that stays in view on a big screen, so every place in the app is
+one click away; setlists that carry how each song is played, and a performance view that plays
+through them; the chords of a song played back with a guitar tone; favourites; tags; sorting;
+searching inside lyrics; bulk actions; library backup and restore; light and dark themes; an
+offline installable app; keyboard control; navigation that works on a phone; a writing desk with
+autosave, undo and a chord palette; and key detection that works out the key of a song from its
+chords.
 
 ## Milestone 1 — Make it true ✅
 
@@ -80,15 +82,16 @@ Comments and playing instructions (`{comment:}`, `{gc:}`), `{define:}`, `{durati
 files, Jazz Grilles chord grids, real tab blocks, and the original column alignment so a chord
 written mid-word keeps its place.
 
-## Milestone 6 — Sound — next
+## Milestone 6 — Sound ✅
 
-A metronome, a count-in locked to the tempo, chord progression playback, a guitar tone that is
-not a sine wave, and audio preferences.
+_A metronome, a count-in locked to the tempo, chord progression playback, a guitar tone that is
+not a sine wave, and audio preferences._
 
-The metronome and the count-in are done. The rest of the audio engine is written but unreachable:
-`playNote`, `playChord`, `playScale` and `stopAllSounds` are never called, and
-`saveAudioPreferences` is never called, so the volume and the waveform are permanently at their
-defaults with no way to change them.
+Done: the metronome and the count-in were already there. The rest is done as well — the chords
+of a song can be played in the reader and on stage, each chord is played as the shape a guitarist
+would use, the tone is a filtered sawtooth rather than a sine wave, and the volume, the tone and
+whether there is any sound at all are set in the settings. The count-in and the metronome play
+through the same module, so they follow the same settings.
 
 ## Milestone 7 — More ways in
 
@@ -114,8 +117,7 @@ requirement.
 
 ## Next
 
-Milestone 6 (sound), then Milestone 4 (real notation). Both are written up in
-[HANDOVER.md](./HANDOVER.md).
+Milestone 4 (real notation) is next. It is written up in [HANDOVER.md](./HANDOVER.md).
 
 ## Not doing
 
