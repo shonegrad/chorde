@@ -2,6 +2,11 @@ import { create } from 'zustand';
 import type { Song, ViewMode } from '../types';
 import { IndexedDBLibraryStore } from '../lib/libraryStore';
 
+export interface SongFilter {
+  type: 'tag' | 'artist' | 'key';
+  value: string;
+}
+
 interface LibraryState {
   songs: Song[];
   loading: boolean;
@@ -12,6 +17,7 @@ interface LibraryState {
   loadSongs: () => Promise<void>;
   saveSong: (song: Song) => Promise<void>;
   deleteSong: (id: string) => Promise<void>;
+  deleteSongs: (ids: string[]) => Promise<void>;
   resetLibrary: () => Promise<void>;
   setViewMode: (mode: ViewMode) => void;
 }
@@ -74,6 +80,16 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     set((state) => ({ songs: state.songs.filter((s) => s.id !== id) }));
   },
 
+  deleteSongs: async (ids) => {
+    if (ids.length === 0) return;
+    const store = get().store;
+    for (const id of ids) {
+      await store.deleteSong(id);
+    }
+    const removed = new Set(ids);
+    set((state) => ({ songs: state.songs.filter((s) => !removed.has(s.id)) }));
+  },
+
   resetLibrary: async () => {
     const store = get().store;
     const seedSongs = await loadSeedSongs();
@@ -94,3 +110,6 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     localStorage.setItem(VIEW_MODE_KEY, mode);
   },
 }));
+
+// A change made in another tab is applied to this one too.
+useLibraryStore.getState().store.subscribe((songs) => useLibraryStore.setState({ songs }));

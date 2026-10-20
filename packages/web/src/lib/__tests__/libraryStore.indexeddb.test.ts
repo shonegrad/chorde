@@ -102,17 +102,17 @@ describe('IndexedDBLibraryStore', () => {
   it('rejects snapshots with an unsupported schema version', async () => {
     await expect(
       store.importSnapshot(JSON.stringify({ schemaVersion: 99, songs: [] }))
-    ).rejects.toThrow(/Unsupported schema version/i);
+    ).rejects.toThrow(/format version 99/i);
   });
 
   it('rejects malformed snapshot JSON', async () => {
-    await expect(store.importSnapshot('not json')).rejects.toThrow(/Invalid snapshot format/i);
+    await expect(store.importSnapshot('not json')).rejects.toThrow(/not a valid Chorde backup/i);
   });
 
   it('rejects snapshots without a songs array', async () => {
     await expect(
       store.importSnapshot(JSON.stringify({ schemaVersion: 1, songs: 'nope' }))
-    ).rejects.toThrow(/missing songs array/i);
+    ).rejects.toThrow(/does not contain any songs/i);
   });
 
   it('refreshes the cache when another tab signals a change', async () => {
@@ -138,5 +138,62 @@ describe('IndexedDBLibraryStore', () => {
     await vi.waitFor(async () => {
       expect((await store.listSongs()).map((s) => s.id).sort()).toEqual(['a', 'b']);
     });
+  });
+
+  it('tells subscribers about a change made in another tab', async () => {
+    const received: string[][] = [];
+    store.subscribe((songs) => received.push(songs.map((s) => s.id)));
+
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('chorde-library', 1);
+      request.onsuccess = () => {
+        const db = request.result;
+        const tx = db.transaction('songs', 'readwrite');
+        tx.objectStore('songs').put(makeSong('from-other-tab'));
+        tx.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+        tx.onerror = () => reject(tx.error);
+      };
+      request.onerror = () => reject(request.error);
+    });
+
+    window.dispatchEvent(new StorageEvent('storage', { key: 'chorde_idb_sync' }));
+
+    await vi.waitFor(() => {
+      expect(received.length).toBeGreaterThan(0);
+    });
+    expect(received.at(-1)).toContain('from-other-tab');
+  });
+
+  it('stops notifying a subscriber once it unsubscribes', async () => {
+    const received: string[][] = [];
+    const unsubscribe = store.subscribe((songs) => received.push(songs.map((s) => s.id)));
+    unsubscribe();
+
+    window.dispatchEvent(new StorageEvent('storage', { key: 'chorde_idb_sync' }));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(received).toHaveLength(0);
+  });
+
+  it('includes the setlists in an exported snapshot', async () => {
+    await store.upsertSong(makeSong('a'));
+
+    const snapshot = JSON.parse(
+      store.exportSnapshot([
+        {
+          id: 'set-1',
+          name: 'Sunday set',
+          songIds: ['a'],
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      ])
+    );
+
+    expect(snapshot.setlists).toHaveLength(1);
+    expect(snapshot.setlists[0].name).toBe('Sunday set');
   });
 });

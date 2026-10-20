@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
 import type { Song } from '../types';
 import { createId } from '../lib/id';
-import { TextField, Button, Stack, Typography, Container, Paper } from '@mui/material';
+import { TagEditor } from './TagEditor';
+import {
+  TextField,
+  Button,
+  Stack,
+  Typography,
+  Container,
+  Paper,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Checkbox,
+  FormControlLabel,
+} from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -22,6 +36,9 @@ export const SongEditor: React.FC<SongEditorProps> = ({
   const [title, setTitle] = useState(initialSong?.title || '');
   const [artist, setArtist] = useState(initialSong?.artist || '');
   const [content, setContent] = useState(initialSong?.content || '');
+  const [tags, setTags] = useState<string[]>(initialSong?.tags || []);
+  const [favorite, setFavorite] = useState(initialSong?.favorite ?? false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,11 +49,12 @@ export const SongEditor: React.FC<SongEditorProps> = ({
       content,
       format: initialSong?.format || 'plaintext',
       capo: initialSong?.capo,
-      tags: initialSong?.tags || ['custom'],
+      tags: tags.length > 0 ? tags : ['custom'],
       sections: initialSong?.sections,
       key: initialSong?.key,
       bpm: initialSong?.bpm,
       timeSignature: initialSong?.timeSignature || '4/4',
+      favorite,
       attribution: initialSong?.attribution || {
         sourceName: 'Custom',
         sourceUrl: '',
@@ -51,7 +69,8 @@ export const SongEditor: React.FC<SongEditorProps> = ({
   };
 
   const handleDelete = () => {
-    if (initialSong && onDelete && confirm('Are you sure you want to delete this song?')) {
+    setConfirmDelete(false);
+    if (initialSong && onDelete) {
       onDelete(initialSong.id);
     }
   };
@@ -76,6 +95,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
           p: 3,
           gap: 3,
           bgcolor: 'background.paper',
+          overflowY: 'auto',
         }}
       >
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -106,6 +126,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
           fullWidth
           sx={{
             flex: 1,
+            minHeight: 200,
             '& .MuiInputBase-root': {
               height: '100%',
               alignItems: 'flex-start',
@@ -116,6 +137,19 @@ export const SongEditor: React.FC<SongEditorProps> = ({
             sx: { fontFamily: 'monospace' },
           }}
           required
+        />
+
+        <TagEditor tags={tags} onChange={setTags} />
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={favorite}
+              onChange={(e) => setFavorite(e.target.checked)}
+              inputProps={{ 'aria-label': 'Favourite' }}
+            />
+          }
+          label="Favourite"
         />
 
         <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -129,7 +163,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
                 variant="outlined"
                 color="error"
                 startIcon={<DeleteIcon />}
-                onClick={handleDelete}
+                onClick={() => setConfirmDelete(true)}
               >
                 Delete
               </Button>
@@ -147,6 +181,22 @@ export const SongEditor: React.FC<SongEditorProps> = ({
           </Button>
         </Stack>
       </Paper>
+
+      <Dialog open={confirmDelete} onClose={() => setConfirmDelete(false)} maxWidth="xs">
+        <DialogTitle>Delete this song?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            &ldquo;{initialSong?.title}&rdquo; will be removed from your library. This cannot be
+            undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDelete(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleDelete}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

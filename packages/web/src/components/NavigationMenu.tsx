@@ -28,12 +28,15 @@ import AddIcon from '@mui/icons-material/Add';
 import PersonIcon from '@mui/icons-material/Person';
 import KeyIcon from '@mui/icons-material/Key';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import StarIcon from '@mui/icons-material/Star';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 interface NavigationMenuProps {
   songs: Song[];
-  activeFilter: { type: 'tag' | 'artist' | 'key'; value: string } | null;
-  onFilterChange: (filter: { type: 'tag' | 'artist' | 'key'; value: string } | null) => void;
+  activeFilter: { type: 'tag' | 'artist' | 'key' | 'favourite'; value: string } | null;
+  onFilterChange: (
+    filter: { type: 'tag' | 'artist' | 'key' | 'favourite'; value: string } | null
+  ) => void;
   onSettingsNav?: () => void;
   onImportNav?: () => void;
   onChordsNav?: () => void;
@@ -120,12 +123,14 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [songs]);
 
+  const favouriteCount = useMemo(() => songs.filter((song) => song.favorite).length, [songs]);
+
   const availableKeys = useMemo(() => {
     const keySet = new Set(songs.map((s) => s.key).filter(Boolean) as string[]);
     return ALL_KEYS.filter((key) => keySet.has(key));
   }, [songs]);
 
-  const handleFilterClick = (type: 'tag' | 'artist' | 'key', value: string) => {
+  const handleFilterClick = (type: 'tag' | 'artist' | 'key' | 'favourite', value: string) => {
     if (activeFilter?.type === type && activeFilter?.value === value) {
       onFilterChange(null);
     } else {
@@ -200,6 +205,22 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 primary="All Songs"
                 secondary={`${songs.length} total`}
                 primaryTypographyProps={{ fontWeight: !activeFilter ? 'bold' : 'normal' }}
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={activeFilter?.type === 'favourite'}
+              onClick={() => handleFilterClick('favourite', 'true')}
+            >
+              <StarIcon sx={{ mr: 2, color: 'action.active' }} />
+              <ListItemText
+                primary="Favourites"
+                secondary={`${favouriteCount} ${favouriteCount === 1 ? 'song' : 'songs'}`}
+                primaryTypographyProps={{
+                  fontWeight: activeFilter?.type === 'favourite' ? 'bold' : 'normal',
+                }}
               />
             </ListItemButton>
           </ListItem>

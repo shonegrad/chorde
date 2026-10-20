@@ -23,7 +23,13 @@
   - Performance mode (fullscreen) for playing from a music stand.
   - Remembers your text size, display mode and per-song transposition.
 - **Collapsible Navigation**: Browse by Keys, Artists, and Genres with item count badges.
-- **Local Storage**: Your library is saved locally in your browser and works offline.
+- **Favourites**: Star the songs you play most and find them again in one click.
+- **Organise Your Library**: Add tags, sort by title, artist, key or date, and search inside the
+  lyrics as well as the titles.
+- **Bulk Actions**: Select several songs at once to tag them, add them to a setlist, or delete them.
+- **Backup & Restore**: Export your whole library to a file and restore it on another device.
+- **Local Storage**: Your library is saved locally in your browser and works offline. Changes in
+  another tab are picked up straight away.
 - **Nashville Number System**: View songs in numbers for universal playability.
 - **Performance**: Lazy loading for large song libraries.
 - **Responsive Design**: Works great on desktop and tablets.

@@ -19,6 +19,8 @@ interface SetlistState {
   removeSong: (setlistId: string, songId: string) => void;
   reorderSongs: (setlistId: string, songIds: string[]) => void;
   getSetlist: (id: string) => Setlist | undefined;
+  /** Replace every setlist, used when restoring a library backup. */
+  replaceSetlists: (setlists: Setlist[]) => void;
 }
 
 const STORAGE_KEY = 'chorde_setlists';
@@ -121,4 +123,18 @@ export const useSetlistStore = create<SetlistState>((set, get) => ({
   },
 
   getSetlist: (id) => get().setlists.find((s) => s.id === id),
+
+  replaceSetlists: (setlists) => {
+    set({ setlists });
+    saveToStorage(setlists);
+  },
 }));
+
+// Keep the setlists in step with other browser tabs.
+if (typeof window !== 'undefined' && window.addEventListener) {
+  window.addEventListener('storage', (event) => {
+    if (event.key === STORAGE_KEY) {
+      useSetlistStore.setState({ setlists: loadFromStorage() });
+    }
+  });
+}

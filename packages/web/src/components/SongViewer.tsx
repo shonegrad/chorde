@@ -13,6 +13,7 @@ import {
   MIN_FONT_SIZE,
 } from '../lib/preferences';
 import { SongBody } from './SongBody';
+import { TagEditor } from './TagEditor';
 import { ChordModal } from './ChordModal';
 import { SectionNav } from './SectionNav';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
@@ -34,6 +35,13 @@ import {
   Paper,
   Container,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemButton,
   Switch,
   ToggleButton,
   ToggleButtonGroup,
@@ -49,6 +57,8 @@ import TextIncreaseIcon from '@mui/icons-material/TextIncrease';
 import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import EditIcon from '@mui/icons-material/Edit';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import '../styles/SongViewer.css';
 
@@ -58,6 +68,11 @@ interface SongViewerProps {
   onEdit: () => void;
   onTagClick?: (tag: string) => void;
   onArtistClick?: (artist: string) => void;
+  /** Persists a change made from the viewer, e.g. favouriting or tagging. */
+  onUpdateSong?: (song: Song) => void | Promise<void>;
+  /** Setlists the song can be added to. */
+  setlists?: { id: string; name: string }[];
+  onAddToSetlist?: (songId: string, setlistId: string) => void;
 }
 
 export const SongViewer: React.FC<SongViewerProps> = ({
@@ -66,6 +81,9 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   onEdit,
   onTagClick,
   onArtistClick,
+  onUpdateSong,
+  setlists = [],
+  onAddToSetlist,
 }) => {
   const [settings] = useAppSettings();
   const stageMode = settings.stageMode;
@@ -85,6 +103,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [displayMode, setDisplayMode] = useState<DisplayMode>(initialPrefs.displayMode);
   const [countIn, setCountIn] = useState<number>(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [setlistOpen, setSetlistOpen] = useState(false);
   const contentContainerRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameRef = useRef<number | null>(null);
@@ -364,6 +384,14 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const resetTranspose = () => {
     setTranspose(0);
     setCapo(0);
+  };
+
+  const handleToggleFavorite = () => {
+    onUpdateSong?.({ ...song, favorite: !song.favorite, updatedAt: new Date().toISOString() });
+  };
+
+  const handleTagsChange = (tags: string[]) => {
+    onUpdateSong?.({ ...song, tags, updatedAt: new Date().toISOString() });
   };
 
   const keyLabel = transposedKey ?? writtenKey;
@@ -658,9 +686,25 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       >
         <Container maxWidth="md">
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography variant="h3" fontWeight="bold" gutterBottom>
-              {song.title}
-            </Typography>
+            <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
+              <Typography variant="h3" fontWeight="bold" gutterBottom>
+                {song.title}
+              </Typography>
+              {onUpdateSong && (
+                <Tooltip
+                  title={song.favorite ? 'Remove from favourites' : 'Add to favourites'}
+                  sx={{ mb: 3 }}
+                >
+                  <IconButton
+                    onClick={handleToggleFavorite}
+                    aria-label={song.favorite ? 'Remove from favourites' : 'Add to favourites'}
+                    aria-pressed={Boolean(song.favorite)}
+                  >
+                    {song.favorite ? <StarIcon color="primary" /> : <StarBorderIcon />}
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Stack>
             {onArtistClick ? (
               <Button
                 variant="text"
@@ -675,7 +719,12 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                 {song.artist}
               </Typography>
             )}
-            <Stack direction="row" spacing={1} justifyContent="center" sx={{ mt: 2 }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              justifyContent="center"
+              sx={{ mt: 2, flexWrap: 'wrap', rowGap: 1 }}
+            >
               {song.tags?.map((tag) => (
                 <Chip
                   key={tag}
@@ -686,6 +735,24 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                   sx={{ cursor: onTagClick ? 'pointer' : 'default' }}
                 />
               ))}
+              {onUpdateSong && (
+                <Chip
+                  label="Edit tags"
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setDetailsOpen(true)}
+                  sx={{ cursor: 'pointer' }}
+                />
+              )}
+              {onAddToSetlist && (
+                <Chip
+                  label="Add to setlist"
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setSetlistOpen(true)}
+                  sx={{ cursor: 'pointer' }}
+                />
+              )}
             </Stack>
 
             {/* Key, transposition and capo summary */}
@@ -738,6 +805,54 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       {selectedChord && (
         <ChordModal chordName={selectedChord} onClose={() => setSelectedChord(null)} />
       )}
+
+      {/* Edit tags */}
+      <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Tags for {song.title}</DialogTitle>
+        <DialogContent>
+          <TagEditor
+            tags={song.tags ?? []}
+            onChange={(tags) => {
+              handleTagsChange(tags);
+              setDetailsOpen(false);
+            }}
+            helperText="Tags are shared with the rest of your library, so you can find the song again."
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDetailsOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add to a setlist */}
+      <Dialog open={setlistOpen} onClose={() => setSetlistOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Add to setlist</DialogTitle>
+        <DialogContent>
+          {setlists.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              You have no setlists yet. Create one from the navigation menu.
+            </Typography>
+          ) : (
+            <List disablePadding>
+              {setlists.map((setlist) => (
+                <ListItem key={setlist.id} disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      onAddToSetlist?.(song.id, setlist.id);
+                      setSetlistOpen(false);
+                    }}
+                  >
+                    {setlist.name}
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSetlistOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

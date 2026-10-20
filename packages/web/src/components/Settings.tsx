@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
+  Alert,
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   FormControlLabel,
   Link,
@@ -10,10 +15,84 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
+import UploadIcon from '@mui/icons-material/Upload';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { useAppSettings } from '../lib/settings';
+import { useLibraryStore } from '../store/libraryStore';
+import { useSetlistStore } from '../store/setlistStore';
+import { buildSnapshot, downloadSnapshot, readSnapshotFile } from '../lib/backup';
+import { useNotification } from '../context/NotificationContext';
 
 export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [settings, updateSettings] = useAppSettings();
+  const { notifySuccess, notifyError } = useNotification();
+
+  const songs = useLibraryStore((s) => s.songs);
+  const saveSong = useLibraryStore((s) => s.saveSong);
+  const resetLibrary = useLibraryStore((s) => s.resetLibrary);
+  const setlists = useSetlistStore((s) => s.setlists);
+  const replaceSetlists = useSetlistStore((s) => s.replaceSetlists);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pendingRestore, setPendingRestore] = useState<Awaited<
+    ReturnType<typeof readSnapshotFile>
+  > | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  const handleExport = () => {
+    try {
+      downloadSnapshot(buildSnapshot(songs, setlists));
+      notifySuccess(`Exported ${songs.length} songs and ${setlists.length} setlists.`);
+    } catch {
+      notifyError('Could not export your library.');
+    }
+  };
+
+  const handlePickFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // Allow the same file to be picked again.
+    event.target.value = '';
+    if (!file) return;
+
+    try {
+      const snapshot = await readSnapshotFile(file);
+      setPendingRestore(snapshot);
+    } catch (error) {
+      notifyError(error instanceof Error ? error.message : 'Could not read that backup.');
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!pendingRestore) return;
+
+    const snapshot = pendingRestore;
+    setPendingRestore(null);
+
+    try {
+      for (const song of snapshot.songs) {
+        await saveSong(song);
+      }
+      if (snapshot.setlists.length > 0) {
+        replaceSetlists(snapshot.setlists);
+      }
+      notifySuccess(
+        `Restored ${snapshot.songs.length} songs${snapshot.setlists.length ? ` and ${snapshot.setlists.length} setlists` : ''}.`
+      );
+    } catch {
+      notifyError('Could not restore that backup.');
+    }
+  };
+
+  const handleReset = async () => {
+    setConfirmReset(false);
+    try {
+      await resetLibrary();
+      notifySuccess('Library reset to the built-in songs.');
+    } catch {
+      notifyError('Could not reset your library.');
+    }
+  };
 
   return (
     <Box sx={{ p: 3, height: '100vh', overflowY: 'auto' }}>
@@ -28,6 +107,40 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </Box>
 
       <Stack spacing={4}>
+        <Box>
+          <Typography variant="h6" fontWeight="bold">
+            Backup
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Your library is stored in this browser only. Save a copy to a file so you can move it to
+            another device or restore it if the browser data is cleared.
+          </Typography>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={handleExport}>
+              Export library
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<UploadIcon />}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Import library
+            </Button>
+            <input
+              ref={fileInputRef}
+              hidden
+              type="file"
+              accept="application/json,.json"
+              onChange={handlePickFile}
+            />
+          </Stack>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+            {songs.length} songs · {setlists.length} setlists
+          </Typography>
+        </Box>
+
+        <Divider />
+
         <Box>
           <Typography variant="h6" fontWeight="bold">
             Stage Mode
@@ -129,6 +242,26 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
         <Box>
           <Typography variant="h6" fontWeight="bold">
+            Reset
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Remove every song you have added and go back to the built-in library. Export a backup
+            first if you want to keep your songs.
+          </Typography>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<RestartAltIcon />}
+            onClick={() => setConfirmReset(true)}
+          >
+            Reset library
+          </Button>
+        </Box>
+
+        <Divider />
+
+        <Box>
+          <Typography variant="h6" fontWeight="bold">
             About
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -145,6 +278,46 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </Link>
         </Box>
       </Stack>
+
+      {/* Restore confirmation */}
+      <Dialog open={!!pendingRestore} onClose={() => setPendingRestore(null)} maxWidth="sm">
+        <DialogTitle>Restore this backup?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            This backup contains {pendingRestore?.songs.length ?? 0} songs
+            {pendingRestore?.setlists.length
+              ? ` and ${pendingRestore.setlists.length} setlists`
+              : ''}
+            , taken on {pendingRestore?.exportedAt.slice(0, 10)}.
+          </Typography>
+          <Alert severity="info" sx={{ mt: 2 }}>
+            Songs in the backup are added to your library. Anything already in your library is kept.
+          </Alert>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPendingRestore(null)}>Cancel</Button>
+          <Button variant="contained" onClick={handleRestore}>
+            Restore
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Reset confirmation */}
+      <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} maxWidth="sm">
+        <DialogTitle>Reset your library?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            Every song you have imported or created will be deleted, and the library will go back to
+            the built-in songs. This cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmReset(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleReset}>
+            Reset library
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

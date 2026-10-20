@@ -1,4 +1,6 @@
 import type { Song } from '../types';
+import type { Setlist } from '../store/setlistStore';
+import { buildSnapshot, parseSnapshot } from './backup';
 
 export interface LibraryStore {
   listSongs(): Promise<Song[]>;
@@ -7,8 +9,10 @@ export interface LibraryStore {
   upsertSong(song: Song): Promise<void>;
   deleteSong(id: string): Promise<void>;
   bulkUpsert(songs: Song[]): Promise<void>;
-  exportSnapshot(): string;
+  exportSnapshot(setlists?: Setlist[]): string;
   importSnapshot(snapshot: string): Promise<void>;
+  /** Notified when the library changes in another browser tab. */
+  subscribe(listener: (songs: Song[]) => void): () => void;
 }
 
 const DB_NAME = 'chorde-library';
@@ -52,17 +56,34 @@ export class IndexedDBLibraryStore implements LibraryStore {
   private memoryCache: Song[] = [];
   private initialized = false;
   private initPromise: Promise<void> | null = null;
+  private listeners = new Set<(songs: Song[]) => void>();
 
   constructor() {
     this.initPromise = this.migrateFromLocalStorage().then(() => this.loadCache());
     this.setupSyncListener();
   }
 
+  /**
+   * Listen for changes made in another browser tab.
+   *
+   * The storage event only fires in the *other* tab, so the cache is reloaded
+   * here and the listeners are told about the new library.
+   */
+  subscribe(listener: (songs: Song[]) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  private notifyListeners(): void {
+    const songs = [...this.memoryCache];
+    this.listeners.forEach((listener) => listener(songs));
+  }
+
   private setupSyncListener(): void {
     if (typeof window === 'undefined' || !window.addEventListener) return;
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === SYNC_KEY) {
-        this.loadCache();
+        void this.loadCache().then(() => this.notifyListeners());
       }
     };
     window.addEventListener('storage', handleStorageChange);
@@ -190,32 +211,12 @@ export class IndexedDBLibraryStore implements LibraryStore {
     this.memoryCache = Array.from(songMap.values());
   }
 
-  exportSnapshot(): string {
-    const snapshot = {
-      schemaVersion: 1,
-      exportedAt: new Date().toISOString(),
-      songs: this.memoryCache,
-      setlists: [],
-    };
-    return JSON.stringify(snapshot, null, 2);
+  exportSnapshot(setlists: Setlist[] = []): string {
+    return JSON.stringify(buildSnapshot(this.memoryCache, setlists), null, 2);
   }
 
   async importSnapshot(snapshot: string): Promise<void> {
-    let parsed;
-    try {
-      parsed = JSON.parse(snapshot);
-    } catch {
-      throw new Error('Invalid snapshot format');
-    }
-
-    if (!parsed.schemaVersion || parsed.schemaVersion !== 1) {
-      throw new Error('Unsupported schema version');
-    }
-
-    if (!Array.isArray(parsed.songs)) {
-      throw new Error('Invalid snapshot: missing songs array');
-    }
-
+    const parsed = parseSnapshot(snapshot);
     await this.bulkUpsert(parsed.songs);
   }
 }
@@ -287,33 +288,16 @@ export class LocalLibraryStore implements LibraryStore {
     this.setSongs(Array.from(songMap.values()));
   }
 
-  exportSnapshot(): string {
-    const songs = this.getSongs();
-    const snapshot = {
-      schemaVersion: 1,
-      exportedAt: new Date().toISOString(),
-      songs,
-      setlists: [],
-    };
-    return JSON.stringify(snapshot, null, 2);
+  exportSnapshot(setlists: Setlist[] = []): string {
+    return JSON.stringify(buildSnapshot(this.getSongs(), setlists), null, 2);
   }
 
   async importSnapshot(snapshot: string): Promise<void> {
-    let parsed;
-    try {
-      parsed = JSON.parse(snapshot);
-    } catch {
-      throw new Error('Invalid snapshot format');
-    }
-
-    if (!parsed.schemaVersion || parsed.schemaVersion !== 1) {
-      throw new Error('Unsupported schema version');
-    }
-
-    if (!Array.isArray(parsed.songs)) {
-      throw new Error('Invalid snapshot: missing songs array');
-    }
-
+    const parsed = parseSnapshot(snapshot);
     await this.bulkUpsert(parsed.songs);
+  }
+
+  subscribe(): () => void {
+    return () => {};
   }
 }

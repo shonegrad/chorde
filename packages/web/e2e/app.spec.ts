@@ -138,3 +138,85 @@ test.describe('Chorde E2E - Setlists', () => {
     await expect(page.getByText('E2E Setlist')).toBeVisible();
   });
 });
+
+test.describe('Chorde E2E - Organising the library', () => {
+  test('favourites a song and filters by favourites', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    const favouriteButton = page.getByRole('button', { name: /^Favourite / }).first();
+    const songName = (await favouriteButton.getAttribute('aria-label')) ?? '';
+    await favouriteButton.click();
+
+    await openNavigation(page);
+    await page.getByRole('button', { name: /^Favourites/ }).click();
+
+    await expect(page).toHaveURL(/favourite=true/);
+    await expect(page.getByRole('heading', { name: /my songs \(1\)/i })).toBeVisible();
+    expect(songName).not.toBe('');
+  });
+
+  test('sorts the library by artist', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    const sortSelect = page.getByRole('combobox', { name: 'Sort by' });
+    await sortSelect.click();
+    const option = page.getByRole('option', { name: 'Artist (A-Z)' });
+    await expect(option).toBeVisible();
+    await option.click();
+    await expect(sortSelect).toContainText('Artist (A-Z)');
+
+    const artists = await page.locator('.MuiTypography-subtitle1').allTextContents();
+    const sorted = [...artists].sort((a, b) => a.localeCompare(b));
+    expect(artists).toEqual(sorted);
+  });
+
+  test('finds a song by its lyrics', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    const search = page.getByPlaceholder(/search songs, artists/i);
+    await search.fill('wretch');
+    await expect(page.getByRole('heading', { name: /my songs \(0\)/i })).toBeVisible();
+
+    await page.getByRole('button', { name: /titles and artists only/i }).click();
+    await expect(page.getByRole('heading', { name: /my songs \(1\)/i })).toBeVisible();
+  });
+
+  test('deletes songs in bulk', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    const heading = page.getByRole('heading', { name: /my songs/i });
+    const before = Number((await heading.textContent())?.match(/\((\d+)\)/)?.[1] ?? '0');
+    expect(before).toBeGreaterThan(2);
+
+    await page.getByRole('button', { name: 'Select' }).click();
+    await page
+      .getByRole('checkbox', { name: /^Select / })
+      .first()
+      .check();
+    await page
+      .getByRole('checkbox', { name: /^Select / })
+      .nth(1)
+      .check();
+    await expect(page.getByText('2 selected')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Delete', exact: true }).first().click();
+    await page.getByRole('button', { name: 'Delete', exact: true }).last().click();
+
+    await expect(heading).toContainText(`My Songs (${before - 2})`);
+  });
+
+  test('exports the library as a backup file', async ({ page }) => {
+    await page.goto('./settings');
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 15000 });
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /export library/i }).click();
+    const download = await downloadPromise;
+
+    expect(download.suggestedFilename()).toMatch(/^chorde-library-\d{4}-\d{2}-\d{2}\.json$/);
+  });
+});

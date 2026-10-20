@@ -107,4 +107,85 @@ describe('SongList', () => {
     expect(screen.getByText(/My Songs/)).toBeInTheDocument();
     expect(screen.getByText('2', { exact: false })).toBeInTheDocument();
   });
+
+  it('sorts the songs by the chosen order', () => {
+    renderWithTheme(<SongList {...defaultProps} />);
+
+    fireEvent.mouseDown(screen.getByLabelText('Sort by'));
+    fireEvent.click(screen.getByRole('option', { name: 'Artist (A-Z)' }));
+
+    const titles = screen.getAllByRole('heading', { level: 2 }).map((node) => node.textContent);
+    expect(titles).toEqual(['Another Song', 'Test Song One']);
+  });
+
+  it('finds a song by its lyrics once lyric search is switched on', () => {
+    const lyricsOnly: Song = {
+      ...mockSongs[0],
+      id: 'test-3',
+      title: 'A Hymn',
+      artist: 'Someone',
+      content: '{start_of_verse}\n[C]the wretch is saved',
+    };
+
+    renderWithTheme(<SongList {...defaultProps} songs={[lyricsOnly]} />);
+
+    const searchInput = screen.getByPlaceholderText(/search/i);
+    fireEvent.change(searchInput, { target: { value: 'wretch' } });
+
+    expect(screen.getByText(/No songs found/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /titles and artists only/i }));
+
+    expect(screen.getByText('A Hymn')).toBeInTheDocument();
+  });
+
+  it('asks to favourite a song', () => {
+    const onToggleFavorite = vi.fn();
+    renderWithTheme(<SongList {...defaultProps} onToggleFavorite={onToggleFavorite} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Favourite Another Song' }));
+
+    expect(onToggleFavorite).toHaveBeenCalledWith(mockSongs[1]);
+  });
+
+  it('selects songs and deletes them as a group', () => {
+    const onDeleteSongs = vi.fn();
+    renderWithTheme(<SongList {...defaultProps} onDeleteSongs={onDeleteSongs} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Select' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select Test Song One' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select Another Song' }));
+
+    expect(screen.getByText('2 selected')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(onDeleteSongs).toHaveBeenCalledWith(['test-1', 'test-2']);
+  });
+
+  it('tags the selected songs', () => {
+    const onTagSongs = vi.fn();
+    renderWithTheme(<SongList {...defaultProps} onTagSongs={onTagSongs} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Select' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select Test Song One' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Tag' }));
+
+    const input = screen.getByLabelText('Tag');
+    fireEvent.change(input, { target: { value: 'Favourites' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add tag' }));
+
+    expect(onTagSongs).toHaveBeenCalledWith(['test-1'], 'favourites');
+  });
+
+  it('offers to duplicate a song from the card menu', () => {
+    const onDuplicateSong = vi.fn();
+    renderWithTheme(<SongList {...defaultProps} onDuplicateSong={onDuplicateSong} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'More actions for Another Song' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: /duplicate/i }));
+
+    expect(onDuplicateSong).toHaveBeenCalledWith(mockSongs[1]);
+  });
 });

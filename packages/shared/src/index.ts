@@ -30,6 +30,8 @@ export interface Song {
   key?: string;
   bpm?: number;
   timeSignature?: string;
+  /** Marked as a favourite, so it can be found again quickly. */
+  favorite?: boolean;
   attribution: SongAttribution;
   rightsStatus: 'open' | 'conditional' | 'unknown' | 'restricted';
   createdAt: string | number;
@@ -57,7 +59,7 @@ export type ViewMode = 'grid' | 'list';
 export type ParsedSong = ParsedLine[];
 
 export interface SongFilter {
-  type: 'tag' | 'artist' | 'key';
+  type: 'tag' | 'artist' | 'key' | 'favourite';
   value: string;
 }
 
