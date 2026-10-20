@@ -34,6 +34,9 @@ import {
   IconButton,
   Box,
   Button,
+  Divider,
+  ListItemIcon,
+  Menu,
   Slider,
   Select,
   MenuItem,
@@ -45,6 +48,8 @@ import {
   Paper,
   Container,
   Tooltip,
+  useMediaQuery,
+  useTheme,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -73,6 +78,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 interface SongViewerProps {
   song: Song;
@@ -99,6 +105,10 @@ export const SongViewer: React.FC<SongViewerProps> = ({
 }) => {
   const [settings] = useAppSettings();
   const stageMode = settings.stageMode;
+  const theme = useTheme();
+  // On a phone there is not room for every control, so the ones that are not
+  // needed all the time go into a menu.
+  const isCompact = useMediaQuery(theme.breakpoints.down('sm'), { noSsr: true });
 
   const initialPrefs = useMemo(() => loadViewerPreferences(), []);
   const initialSongPrefs = useMemo(() => loadSongPreferences(song.id), [song.id]);
@@ -118,6 +128,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [setlistOpen, setSetlistOpen] = useState(false);
   const [playingProgression, setPlayingProgression] = useState<ProgressionChord[] | null>(null);
+  const [moreAnchor, setMoreAnchor] = useState<HTMLElement | null>(null);
   const [currentChord, setCurrentChord] = useState<string | null>(null);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
   const sequenceRef = useRef<SequenceHandle | null>(null);
@@ -494,290 +505,548 @@ export const SongViewer: React.FC<SongViewerProps> = ({
 
   const keyLabel = transposedKey ?? writtenKey;
 
+  /*
+   * The controls, each one on its own.
+   *
+   * They are put together differently depending on the screen: in two rows
+   * on a big one, and in a menu on a phone. Each control is made once, so
+   * there is only ever one of it on the page.
+   */
+  const backButton = (
+    <IconButton edge="start" onClick={onClose} aria-label="Back to library">
+      <ArrowBackIcon />
+    </IconButton>
+  );
+
+  const scrollButton = (
+    <>
+      <Tooltip title={autoScroll ? 'Stop Auto-Scroll' : 'Start Auto-Scroll'}>
+        <IconButton
+          onClick={toggleAutoScroll}
+          color={autoScroll ? 'primary' : 'default'}
+          aria-label={autoScroll ? 'Stop auto-scroll' : 'Start auto-scroll'}
+        >
+          {autoScroll ? <PauseIcon /> : <PlayArrowIcon />}
+        </IconButton>
+      </Tooltip>
+      {countIn > 0 && (
+        <Typography variant="caption" color="primary" fontWeight="bold" aria-live="polite">
+          {countIn}
+        </Typography>
+      )}
+    </>
+  );
+
+  const scrollSpeed = autoScroll ? (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ width: 120, mx: 1 }}>
+        <Slider
+          size="small"
+          value={manualScrollSpeed ?? computedScrollSpeed}
+          min={15}
+          max={80}
+          onChange={(_, val) => {
+            setManualScrollSpeed(val as number);
+          }}
+          aria-label="Scroll speed"
+        />
+      </Box>
+      <Typography
+        variant="caption"
+        sx={{
+          minWidth: 45,
+          color: 'text.secondary',
+          fontFamily: 'monospace',
+          fontSize: '0.75rem',
+        }}
+      >
+        {manualScrollSpeed ?? computedScrollSpeed} px/s
+      </Typography>
+    </Box>
+  ) : null;
+
+  const tapTempoButton = (
+    <Tooltip title="Tap to set tempo">
+      <IconButton
+        onClick={handleTapTempo}
+        color="default"
+        disabled={lockTempo}
+        aria-label="Tap tempo"
+      >
+        <MusicNoteIcon fontSize="small" />
+      </IconButton>
+    </Tooltip>
+  );
+
+  const tempoValue = (
+    <Typography
+      variant="body2"
+      sx={{ minWidth: 40, textAlign: 'center', fontWeight: 'bold' }}
+      aria-label={`Tempo ${bpm ?? 'not set'} beats per minute`}
+    >
+      {bpm !== null ? bpm : '--'}
+    </Typography>
+  );
+
+  const tempoDown = (
+    <IconButton
+      onClick={() => setBpm((prev) => (prev !== null ? prev - 1 : null))}
+      disabled={lockTempo || (bpm !== null && bpm <= 40)}
+      color="default"
+      aria-label="Decrease tempo"
+    >
+      <RemoveIcon fontSize="small" />
+    </IconButton>
+  );
+
+  const tempoUp = (
+    <IconButton
+      onClick={() => setBpm((prev) => (prev !== null ? prev + 1 : null))}
+      disabled={lockTempo || (bpm !== null && bpm >= 208)}
+      color="default"
+      aria-label="Increase tempo"
+    >
+      <AddIcon fontSize="small" />
+    </IconButton>
+  );
+
+  const lockSwitch = (
+    <FormControlLabel
+      control={
+        <Switch
+          checked={lockTempo}
+          onChange={(e) => setLockTempo(e.target.checked)}
+          inputProps={{ 'aria-label': 'Lock tempo' }}
+        />
+      }
+      label="Lock"
+      sx={{ ml: 1 }}
+    />
+  );
+
+  const transposeControl = (
+    <Paper variant="outlined" sx={{ p: 0.5, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+      <IconButton
+        onClick={() => setTranspose((t) => t - 1)}
+        aria-label="Transpose down one semitone"
+      >
+        <RemoveIcon fontSize="small" />
+      </IconButton>
+      <Typography
+        variant="body2"
+        sx={{ mx: 1, minWidth: 20, textAlign: 'center' }}
+        aria-label={`Transpose offset ${transpose} semitones`}
+      >
+        {transpose > 0 ? `+${transpose}` : transpose < 0 ? transpose : '0'}
+      </Typography>
+      <IconButton onClick={() => setTranspose((t) => t + 1)} aria-label="Transpose up one semitone">
+        <AddIcon fontSize="small" />
+      </IconButton>
+      {transpose !== 0 && (
+        <Tooltip title="Reset transposition and capo">
+          <IconButton onClick={resetTranspose} size="small" aria-label="Reset transposition">
+            <Typography variant="caption">Reset</Typography>
+          </IconButton>
+        </Tooltip>
+      )}
+    </Paper>
+  );
+
+  const capoControl = (
+    <FormControl size="small" variant="outlined" sx={{ minWidth: 90, flexShrink: 0 }}>
+      <InputLabel>Capo</InputLabel>
+      <Select
+        value={capo}
+        onChange={(e) => setCapo(Number(e.target.value))}
+        label="Capo"
+        inputProps={{ 'aria-label': 'Capo position' }}
+      >
+        <MenuItem value={0}>None</MenuItem>
+        {Array.from({ length: 12 }, (_, i) => (
+          <MenuItem key={i + 1} value={i + 1}>
+            {i + 1}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
+  const displayModes = (
+    <ToggleButtonGroup
+      value={displayMode}
+      exclusive
+      onChange={(_, newMode) => newMode && setDisplayMode(newMode)}
+      size="small"
+      sx={{ flexShrink: 0 }}
+      aria-label="Display mode"
+    >
+      <ToggleButton value="chords">Chords</ToggleButton>
+      <ToggleButton value="nashville">Nashville</ToggleButton>
+      <ToggleButton value="tabs">Tabs</ToggleButton>
+      <ToggleButton value="notation">Notes</ToggleButton>
+    </ToggleButtonGroup>
+  );
+
+  const fontSizeControl = (
+    <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+      <IconButton
+        onClick={() => setFontSize((s) => Math.max(MIN_FONT_SIZE, s - 2))}
+        aria-label="Decrease text size"
+      >
+        <TextDecreaseIcon />
+      </IconButton>
+      <Typography
+        variant="caption"
+        sx={{ minWidth: 26, textAlign: 'center', color: 'text.secondary' }}
+        aria-label={`Text size ${fontSize} pixels`}
+      >
+        {fontSize}
+      </Typography>
+      <IconButton
+        onClick={() => setFontSize((s) => Math.min(MAX_FONT_SIZE, s + 2))}
+        aria-label="Increase text size"
+      >
+        <TextIncreaseIcon />
+      </IconButton>
+    </Box>
+  );
+
+  const loopLabel = loopMode && loopSection !== null ? sections[loopSection].label : 'Loop';
+
+  const loopControl =
+    sections.length > 0 ? (
+      <Tooltip title="Loop Section">
+        <ToggleButton
+          value="check"
+          selected={loopMode}
+          onChange={toggleLoopMode}
+          size="small"
+          color="primary"
+          sx={{ flexShrink: 0 }}
+          aria-label="Loop section"
+        >
+          <LoopIcon fontSize="small" sx={{ mr: 1 }} />
+          {loopLabel}
+        </ToggleButton>
+      </Tooltip>
+    ) : null;
+
+  const chordPlayback = (
+    <>
+      <Tooltip title={playingChords ? 'Stop the chords' : 'Play the chords'}>
+        <span>
+          <IconButton
+            onClick={toggleChordPlayback}
+            color={playingChords ? 'primary' : 'default'}
+            disabled={!playingChords && progression.length === 0}
+            aria-label={playingChords ? 'Stop playing the chords' : 'Play the chords'}
+          >
+            <GraphicEqIcon />
+          </IconButton>
+        </span>
+      </Tooltip>
+      {playingChords && currentChord && (
+        <Chip label={currentChord} color="primary" size="small" aria-live="polite" />
+      )}
+    </>
+  );
+
   return (
     <Box
       sx={{
-        height: '100vh',
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         bgcolor: 'background.default',
       }}
     >
-      {/* Header Controls */}
-      <AppBar position="static" color="default" elevation={1}>
-        <Toolbar>
-          <IconButton edge="start" onClick={onClose} sx={{ mr: 2 }} aria-label="Back to library">
-            <ArrowBackIcon />
-          </IconButton>
+      {/*
+        The controls of the song.
 
-          <Stack
-            direction="row"
-            spacing={2}
-            alignItems="center"
-            sx={{ flexGrow: 1, overflowX: 'auto', pb: 0.5 }}
-          >
-            {/* Tempo Controls */}
+        There are a lot of them, so they are in two rows on a big screen:
+        what you do while playing, and how the song is set up. Each row
+        wraps rather than scrolling sideways, so nothing is ever out of
+        reach. A phone has no room for two rows, so there the controls
+        that are not needed all the time go into a menu.
+      */}
+      <AppBar position="static" color="default" elevation={1} sx={{ height: 'auto' }}>
+        {isCompact ? (
+          <Toolbar variant="dense" sx={{ gap: 1 }}>
+            {backButton}
+            {scrollButton}
             <Paper
               variant="outlined"
-              sx={{ p: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}
+              sx={{ p: 0.5, display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}
             >
-              <Tooltip title="Tap to set tempo">
-                <IconButton
-                  onClick={handleTapTempo}
-                  color="default"
-                  disabled={lockTempo}
-                  aria-label="Tap tempo"
-                >
-                  <MusicNoteIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Typography
-                variant="body2"
-                sx={{ minWidth: 40, textAlign: 'center', fontWeight: 'bold' }}
-                aria-label={`Tempo ${bpm ?? 'not set'} beats per minute`}
-              >
-                {bpm !== null ? bpm : '--'}
-              </Typography>
-              <IconButton
-                onClick={() => setBpm((prev) => (prev !== null ? prev - 1 : null))}
-                disabled={lockTempo || (bpm !== null && bpm <= 40)}
-                color="default"
-                aria-label="Decrease tempo"
-              >
-                <RemoveIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                onClick={() => setBpm((prev) => (prev !== null ? prev + 1 : null))}
-                disabled={lockTempo || (bpm !== null && bpm >= 208)}
-                color="default"
-                aria-label="Increase tempo"
-              >
-                <AddIcon fontSize="small" />
-              </IconButton>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={lockTempo}
-                    onChange={(e) => setLockTempo(e.target.checked)}
-                    inputProps={{ 'aria-label': 'Lock tempo' }}
-                  />
-                }
-                label="Lock"
-                sx={{ ml: 1 }}
-              />
+              {tapTempoButton}
+              {tempoValue}
             </Paper>
-
-            {/* Scroll Controls */}
-            <Paper
-              variant="outlined"
-              sx={{ p: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}
+            <IconButton
+              onClick={(event) => setMoreAnchor(event.currentTarget)}
+              aria-label="More controls"
+              sx={{ ml: 'auto' }}
             >
-              <Tooltip title={autoScroll ? 'Stop Auto-Scroll' : 'Start Auto-Scroll'}>
-                <IconButton
-                  onClick={toggleAutoScroll}
-                  color={autoScroll ? 'primary' : 'default'}
-                  aria-label={autoScroll ? 'Stop auto-scroll' : 'Start auto-scroll'}
-                >
-                  {autoScroll ? <PauseIcon /> : <PlayArrowIcon />}
-                </IconButton>
-              </Tooltip>
-              {countIn > 0 && (
-                <Typography variant="caption" color="primary" fontWeight="bold" aria-live="polite">
-                  {countIn}
-                </Typography>
-              )}
-              {autoScroll && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 120, mx: 1 }}>
-                    <Slider
-                      size="small"
-                      value={manualScrollSpeed ?? computedScrollSpeed}
-                      min={15}
-                      max={80}
-                      onChange={(_, val) => {
-                        setManualScrollSpeed(val as number);
-                      }}
-                      aria-label="Scroll speed"
-                    />
-                  </Box>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      minWidth: 45,
-                      color: 'text.secondary',
-                      fontFamily: 'monospace',
-                      fontSize: '0.75rem',
-                    }}
-                  >
-                    {manualScrollSpeed ?? computedScrollSpeed} px/s
-                  </Typography>
-                </Box>
-              )}
-            </Paper>
+              <MoreVertIcon />
+            </IconButton>
+          </Toolbar>
+        ) : (
+          <>
+            <Toolbar variant="dense" sx={{ flexWrap: 'wrap', rowGap: 0.5, columnGap: 1 }}>
+              {backButton}
 
-            {/* Loop Control */}
-            {sections.length > 0 && (
-              <Tooltip title="Loop Section">
-                <ToggleButton
-                  value="check"
-                  selected={loopMode}
-                  onChange={toggleLoopMode}
-                  size="small"
-                  color="primary"
-                  aria-label="Loop section"
-                >
-                  <LoopIcon fontSize="small" sx={{ mr: 1 }} />
-                  {loopMode && loopSection !== null ? sections[loopSection].label : 'Loop'}
-                </ToggleButton>
-              </Tooltip>
-            )}
+              {/* Scroll Controls */}
+              <Paper
+                variant="outlined"
+                sx={{ p: 0.5, display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}
+              >
+                {scrollButton}
+                {scrollSpeed}
+              </Paper>
 
-            {/* Capo Control */}
-            <FormControl size="small" variant="outlined" sx={{ minWidth: 90 }}>
-              <InputLabel>Capo</InputLabel>
-              <Select
-                value={capo}
-                onChange={(e) => setCapo(Number(e.target.value))}
-                label="Capo"
-                inputProps={{ 'aria-label': 'Capo position' }}
+              {/* Tempo Controls */}
+              <Paper
+                variant="outlined"
+                sx={{ p: 0.5, display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}
               >
-                <MenuItem value={0}>None</MenuItem>
-                {Array.from({ length: 12 }, (_, i) => (
-                  <MenuItem key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                {tapTempoButton}
+                {tempoValue}
+                {tempoDown}
+                {tempoUp}
+                {lockSwitch}
+              </Paper>
 
-            {/* Key Transpose */}
-            <Paper variant="outlined" sx={{ p: 0.5, display: 'flex', alignItems: 'center' }}>
-              <IconButton
-                onClick={() => setTranspose((t) => t - 1)}
-                aria-label="Transpose down one semitone"
+              {loopControl}
+
+              {chordPlayback}
+
+              {/*
+                What you can do with the file, and the song itself. They are
+                one group, so they move together when the row wraps.
+              */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  ml: 'auto',
+                  flexShrink: 0,
+                }}
               >
-                <RemoveIcon fontSize="small" />
-              </IconButton>
-              <Typography
-                variant="body2"
-                sx={{ mx: 1, minWidth: 20, textAlign: 'center' }}
-                aria-label={`Transpose offset ${transpose} semitones`}
-              >
-                {transpose > 0 ? `+${transpose}` : transpose < 0 ? transpose : '0'}
-              </Typography>
-              <IconButton
-                onClick={() => setTranspose((t) => t + 1)}
-                aria-label="Transpose up one semitone"
-              >
-                <AddIcon fontSize="small" />
-              </IconButton>
-              {transpose !== 0 && (
-                <Tooltip title="Reset transposition and capo">
+                <Tooltip title="Performance mode (fullscreen)">
                   <IconButton
-                    onClick={resetTranspose}
-                    size="small"
-                    aria-label="Reset transposition"
+                    onClick={toggleFullscreen}
+                    color={isFullscreen ? 'primary' : 'default'}
+                    aria-label="Toggle performance mode"
                   >
-                    <Typography variant="caption">Reset</Typography>
+                    <FullscreenIcon />
                   </IconButton>
                 </Tooltip>
-              )}
-            </Paper>
 
-            {/* Play the chords of the song */}
-            <Tooltip title={playingChords ? 'Stop the chords' : 'Play the chords'}>
-              <span>
-                <IconButton
-                  onClick={toggleChordPlayback}
-                  color={playingChords ? 'primary' : 'default'}
-                  disabled={!playingChords && progression.length === 0}
-                  aria-label={playingChords ? 'Stop playing the chords' : 'Play the chords'}
-                >
-                  <GraphicEqIcon />
-                </IconButton>
-              </span>
-            </Tooltip>
-            {playingChords && currentChord && (
-              <Chip label={currentChord} color="primary" size="small" aria-live="polite" />
-            )}
+                <Tooltip title="Keyboard shortcuts">
+                  <IconButton
+                    onClick={() => setShowShortcuts(true)}
+                    aria-label="Show keyboard shortcuts"
+                  >
+                    <HelpOutlineIcon />
+                  </IconButton>
+                </Tooltip>
 
-            {/* Display Mode */}
-            <ToggleButtonGroup
-              value={displayMode}
-              exclusive
-              onChange={(_, newMode) => newMode && setDisplayMode(newMode)}
-              size="small"
-              aria-label="Display mode"
+                <Tooltip title="Download ChordPro file">
+                  <IconButton
+                    onClick={() => exportToChordPro(song, { transpose, capo, preferFlats })}
+                    aria-label="Download ChordPro file"
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Print / save as PDF">
+                  <IconButton
+                    onClick={() => exportToPdf(song, { transpose, capo, preferFlats })}
+                    aria-label="Print or save as PDF"
+                  >
+                    <PictureAsPdfIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Button variant="contained" startIcon={<EditIcon />} onClick={onEdit} size="small">
+                  Edit
+                </Button>
+              </Box>
+            </Toolbar>
+
+            <Toolbar
+              variant="dense"
+              sx={{
+                flexWrap: 'wrap',
+                rowGap: 0.5,
+                columnGap: 1,
+                borderTop: 1,
+                borderColor: 'divider',
+              }}
             >
-              <ToggleButton value="chords">Chords</ToggleButton>
-              <ToggleButton value="nashville">Nashville</ToggleButton>
-              <ToggleButton value="tabs">Tabs</ToggleButton>
-              <ToggleButton value="notation">Notes</ToggleButton>
-            </ToggleButtonGroup>
+              {/* Key Transpose */}
+              {transposeControl}
 
-            {/* Font Size */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton
-                onClick={() => setFontSize((s) => Math.max(MIN_FONT_SIZE, s - 2))}
-                aria-label="Decrease text size"
-              >
-                <TextDecreaseIcon />
-              </IconButton>
-              <Typography
-                variant="caption"
-                sx={{ minWidth: 26, textAlign: 'center', color: 'text.secondary' }}
-                aria-label={`Text size ${fontSize} pixels`}
-              >
-                {fontSize}
+              {/* Capo Control */}
+              {capoControl}
+
+              {/* Display Mode */}
+              {displayModes}
+
+              {/* Font Size */}
+              {fontSizeControl}
+            </Toolbar>
+          </>
+        )}
+
+        {/* The controls that do not fit on a phone. */}
+        <Menu
+          anchorEl={moreAnchor}
+          open={Boolean(moreAnchor)}
+          onClose={() => setMoreAnchor(null)}
+          slotProps={{ paper: { sx: { minWidth: 280 } } }}
+        >
+          {autoScroll && (
+            <MenuItem onClick={(event) => event.stopPropagation()} sx={{ display: 'block' }}>
+              <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                Scroll speed
               </Typography>
-              <IconButton
-                onClick={() => setFontSize((s) => Math.min(MAX_FONT_SIZE, s + 2))}
-                aria-label="Increase text size"
-              >
-                <TextIncreaseIcon />
-              </IconButton>
-            </Box>
+              {scrollSpeed}
+            </MenuItem>
+          )}
 
-            <Tooltip title="Performance mode (fullscreen)">
-              <IconButton
-                onClick={toggleFullscreen}
-                color={isFullscreen ? 'primary' : 'default'}
-                aria-label="Toggle performance mode"
-              >
-                <FullscreenIcon />
-              </IconButton>
-            </Tooltip>
+          <MenuItem onClick={(event) => event.stopPropagation()} sx={{ gap: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ minWidth: 76 }}>
+              Transpose
+            </Typography>
+            {transposeControl}
+          </MenuItem>
 
-            <Tooltip title="Keyboard shortcuts">
-              <IconButton
-                onClick={() => setShowShortcuts(true)}
-                aria-label="Show keyboard shortcuts"
-              >
-                <HelpOutlineIcon />
-              </IconButton>
-            </Tooltip>
+          <MenuItem onClick={(event) => event.stopPropagation()} sx={{ gap: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ minWidth: 76 }}>
+              Capo
+            </Typography>
+            {capoControl}
+          </MenuItem>
 
-            <Tooltip title="Download ChordPro file">
-              <IconButton
-                onClick={() => exportToChordPro(song, { transpose, capo, preferFlats })}
-                aria-label="Download ChordPro file"
-              >
-                <DownloadIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Print / save as PDF">
-              <IconButton
-                onClick={() => exportToPdf(song, { transpose, capo, preferFlats })}
-                aria-label="Print or save as PDF"
-              >
-                <PictureAsPdfIcon />
-              </IconButton>
-            </Tooltip>
-            <Button variant="contained" startIcon={<EditIcon />} onClick={onEdit} size="small">
-              Edit
-            </Button>
-          </Stack>
-        </Toolbar>
+          <MenuItem onClick={(event) => event.stopPropagation()} sx={{ gap: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ minWidth: 76 }}>
+              Show
+            </Typography>
+            {displayModes}
+          </MenuItem>
+
+          <MenuItem onClick={(event) => event.stopPropagation()} sx={{ gap: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ minWidth: 76 }}>
+              Text size
+            </Typography>
+            {fontSizeControl}
+          </MenuItem>
+
+          <MenuItem onClick={(event) => event.stopPropagation()} sx={{ gap: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ minWidth: 76 }}>
+              Tempo
+            </Typography>
+            {tempoDown}
+            {tempoUp}
+            {lockSwitch}
+          </MenuItem>
+
+          <Divider />
+
+          {loopControl && (
+            <MenuItem
+              onClick={() => {
+                toggleLoopMode();
+                setMoreAnchor(null);
+              }}
+              aria-label="Loop section"
+              sx={{ ml: 1 }}
+            >
+              {loopLabel}
+            </MenuItem>
+          )}
+
+          <MenuItem
+            onClick={() => {
+              void toggleChordPlayback();
+              setMoreAnchor(null);
+            }}
+            aria-label={playingChords ? 'Stop playing the chords' : 'Play the chords'}
+          >
+            <ListItemIcon>
+              <GraphicEqIcon fontSize="small" />
+            </ListItemIcon>
+            {playingChords ? 'Stop the chords' : 'Play the chords'}
+          </MenuItem>
+
+          <Divider />
+
+          <MenuItem
+            onClick={() => {
+              void toggleFullscreen();
+              setMoreAnchor(null);
+            }}
+            aria-label="Toggle performance mode"
+          >
+            <ListItemIcon>
+              <FullscreenIcon fontSize="small" />
+            </ListItemIcon>
+            Performance mode
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              setShowShortcuts(true);
+              setMoreAnchor(null);
+            }}
+            aria-label="Show keyboard shortcuts"
+          >
+            <ListItemIcon>
+              <HelpOutlineIcon fontSize="small" />
+            </ListItemIcon>
+            Keyboard shortcuts
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              exportToChordPro(song, { transpose, capo, preferFlats });
+              setMoreAnchor(null);
+            }}
+            aria-label="Download ChordPro file"
+          >
+            <ListItemIcon>
+              <DownloadIcon fontSize="small" />
+            </ListItemIcon>
+            Download ChordPro file
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              exportToPdf(song, { transpose, capo, preferFlats });
+              setMoreAnchor(null);
+            }}
+            aria-label="Print or save as PDF"
+          >
+            <ListItemIcon>
+              <PictureAsPdfIcon fontSize="small" />
+            </ListItemIcon>
+            Print or save as PDF
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              onEdit();
+              setMoreAnchor(null);
+            }}
+          >
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
+            Edit song
+          </MenuItem>
+        </Menu>
       </AppBar>
 
       {/* Section Navigation */}

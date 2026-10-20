@@ -1,15 +1,46 @@
 import { test, expect, type Page } from '@playwright/test';
 
 /**
+ * Click a control of a song, whether it is in the bar or in the menu.
+ */
+const clickSongControl = async (page: Page, name: string) => {
+  await openMoreControls(page);
+
+  const button = page.getByRole('button', { name, exact: true });
+  if (await button.count()) {
+    await button.click();
+    return;
+  }
+
+  await page.getByRole('menuitem', { name, exact: true }).click();
+};
+
+/**
+ * On a phone the controls of a song live in a menu, so it has to be opened
+ * before the items inside it can be used. On a big screen there is no menu,
+ * so this does nothing.
+ */
+const openMoreControls = async (page: Page) => {
+  const more = page.getByRole('button', { name: 'More controls' });
+  if (await more.isVisible()) {
+    await more.click();
+    await expect(page.getByRole('menu')).toBeVisible();
+  }
+};
+
+/**
  * On narrow viewports the navigation lives behind a menu button, so it has to
  * be opened before the items inside it can be used.
  */
 const openNavigation = async (page: Page) => {
+  // On a big screen the navigation is always there, so there is nothing to open.
+  const size = page.viewportSize();
+  if (size && size.width >= 900) return;
+
   const menuButton = page.getByRole('button', { name: 'Open navigation menu' });
-  if (await menuButton.isVisible()) {
-    await menuButton.click();
-    await expect(page.getByRole('button', { name: 'Close navigation menu' })).toBeVisible();
-  }
+  await menuButton.waitFor({ state: 'visible' });
+  await menuButton.click();
+  await expect(page.getByRole('button', { name: 'Close navigation menu' })).toBeVisible();
 };
 
 test.describe('Chorde E2E - Song List', () => {
@@ -145,9 +176,39 @@ test.describe('Chorde E2E - Song Viewer', () => {
     const keyChip = page.locator('.MuiChip-label').filter({ hasText: /^Key / }).first();
     await expect(keyChip).toBeVisible();
 
+    await openMoreControls(page);
     await page.getByRole('button', { name: 'Transpose up one semitone' }).click();
     await expect(page.getByRole('button', { name: 'Reset transposition' })).toBeVisible();
     await expect(keyChip).toHaveText(/from /);
+  });
+
+  test('keeps the sidebar beside the song on a big screen', async ({ page }) => {
+    // On a phone the sidebar is a drawer, so it is not beside the song.
+    const size = page.viewportSize();
+    test.skip(Boolean(size && size.width < 900), 'The sidebar is a drawer on a small screen.');
+
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible();
+  });
+
+  test('never scrolls the controls of a song sideways', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    // The controls wrap onto another row rather than hiding off the side.
+    const overflow = await page.evaluate(() => {
+      const bar = document.querySelector('.MuiAppBar-root');
+      return bar ? bar.scrollWidth - bar.clientWidth : 0;
+    });
+    expect(overflow).toBe(0);
   });
 
   test('offers the Nashville display mode', async ({ page }) => {
@@ -157,6 +218,7 @@ test.describe('Chorde E2E - Song Viewer', () => {
     await page.getByRole('heading', { level: 2 }).first().click();
     await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
 
+    await openMoreControls(page);
     await page.getByRole('button', { name: 'Nashville' }).click();
     await expect(page.getByRole('button', { name: 'Nashville' })).toHaveAttribute(
       'aria-pressed',
@@ -497,8 +559,8 @@ test.describe('Chorde E2E - Accessibility', () => {
     await page.getByRole('heading', { level: 2 }).first().click();
     await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
 
-    await page.getByRole('button', { name: /show keyboard shortcuts/i }).click();
-    await expect(page.getByText('Keyboard shortcuts')).toBeVisible();
+    await clickSongControl(page, 'Show keyboard shortcuts');
+    await expect(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeVisible();
     await expect(page.getByText('Transpose up a semitone')).toBeVisible();
   });
 
@@ -613,7 +675,7 @@ test.describe('Chorde E2E - Sound', () => {
     await page.getByRole('heading', { level: 2 }).first().click();
     await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
 
-    await page.getByRole('button', { name: 'Play the chords' }).click();
+    await clickSongControl(page, 'Play the chords');
 
     await expect.poll(() => playedNotes(page)).toBeGreaterThan(0);
   });

@@ -31,7 +31,7 @@ that is what the app is actually for.
 | -------------- | -------------------------------------------------------------- |
 | Built-in songs | 16, all public domain, checked by a test                       |
 | Unit tests     | 347 (276 web, 68 api, 3 shared)                                |
-| E2E tests      | 111, across Chromium, WebKit and a mobile viewport             |
+| E2E tests      | 117, across Chromium, WebKit and a mobile viewport             |
 | Deploy         | GitHub Pages, <https://shonegrad.github.io/chorde/>            |
 | API            | Not hosted. Online search is hidden in production until it is. |
 
@@ -49,6 +49,9 @@ that is what the app is actually for.
 - **Getting about** — on a big screen a sidebar sits beside the music and stays in view, so every
   place in the app is one click away and you can see where you are. On a phone it is a drawer and
   a bottom bar.
+- **The controls of a song** — in two rows on a big screen: what you do while playing, and how the
+  song is set up. They wrap rather than scroll sideways, so nothing is ever out of reach. On a
+  phone they are a short bar and a menu, so the song keeps the screen.
 - **Finding** — the key of a song is worked out from its chords, and every chord says where it sits
   in the key.
 - **Hearing** — the chords of a song can be played in the reader and on stage, a chord can be

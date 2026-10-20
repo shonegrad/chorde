@@ -341,6 +341,7 @@ function App() {
           {/* The screens with the sidebar beside them. */}
           <Route element={<AppLayout />}>
             <Route path="/" element={<SongListView />} />
+            <Route path="/song/:id" element={<SongViewerRoute />} />
             <Route path="/import" element={<SongImporterRoute />} />
             <Route
               path="/chords"
@@ -375,7 +376,6 @@ function App() {
           </Route>
 
           {/* The performance screens take the whole screen. */}
-          <Route path="/song/:id" element={<SongViewerRoute />} />
           <Route path="/song/:id/edit" element={<SongEditorRoute />} />
           <Route path="/song/new" element={<SongEditorRoute />} />
           <Route
