@@ -195,9 +195,11 @@ export const SetlistPlayer: React.FC = () => {
           <Chip label={`${index + 1} of ${entries.length}`} size="small" />
 
           <Tooltip title="Previous song">
-            <IconButton onClick={previous} disabled={index === 0} aria-label="Previous song">
-              <SkipPreviousIcon />
-            </IconButton>
+            <span>
+              <IconButton onClick={previous} disabled={index === 0} aria-label="Previous song">
+                <SkipPreviousIcon />
+              </IconButton>
+            </span>
           </Tooltip>
           <Tooltip title={scrolling ? 'Stop' : 'Start'}>
             <IconButton
@@ -209,13 +211,15 @@ export const SetlistPlayer: React.FC = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Next song">
-            <IconButton
-              onClick={next}
-              disabled={index >= entries.length - 1}
-              aria-label="Next song"
-            >
-              <SkipNextIcon />
-            </IconButton>
+            <span>
+              <IconButton
+                onClick={next}
+                disabled={index >= entries.length - 1}
+                aria-label="Next song"
+              >
+                <SkipNextIcon />
+              </IconButton>
+            </span>
           </Tooltip>
         </Toolbar>
       </AppBar>

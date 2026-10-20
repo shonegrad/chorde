@@ -25,12 +25,29 @@ describe('IndexedDBLibraryStore', () => {
   let store: IndexedDBLibraryStore;
 
   beforeEach(async () => {
-    await new Promise<void>((resolve) => {
-      const request = indexedDB.deleteDatabase('chorde-library');
-      request.onsuccess = () => resolve();
-      request.onerror = () => resolve();
-      request.onblocked = () => resolve();
+    // The library is emptied rather than the database deleted, because a
+    // connection that is still closing would block the delete.
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('chorde-library', 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains('songs')) {
+          db.createObjectStore('songs', { keyPath: 'id' });
+        }
+      };
+      request.onsuccess = () => {
+        const db = request.result;
+        const tx = db.transaction('songs', 'readwrite');
+        tx.objectStore('songs').clear();
+        tx.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+        tx.onerror = () => reject(tx.error);
+      };
+      request.onerror = () => reject(request.error);
     });
+
     store = new IndexedDBLibraryStore();
   });
 

@@ -59,7 +59,8 @@ export class IndexedDBLibraryStore implements LibraryStore {
   private listeners = new Set<(songs: Song[]) => void>();
 
   constructor() {
-    this.initPromise = this.migrateFromLocalStorage().then(() => this.loadCache());
+    // The library is only opened when it is first used, so importing this
+    // does not need a browser.
     this.setupSyncListener();
   }
 
@@ -99,7 +100,17 @@ export class IndexedDBLibraryStore implements LibraryStore {
 
   private async ensureInit(): Promise<void> {
     if (this.initialized) return;
+
+    if (!this.initPromise) {
+      this.initPromise = this.migrateFromLocalStorage()
+        .then(() => this.loadCache())
+        .catch((error) => {
+          console.error('Could not open the song library:', error);
+        });
+    }
+
     await this.initPromise;
+    this.initialized = true;
   }
 
   private async migrateFromLocalStorage(): Promise<void> {
@@ -133,11 +144,17 @@ export class IndexedDBLibraryStore implements LibraryStore {
   }
 
   private async loadCache(): Promise<void> {
+    if (typeof indexedDB === 'undefined') {
+      // No database available, so the library starts empty rather than
+      // failing outright.
+      this.memoryCache = [];
+      return;
+    }
+
     const db = await openDB();
     const tx = db.transaction(STORE_NAME, 'readonly');
     const store = tx.objectStore(STORE_NAME);
     this.memoryCache = await promisifyRequest(store.getAll());
-    this.initialized = true;
     db.close();
   }
 
