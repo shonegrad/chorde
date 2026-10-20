@@ -16,7 +16,7 @@ interface SongBodyProps {
 
 type Token =
   | { kind: 'text'; text: string }
-  | { kind: 'chord'; chord: string; word: string; rest: string };
+  | { kind: 'chord'; chord: string; word: string; rest: string; standalone: boolean };
 
 /**
  * Split the lyric that belongs to a chord into the first word (which carries
@@ -28,8 +28,9 @@ const splitFirstWord = (lyric: string): { word: string; rest: string } => {
 
   const [, leading, word, rest] = match;
   if (!word) {
-    // The chord has no lyric of its own, so keep a placeholder word.
-    return { word: '\u00A0', rest };
+    // The chord has no lyric of its own, so keep a placeholder word and hold
+    // on to the spacing that follows it.
+    return { word: '\u00A0', rest: leading + rest };
   }
 
   return { word: leading + word, rest };
@@ -42,11 +43,13 @@ const buildTokens = (line: ParsedSong[number]): Token[] => {
     if (item.chord) {
       const lyric = item.lyric ?? '';
       if (!lyric.trim()) {
-        tokens.push({ kind: 'chord', chord: item.chord, word: '\u00A0', rest: '' });
+        const { word, rest } = splitFirstWord(lyric);
+        tokens.push({ kind: 'chord', chord: item.chord, word, rest, standalone: true });
+        if (rest) tokens.push({ kind: 'text', text: rest });
         continue;
       }
       const { word, rest } = splitFirstWord(lyric);
-      tokens.push({ kind: 'chord', chord: item.chord, word, rest });
+      tokens.push({ kind: 'chord', chord: item.chord, word, rest, standalone: false });
       if (rest) tokens.push({ kind: 'text', text: rest });
     } else if (item.lyric) {
       tokens.push({ kind: 'text', text: item.lyric });
@@ -100,6 +103,7 @@ export const SongBody: React.FC<SongBodyProps> = ({
     <div className={`song-body song-body--${displayMode}`}>
       {tokenized.map((tokens, lineIndex) => {
         const line = lines[lineIndex];
+        const hasChords = tokens.some((token) => token.kind === 'chord');
 
         return (
           <div
@@ -136,13 +140,19 @@ export const SongBody: React.FC<SongBodyProps> = ({
                 )}
               </div>
             ) : (
-              <div className="song-line-content">
+              <div
+                className={`song-line-content${hasChords ? ' song-line-content--with-chords' : ''}`}
+              >
                 {tokens.map((token, tokenIndex) =>
                   token.kind === 'text' ? (
                     <React.Fragment key={tokenIndex}>{token.text}</React.Fragment>
                   ) : (
                     <React.Fragment key={tokenIndex}>
-                      <span className="chord-anchor">
+                      <span
+                        className={`chord-anchor${
+                          token.standalone ? ' chord-anchor--standalone' : ''
+                        }`}
+                      >
                         <button
                           type="button"
                           className="chord-display"
@@ -151,7 +161,16 @@ export const SongBody: React.FC<SongBodyProps> = ({
                         >
                           {renderChord(token.chord)}
                         </button>
-                        <span className="chord-word">{token.word}</span>
+                        {token.standalone ? (
+                          // Reserves the width of the chord, so chords that
+                          // have no words of their own do not sit on top of
+                          // each other.
+                          <span className="chord-spacer" aria-hidden="true">
+                            {renderChord(token.chord)}
+                          </span>
+                        ) : (
+                          <span className="chord-word">{token.word}</span>
+                        )}
                       </span>
                     </React.Fragment>
                   )

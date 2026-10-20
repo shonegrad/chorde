@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useLibraryStore } from './store/libraryStore';
 import { useSetlistStore } from './store/setlistStore';
@@ -7,6 +7,7 @@ import { useNotification } from './context/NotificationContext';
 import { SongList } from './components/SongList';
 import { NavigationMenu } from './components/NavigationMenu';
 import { StorageWarning } from './components/StorageWarning';
+import { MobileNav } from './components/MobileNav';
 import ErrorBoundary from './components/ErrorBoundary';
 import type { Song, SongFilter } from './types';
 import { Box, IconButton, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
@@ -160,8 +161,19 @@ function SongListView() {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  // noSsr keeps the first render in step with the real viewport, so the
+  // drawer does not flash open on a phone before it is closed again.
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const [navOpen, setNavOpen] = useState(!isMobile);
+
+  // Keep the drawer in step with the screen size, so rotating a phone does
+  // not leave it open or stuck closed. Adjusting during render avoids an
+  // extra pass of rendering.
+  const [lastIsMobile, setLastIsMobile] = useState(isMobile);
+  if (lastIsMobile !== isMobile) {
+    setLastIsMobile(isMobile);
+    setNavOpen(!isMobile);
+  }
 
   const searchParams = new URLSearchParams(location.search);
   const urlTag = searchParams.get('tag');
@@ -300,48 +312,72 @@ function SongListView() {
 function App() {
   const storageAvailable = useLibraryStore((s) => s.storageAvailable);
   const navigate = useNavigate();
+  const location = useLocation();
+  const mainRef = useRef<HTMLElement>(null);
+
+  // Move the focus to the top of the page after a route change, so a keyboard
+  // or screen reader user is not left where they were.
+  useEffect(() => {
+    mainRef.current?.focus();
+  }, [location.pathname]);
 
   return (
     <>
+      <a
+        href="#main-content"
+        className="skip-link"
+        onClick={(event) => {
+          event.preventDefault();
+          mainRef.current?.focus();
+        }}
+      >
+        Skip to content
+      </a>
+
       {!storageAvailable && <StorageWarning />}
-      <Routes>
-        <Route path="/" element={<SongListView />} />
-        <Route path="/song/:id" element={<SongViewerRoute />} />
-        <Route path="/song/:id/edit" element={<SongEditorRoute />} />
-        <Route path="/song/new" element={<SongEditorRoute />} />
-        <Route path="/import" element={<SongImporterRoute />} />
-        <Route
-          path="/chords"
-          element={
-            <ErrorBoundary>
-              <Suspense fallback={LoadingFallback}>
-                <ChordBrowser onBack={() => navigate('/')} />
-              </Suspense>
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/setlist/:id"
-          element={
-            <ErrorBoundary>
-              <Suspense fallback={LoadingFallback}>
-                <SetlistViewer />
-              </Suspense>
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ErrorBoundary>
-              <Suspense fallback={LoadingFallback}>
-                <Settings onBack={() => navigate('/')} />
-              </Suspense>
-            </ErrorBoundary>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+
+      <main id="main-content" ref={mainRef} tabIndex={-1}>
+        <Routes>
+          <Route path="/" element={<SongListView />} />
+          <Route path="/song/:id" element={<SongViewerRoute />} />
+          <Route path="/song/:id/edit" element={<SongEditorRoute />} />
+          <Route path="/song/new" element={<SongEditorRoute />} />
+          <Route path="/import" element={<SongImporterRoute />} />
+          <Route
+            path="/chords"
+            element={
+              <ErrorBoundary>
+                <Suspense fallback={LoadingFallback}>
+                  <ChordBrowser onBack={() => navigate('/')} />
+                </Suspense>
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/setlist/:id"
+            element={
+              <ErrorBoundary>
+                <Suspense fallback={LoadingFallback}>
+                  <SetlistViewer />
+                </Suspense>
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ErrorBoundary>
+                <Suspense fallback={LoadingFallback}>
+                  <Settings onBack={() => navigate('/')} />
+                </Suspense>
+              </ErrorBoundary>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+
+      <MobileNav />
     </>
   );
 }

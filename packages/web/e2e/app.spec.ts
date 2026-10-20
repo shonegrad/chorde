@@ -220,3 +220,107 @@ test.describe('Chorde E2E - Organising the library', () => {
     expect(download.suggestedFilename()).toMatch(/^chorde-library-\d{4}-\d{2}-\d{2}\.json$/);
   });
 });
+
+test.describe('Chorde E2E - Mobile', () => {
+  test.use({ viewport: { width: 390, height: 780 } });
+
+  test('keeps a bottom navigation bar on every screen', async ({ page }) => {
+    await page.goto('./settings');
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 15000 });
+
+    const bottomNav = page.getByLabel('Main navigation');
+    await expect(bottomNav).toBeVisible();
+
+    await bottomNav.getByRole('button', { name: /import/i }).click();
+    await expect(page).toHaveURL(/\/import/);
+    await expect(bottomNav).toBeVisible();
+  });
+
+  test('leaves the song viewer full screen', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await expect(page.getByLabel('Main navigation')).toHaveCount(0);
+  });
+});
+
+test.describe('Chorde E2E - Accessibility', () => {
+  test('puts the skip link first, so a keyboard user reaches it straight away', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    const firstFocusable = await page.evaluate(() => {
+      const focusable = document.querySelectorAll(
+        'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      return focusable[0]?.getAttribute('class') ?? '';
+    });
+
+    expect(firstFocusable).toContain('skip-link');
+  });
+
+  test('the skip link moves the focus to the content', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    const skipLink = page.getByRole('link', { name: /skip to content/i });
+    await skipLink.focus();
+    await skipLink.press('Enter');
+
+    await expect(page.locator('#main-content')).toBeFocused();
+  });
+
+  test('transposes a song with the arrow keys', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    const keyChip = page.locator('.MuiChip-label').filter({ hasText: /^Key / }).first();
+    const before = await keyChip.textContent();
+
+    await page.keyboard.press('ArrowRight');
+    await expect(keyChip).not.toHaveText(before ?? '');
+    await expect(keyChip).toHaveText(/from /);
+  });
+
+  test('shows the keyboard shortcuts', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await page.getByRole('button', { name: /show keyboard shortcuts/i }).click();
+    await expect(page.getByText('Keyboard shortcuts')).toBeVisible();
+    await expect(page.getByText('Transpose up a semitone')).toBeVisible();
+  });
+
+  test('switches between the light and dark themes', async ({ page }) => {
+    await page.goto('./settings');
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Light theme' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+
+    await page.getByRole('button', { name: 'Dark theme' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  });
+
+  test('remembers the chosen theme on the next visit', async ({ page }) => {
+    await page.goto('./settings');
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Light theme' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  });
+});

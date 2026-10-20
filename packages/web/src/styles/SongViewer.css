@@ -18,17 +18,31 @@
 
 .song-line-content {
   word-break: break-word;
+  /* Keep the spacing that is in the lyrics. */
+  white-space: pre-wrap;
+}
+
+/* Room for the row of chords above the words. */
+.song-line-content--with-chords {
+  padding-top: 1.4em;
 }
 
 .chord-anchor {
   display: inline-block;
+  position: relative;
   vertical-align: baseline;
 }
 
 .chord-display {
-  display: block;
+  /*
+   * The chord sits above the word and does not take up any room itself, so a
+   * wide chord never pushes the lyrics apart.
+   */
+  position: absolute;
+  bottom: 100%;
+  left: 0;
   margin: 0;
-  padding: 0;
+  padding: 0 0.1em 0 0;
   border: none;
   background: none;
   font: inherit;
@@ -55,6 +69,15 @@
 .chord-word {
   display: block;
   white-space: nowrap;
+}
+
+/* Holds the place of a chord that has no words of its own. */
+.chord-spacer {
+  display: inline-block;
+  visibility: hidden;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-weight: 700;
 }
 
 /* Tab and notation artwork is far too large to sit inline with the lyrics. */

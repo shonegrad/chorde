@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { SongViewer } from '../SongViewer';
 import theme from '../../theme';
@@ -164,5 +164,59 @@ describe('SongViewer', () => {
     expect(screen.getByRole('button', { name: /start auto-scroll/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /download chordpro file/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /print or save as pdf/i })).toBeInTheDocument();
+  });
+
+  describe('keyboard shortcuts', () => {
+    it('transposes with the arrow keys', () => {
+      renderViewer(song);
+
+      fireEvent.keyDown(window, { key: 'ArrowRight' });
+      expect(screen.getByText('Key G# (from G)')).toBeInTheDocument();
+
+      fireEvent.keyDown(window, { key: 'ArrowLeft' });
+      expect(screen.getByText('Key G')).toBeInTheDocument();
+    });
+
+    it('changes the text size with plus and minus', () => {
+      renderViewer(song);
+
+      fireEvent.keyDown(window, { key: '+' });
+      expect(screen.getByLabelText(/text size 22 pixels/i)).toBeInTheDocument();
+
+      fireEvent.keyDown(window, { key: '-' });
+      expect(screen.getByLabelText(/text size 20 pixels/i)).toBeInTheDocument();
+    });
+
+    it('shows the shortcut list with the question mark', () => {
+      renderViewer(song);
+
+      fireEvent.keyDown(window, { key: '?' });
+
+      expect(screen.getByText('Keyboard shortcuts')).toBeInTheDocument();
+      expect(screen.getByText('Transpose down a semitone')).toBeInTheDocument();
+    });
+
+    it('closes the shortcut list with Escape', async () => {
+      renderViewer(song);
+
+      fireEvent.keyDown(window, { key: '?' });
+      expect(screen.getByText('Keyboard shortcuts')).toBeInTheDocument();
+
+      fireEvent.keyDown(window, { key: 'Escape' });
+      await waitFor(() => expect(screen.queryByText('Keyboard shortcuts')).not.toBeInTheDocument());
+    });
+
+    it('leaves the keyboard alone while the user is typing', () => {
+      renderViewer(song);
+
+      const input = document.createElement('input');
+      document.body.appendChild(input);
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowRight' });
+
+      expect(screen.getByText('Key G')).toBeInTheDocument();
+      input.remove();
+    });
   });
 });

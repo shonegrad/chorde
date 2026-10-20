@@ -59,6 +59,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import EditIcon from '@mui/icons-material/Edit';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import '../styles/SongViewer.css';
 
@@ -329,7 +330,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     lastTapTimeRef.current = now;
   };
 
-  const toggleAutoScroll = () => {
+  const toggleAutoScroll = useCallback(() => {
     setAutoScroll((prev) => {
       const next = !prev;
       // Start the count-in when the scroll is switched on.
@@ -338,7 +339,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       }
       return next;
     });
-  };
+  }, [stageMode.countInBeats]);
 
   const toggleLoopMode = () => {
     const newLoopMode = !loopMode;
@@ -393,6 +394,63 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const handleTagsChange = (tags: string[]) => {
     onUpdateSong?.({ ...song, tags, updatedAt: new Date().toISOString() });
   };
+
+  const [showShortcuts, setShowShortcuts] = useState(false);
+
+  // Keyboard shortcuts, so a song can be played without touching the screen.
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      // Leave the user alone while they are typing.
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      ) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          setTranspose((value) => value - 1);
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          setTranspose((value) => value + 1);
+          break;
+        case '+':
+        case '=':
+          event.preventDefault();
+          setFontSize((value) => Math.min(MAX_FONT_SIZE, value + 2));
+          break;
+        case '-':
+        case '_':
+          event.preventDefault();
+          setFontSize((value) => Math.max(MIN_FONT_SIZE, value - 2));
+          break;
+        case ' ':
+          event.preventDefault();
+          toggleAutoScroll();
+          break;
+        case 'Escape':
+          if (showShortcuts) {
+            setShowShortcuts(false);
+          } else {
+            onClose();
+          }
+          break;
+        case '?':
+          event.preventDefault();
+          setShowShortcuts((open) => !open);
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, showShortcuts, toggleAutoScroll]);
 
   const keyLabel = transposedKey ?? writtenKey;
 
@@ -635,6 +693,15 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               </IconButton>
             </Tooltip>
 
+            <Tooltip title="Keyboard shortcuts">
+              <IconButton
+                onClick={() => setShowShortcuts(true)}
+                aria-label="Show keyboard shortcuts"
+              >
+                <HelpOutlineIcon />
+              </IconButton>
+            </Tooltip>
+
             <Tooltip title="Download ChordPro file">
               <IconButton
                 onClick={() => exportToChordPro(song, { transpose, capo, preferFlats })}
@@ -851,6 +918,52 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSetlistOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Keyboard shortcuts */}
+      <Dialog
+        open={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
+        maxWidth="xs"
+        fullWidth
+        transitionDuration={0}
+        aria-label="Keyboard shortcuts"
+      >
+        <DialogTitle>Keyboard shortcuts</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1}>
+            {[
+              ['Left arrow', 'Transpose down a semitone'],
+              ['Right arrow', 'Transpose up a semitone'],
+              ['+ / -', 'Make the text bigger or smaller'],
+              ['Space', 'Start or stop the auto-scroll'],
+              ['?', 'Show this list'],
+              ['Escape', 'Go back'],
+            ].map(([keys, description]) => (
+              <Stack key={keys} direction="row" spacing={2} alignItems="center">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontFamily: 'monospace',
+                    minWidth: 100,
+                    px: 1,
+                    py: 0.25,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    textAlign: 'center',
+                  }}
+                >
+                  {keys}
+                </Typography>
+                <Typography variant="body2">{description}</Typography>
+              </Stack>
+            ))}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowShortcuts(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>

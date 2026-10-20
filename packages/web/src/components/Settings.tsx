@@ -13,8 +13,13 @@ import {
   Slider,
   Stack,
   Switch,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from '@mui/material';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import DownloadIcon from '@mui/icons-material/Download';
 import UploadIcon from '@mui/icons-material/Upload';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -23,10 +28,12 @@ import { useLibraryStore } from '../store/libraryStore';
 import { useSetlistStore } from '../store/setlistStore';
 import { buildSnapshot, downloadSnapshot, readSnapshotFile } from '../lib/backup';
 import { useNotification } from '../context/NotificationContext';
+import { useThemeMode } from '../context/ThemeModeContext';
 
 export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [settings, updateSettings] = useAppSettings();
   const { notifySuccess, notifyError } = useNotification();
+  const { preference, setPreference, mode } = useThemeMode();
 
   const songs = useLibraryStore((s) => s.songs);
   const saveSong = useLibraryStore((s) => s.saveSong);
@@ -137,6 +144,40 @@ export const Settings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
             {songs.length} songs · {setlists.length} setlists
           </Typography>
+        </Box>
+
+        <Divider />
+
+        <Box>
+          <Typography variant="h6" fontWeight="bold">
+            Appearance
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Chorde follows the system setting by default, and remembers your choice. Currently using
+            the {mode} theme.
+          </Typography>
+          <ToggleButtonGroup
+            exclusive
+            value={preference}
+            onChange={(_event, value) => {
+              if (value) setPreference(value);
+            }}
+            aria-label="Colour theme"
+            size="small"
+          >
+            <ToggleButton value="light" aria-label="Light theme">
+              <LightModeIcon sx={{ mr: 1 }} />
+              Light
+            </ToggleButton>
+            <ToggleButton value="dark" aria-label="Dark theme">
+              <DarkModeIcon sx={{ mr: 1 }} />
+              Dark
+            </ToggleButton>
+            <ToggleButton value="system" aria-label="Follow the system theme">
+              <SettingsBrightnessIcon sx={{ mr: 1 }} />
+              System
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Box>
 
         <Divider />

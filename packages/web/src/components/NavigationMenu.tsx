@@ -91,7 +91,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const navigate = useNavigate();
   const setlists = useSetlistStore((s) => s.setlists);
   const createSetlist = useSetlistStore((s) => s.createSetlist);

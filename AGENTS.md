@@ -42,6 +42,9 @@ Package-specific scripts live in each `packages/*/package.json` (e.g. `test:e2e`
 - `packages/web/src/lib/settings.ts` — App settings (stage mode) shared by Settings and SongViewer
 - `packages/web/src/lib/features.ts` — Feature flags (online search)
 - `packages/web/src/components/SongBody.tsx` — Chord-over-lyric rendering
+- `packages/web/src/components/MobileNav.tsx` — Bottom navigation for small screens
+- `packages/web/src/context/ThemeModeContext.tsx` — Light/dark theme
+- `packages/web/src/lib/backup.ts` — Library backup format
 - `packages/web/src/services/searchApi.ts` — API client
 - `packages/api/src/index.ts` — Hono server + CORS config
 - `packages/api/src/routes/search.ts` — Search route + source adapters

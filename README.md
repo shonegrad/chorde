@@ -30,6 +30,11 @@
 - **Backup & Restore**: Export your whole library to a file and restore it on another device.
 - **Local Storage**: Your library is saved locally in your browser and works offline. Changes in
   another tab are picked up straight away.
+- **Light and Dark**: Follows the system setting by default, or pick one in Settings.
+- **Keyboard Friendly**: Arrow keys transpose, `+` and `-` change the text size, space starts the
+  auto-scroll, and `?` shows the full list.
+- **Works on a Phone**: A bottom navigation bar keeps every screen within reach, and the song
+  viewer takes the whole screen for playing.
 - **Nashville Number System**: View songs in numbers for universal playability.
 - **Performance**: Lazy loading for large song libraries.
 - **Responsive Design**: Works great on desktop and tablets.
