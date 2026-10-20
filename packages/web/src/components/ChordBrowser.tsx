@@ -3,6 +3,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import { CHORD_LIBRARY, type ChordVariation } from '../data/chordLibrary';
+import { chordsOfKey, notesOfScale, SCALE_KEYS } from '../lib/keyDetection';
 import { ChordDiagram } from './ChordDiagram';
 import { ChordDiagramEditor } from './ChordDiagramEditor';
 import { ChordModal } from './ChordModal';
@@ -22,6 +23,11 @@ import {
   Box,
   InputAdornment,
   IconButton,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -63,6 +69,7 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChord, setSelectedChord] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [scaleKey, setScaleKey] = useState('C');
   const [playingChord, setPlayingChord] = useState<string | null>(null);
   const [customChords, setCustomChords] = useState<CustomChord[]>([]);
 
@@ -188,6 +195,48 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
         </div>
       </Box>
 
+      {/* The chords that fit a key */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel id="scale-key-label">Key</InputLabel>
+            <Select
+              labelId="scale-key-label"
+              label="Key"
+              value={scaleKey}
+              onChange={(event) => setScaleKey(event.target.value)}
+            >
+              {SCALE_KEYS.map((key) => (
+                <MenuItem key={key} value={key}>
+                  {key}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="caption" color="text.secondary" display="block">
+              The notes of {scaleKey}
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+              {notesOfScale(scaleKey).join(' ')}
+            </Typography>
+          </Box>
+        </Stack>
+
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 2, gap: 1 }}>
+          {chordsOfKey(scaleKey).map((chord) => (
+            <Chip
+              key={chord.degree}
+              label={`${chord.name} · ${chord.degree}`}
+              variant="outlined"
+              onClick={() => setSelectedChord(chord.name)}
+              sx={{ fontFamily: 'monospace' }}
+            />
+          ))}
+        </Stack>
+      </Paper>
+
       {/* Search and Filters */}
       <Box sx={{ mb: 4 }}>
         <TextField
@@ -237,6 +286,7 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
             <Card
               sx={{
                 height: '100%',
+                position: 'relative',
                 transition: 'all 0.2s',
                 border: selectedChord === chord.chordName ? 1 : 0,
                 borderColor: 'primary.main',
@@ -271,18 +321,6 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
                         {chord.fullName}
                       </Typography>
                     </Box>
-                    <IconButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePlayChord(chord.chordName);
-                      }}
-                      disabled={playingChord === chord.chordName}
-                      color={playingChord === chord.chordName ? 'primary' : 'default'}
-                      size="small"
-                      sx={{ border: 1, borderColor: 'divider' }}
-                    >
-                      {playingChord === chord.chordName ? <VolumeUpIcon /> : <PlayArrowIcon />}
-                    </IconButton>
                   </Box>
 
                   {/* Diagram Preview */}
@@ -307,6 +345,21 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
                   </Box>
                 </CardContent>
               </CardActionArea>
+
+              {/* The play button sits outside the action area, because a button
+                  inside a button is not valid. */}
+              <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+                <IconButton
+                  onClick={() => handlePlayChord(chord.chordName)}
+                  disabled={playingChord === chord.chordName}
+                  color={playingChord === chord.chordName ? 'primary' : 'default'}
+                  size="small"
+                  aria-label={`Play ${chord.chordName}`}
+                  sx={{ border: 1, borderColor: 'divider' }}
+                >
+                  {playingChord === chord.chordName ? <VolumeUpIcon /> : <PlayArrowIcon />}
+                </IconButton>
+              </Box>
             </Card>
           </Grid>
         ))}

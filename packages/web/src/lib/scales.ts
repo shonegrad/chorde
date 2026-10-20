@@ -196,30 +196,3 @@ export function noteToFrequency(noteName: string, octave: number = 4): number {
   const midi = noteToMidi(noteName, octave);
   return midiToFrequency(midi);
 }
-
-/**
- * Detect key from chord progression (basic heuristic)
- */
-export function detectKey(chords: string[]): { key: string; confidence: number } | null {
-  if (chords.length === 0) return null;
-
-  // Count chord occurrences
-  const chordCounts: Record<string, number> = {};
-  chords.forEach((chord) => {
-    const root = chord.replace(/[^A-G#b]/g, ''); // Extract root note
-    chordCounts[root] = (chordCounts[root] || 0) + 1;
-  });
-
-  // Most common chord is likely the tonic
-  const sortedChords = Object.entries(chordCounts).sort((a, b) => b[1] - a[1]);
-  const likelyTonic = sortedChords[0][0];
-
-  // Check if progression suggests major or minor
-  const hasMinor = chords.some((c) => c.includes('m') && !c.includes('maj'));
-  const key = hasMinor ? `${likelyTonic}m` : likelyTonic;
-
-  // Confidence based on how dominant the tonic is
-  const confidence = sortedChords[0][1] / chords.length;
-
-  return { key, confidence };
-}

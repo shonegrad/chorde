@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { getChord } from '../data/chordLibrary';
+import { chordToNotation } from '../lib/nashville';
+import { chordInKey } from '../lib/keyDetection';
 import { ChordDiagram } from './ChordDiagram';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   IconButton,
+  Stack,
   Typography,
   Box,
   ToggleButton,
@@ -18,9 +21,11 @@ import CloseIcon from '@mui/icons-material/Close';
 interface ChordModalProps {
   chordName: string;
   onClose: () => void;
+  /** The key of the song, so the chord can be placed in it. */
+  songKey?: string;
 }
 
-export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose }) => {
+export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, songKey }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const chord = getChord(chordName);
@@ -95,6 +100,25 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose }) =>
         <Box sx={{ mb: 4, minHeight: 280, display: 'flex', alignItems: 'center' }}>
           <ChordDiagram variation={chord.variations[selectedVariation]} chordName={chord.name} />
         </Box>
+
+        {/* What the chord is made of, and where it sits in the key. */}
+        <Stack spacing={1} sx={{ mb: 3, alignItems: 'center' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+            {chordToNotation(chord.name)}
+          </Typography>
+          {songKey && (
+            <Typography variant="body2" color="text.secondary">
+              {(() => {
+                const place = chordInKey(chord.name, songKey);
+                if (!place) return '';
+                if (!place.fits) {
+                  return `Not a chord in ${songKey}`;
+                }
+                return `The ${place.degree} in ${songKey}`;
+              })()}
+            </Typography>
+          )}
+        </Stack>
 
         {chord.variations.length > 1 && (
           <ToggleButtonGroup

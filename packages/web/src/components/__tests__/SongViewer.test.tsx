@@ -54,6 +54,16 @@ describe('SongViewer', () => {
     expect(anchor?.querySelector('.chord-word')?.textContent).toBe('Amazing');
   });
 
+  it('works out the key when the song does not say', () => {
+    renderViewer({
+      ...song,
+      key: undefined,
+      content: '{start_of_verse}\n[G]Amazing [C]grace how [G]sweet the [D7]sound',
+    });
+
+    expect(screen.getByText('Key G (detected)')).toBeInTheDocument();
+  });
+
   it('shows the written key when nothing is transposed', () => {
     renderViewer(song);
     expect(screen.getByText('Key G')).toBeInTheDocument();

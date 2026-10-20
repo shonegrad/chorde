@@ -3,6 +3,7 @@ import type { Song, SongSection, DisplayMode } from '../types';
 import { parseChordPro } from '../lib/chordPro';
 import { exportToChordPro, exportToPdf } from '../lib/export';
 import { transposeChord, transposeKey, keyPrefersFlats } from '../lib/music';
+import { detectKey } from '../lib/keyDetection';
 import { useAppSettings } from '../lib/settings';
 import { useAutoScroll } from '../lib/useAutoScroll';
 import {
@@ -156,6 +157,19 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       })),
     }));
   }, [song.content, transpose, preferFlats]);
+
+  /*
+   * A song that does not say what key it is in can still be worked out from
+   * the chords it uses.
+   */
+  const detectedKey = useMemo(() => {
+    if (song.key) return undefined;
+    const chords = parsedContent.flatMap((line) =>
+      line.items.map((item) => item.chord).filter((chord): chord is string => Boolean(chord))
+    );
+    if (chords.length < 2) return undefined;
+    return detectKey(chords) ?? undefined;
+  }, [song.key, parsedContent]);
 
   const sections = useMemo(() => {
     const extracted: SongSection[] = [];
@@ -793,7 +807,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             </Stack>
 
             {/* Key, transposition and capo summary */}
-            {(keyLabel || capo > 0) && (
+            {(keyLabel || capo > 0 || detectedKey) && (
               <Stack
                 direction="row"
                 spacing={1}
@@ -811,6 +825,29 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                     variant="outlined"
                     sx={{ fontWeight: 'bold' }}
                   />
+                )}
+                {!song.key && detectedKey && (
+                  <>
+                    <Chip
+                      label={`Key ${detectedKey.key} (detected)`}
+                      variant="outlined"
+                      sx={{ fontWeight: 'bold' }}
+                    />
+                    {onUpdateSong && (
+                      <Button
+                        size="small"
+                        onClick={() =>
+                          onUpdateSong({
+                            ...song,
+                            key: detectedKey.key,
+                            updatedAt: new Date().toISOString(),
+                          })
+                        }
+                      >
+                        Use this key
+                      </Button>
+                    )}
+                  </>
                 )}
                 {capo > 0 && (
                   <Chip
@@ -866,7 +903,11 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       </Box>
 
       {selectedChord && (
-        <ChordModal chordName={selectedChord} onClose={() => setSelectedChord(null)} />
+        <ChordModal
+          chordName={selectedChord}
+          songKey={soundingKey ?? transposedKey ?? writtenKey}
+          onClose={() => setSelectedChord(null)}
+        />
       )}
 
       {/* Edit tags */}

@@ -262,6 +262,40 @@ test.describe('Chorde E2E - Online search', () => {
   });
 });
 
+test.describe('Chorde E2E - Finding your way around the library', () => {
+  test('shows the chords that fit a key', async ({ page }) => {
+    await page.goto('./chords');
+    await expect(page.getByRole('heading', { name: 'Chord Library' })).toBeVisible({
+      timeout: 15000,
+    });
+
+    await page.getByLabel('Key').click();
+    await page.getByRole('option', { name: 'G', exact: true }).click();
+
+    // The chords of G major, in the order they appear in the scale.
+    await expect(page.getByText('G · I')).toBeVisible();
+    await expect(page.getByText('Am · ii')).toBeVisible();
+    await expect(page.getByText('F#dim · vii')).toBeVisible();
+  });
+
+  test('says what a chord is made of and where it sits in the key', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await page
+      .getByRole('button', { name: /show chord diagram for G/i })
+      .first()
+      .click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(/1-3-5/)).toBeVisible();
+  });
+});
+
 test.describe('Chorde E2E - Performing a setlist', () => {
   test('plays through a setlist', async ({ page }) => {
     await page.goto('./');

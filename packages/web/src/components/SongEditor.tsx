@@ -5,7 +5,7 @@ import { extractMetadata } from '../lib/chordPro';
 import { transposeChordProContent, keyPrefersFlats } from '../lib/music';
 import { keyShift } from '../lib/keys';
 import { chordsOutsideKey, suggestChords } from '../lib/chordSuggestions';
-import { detectKey } from '../lib/scales';
+import { detectKey } from '../lib/keyDetection';
 import {
   commit,
   createHistory,
@@ -319,7 +319,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
     if (draft.key) return undefined;
     const chords = Array.from(draft.content.matchAll(/\[([^\]]+)\]/g)).map((match) => match[1]);
     if (chords.length < 2) return undefined;
-    return detectKey(chords)?.key;
+    return detectKey(chords);
   }, [draft.content, draft.key]);
 
   const applyTranspose = () => {
@@ -480,12 +480,13 @@ export const SongEditor: React.FC<SongEditorProps> = ({
           <Alert
             severity="info"
             action={
-              <Button size="small" onClick={() => update({ key: suggestedKey })}>
-                Use {suggestedKey}
+              <Button size="small" onClick={() => update({ key: suggestedKey.key })}>
+                Use {suggestedKey.key}
               </Button>
             }
           >
-            These chords look like they are in {suggestedKey}.
+            These chords look like they are in {suggestedKey.key}
+            {suggestedKey.alternatives.length > 0 && <> (or {suggestedKey.alternatives[0].key})</>}.
           </Alert>
         )}
 
