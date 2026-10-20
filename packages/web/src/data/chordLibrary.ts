@@ -133,7 +133,7 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
     fullName: 'D Minor',
     variations: [
       { frets: ['x', 'x', 0, 2, 3, 1], fingers: ['x', 'x', 0, 2, 3, 1], suffix: 'open' },
-      { frets: [5, 6, 7, 7, 6, 5], fingers: [1, 2, 3, 4, 2, 1], suffix: 'barre' },
+      { frets: [5, 5, 7, 7, 6, 5], fingers: [5, 5, 7, 7, 6, 5], suffix: 'barre' },
     ],
   },
   Em: {
@@ -492,7 +492,7 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
     fullName: 'E Major 7th',
     variations: [
       { frets: [0, 2, 1, 1, 0, 0], fingers: [0, 2, 1, 1, 0, 0], suffix: 'open' },
-      { frets: [7, 9, 8, 8, 7, 7], fingers: [1, 4, 2, 3, 1, 1], barres: [7], suffix: 'barre' },
+      { frets: ['x', 7, 9, 8, 9, 7], fingers: ['x', 7, 9, 8, 9, 7], barres: [7], suffix: 'barre' },
     ],
   },
   Ebmaj7: {
@@ -663,7 +663,7 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
     fullName: 'C Dominant 9th',
     variations: [
       { frets: ['x', 3, 2, 3, 3, 3], fingers: ['x', 2, 1, 3, 3, 3], suffix: 'partial' },
-      { frets: [8, 10, 8, 9, 10, 8], fingers: [1, 3, 1, 2, 4, 1], barres: [8], suffix: 'barre' },
+      { frets: [8, 10, 8, 9, 8, 10], fingers: [8, 10, 8, 9, 8, 10], barres: [8], suffix: 'barre' },
     ],
   },
   'C#': {
@@ -705,7 +705,7 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
         barres: [4],
         suffix: 'bass variant',
       },
-      { frets: [8, 11, 11, 10, 8, 8], fingers: [1, 4, 4, 3, 1, 1], barres: [8], suffix: 'barre' },
+      { frets: ['x', 3, 1, 1, 1, 4], fingers: ['x', 3, 1, 1, 1, 4], barres: [8], suffix: 'barre' },
     ],
   },
   G7alt: {
@@ -813,7 +813,7 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
     fullName: 'B Major 7th',
     variations: [
       { frets: ['x', 2, 4, 3, 4, 2], fingers: ['x', 1, 3, 2, 4, 1], barres: [2], suffix: 'barre' },
-      { frets: [7, 9, 8, 8, 7, 7], fingers: [1, 4, 2, 3, 1, 1], barres: [7], suffix: 'barre' },
+      { frets: [7, 9, 9, 8, 7, 7], fingers: [1, 3, 3, 2, 1, 1], barres: [7], suffix: 'barre' },
     ],
   },
   Gb7: {
@@ -885,7 +885,7 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
     fullName: 'G# Power Chord',
     variations: [
       { frets: [4, 6, 6, 'x', 'x', 'x'], fingers: [1, 3, 4, 'x', 'x', 'x'], suffix: 'moveable' },
-      { frets: ['x', 'x', 6, 4, 'x', 'x'], fingers: ['x', 'x', 3, 1, 'x', 'x'], suffix: 'partial' },
+      { frets: ['x', 'x', 6, 8, 'x', 'x'], fingers: ['x', 'x', 6, 8, 'x', 'x'], suffix: 'partial' },
     ],
   },
 
@@ -974,7 +974,7 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
     name: 'Bdim',
     fullName: 'B Diminished',
     variations: [
-      { frets: ['x', 2, 4, 4, 3, 'x'], fingers: ['x', 1, 3, 4, 2, 'x'], suffix: 'barre' },
+      { frets: ['x', 2, 3, 4, 3, 'x'], fingers: ['x', 2, 3, 4, 3, 'x'], suffix: 'barre' },
     ],
   },
   'C#dim7': {
@@ -1031,7 +1031,7 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
     name: 'Ab6',
     fullName: 'Ab Major 6th',
     variations: [
-      { frets: [4, 6, 4, 5, 6, 4], fingers: [1, 3, 1, 2, 4, 1], barres: [4], suffix: 'barre' },
+      { frets: [4, 6, 1, 5, 4, 1], fingers: [4, 6, 1, 5, 4, 1], barres: [4], suffix: 'barre' },
     ],
   },
   Bbm6: {
@@ -1046,14 +1046,14 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
     name: 'Fm6',
     fullName: 'F Minor 6th',
     variations: [
-      { frets: [1, 3, 1, 1, 3, 1], fingers: [1, 3, 1, 1, 4, 1], barres: [1], suffix: 'barre' },
+      { frets: [1, 3, 0, 1, 3, 1], fingers: [1, 3, 0, 1, 3, 1], barres: [1], suffix: 'barre' },
     ],
   },
   Gm6: {
     name: 'Gm6',
     fullName: 'G Minor 6th',
     variations: [
-      { frets: [3, 5, 3, 3, 5, 3], fingers: [1, 3, 1, 1, 4, 1], barres: [3], suffix: 'barre' },
+      { frets: [3, 5, 0, 3, 5, 3], fingers: [3, 5, 0, 3, 5, 3], barres: [3], suffix: 'barre' },
     ],
   },
   'C/Bb': {
@@ -1086,18 +1086,6 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
         fingers: ['x', 1, 1, 2, 4, 3],
         barres: [1],
         suffix: 'bass variant',
-      },
-    ],
-  },
-  'Ebm7/Ab': {
-    name: 'Ebm7/Ab',
-    fullName: 'Ebm7 over Ab',
-    variations: [
-      {
-        frets: [4, 6, 4, 6, 4, 4],
-        fingers: [1, 3, 1, 4, 1, 1],
-        barres: [4],
-        suffix: 'Ab9sus4 equiv',
       },
     ],
   },
@@ -1263,32 +1251,64 @@ export const CHORD_LIBRARY: Record<string, ChordDefinition> = {
       { frets: ['x', 5, 3, 5, 5, 5], fingers: ['x', 2, 1, 3, 3, 3], barres: [5], suffix: 'barre' },
     ],
   },
-  CmMaj7: {
-    name: 'CmMaj7',
-    fullName: 'C Minor Major 7th',
-    variations: [
-      { frets: ['x', 3, 5, 4, 4, 3], fingers: ['x', 1, 3, 2, 2, 1], barres: [3], suffix: 'barre' },
-    ],
+
+  C6: {
+    name: 'C6',
+    fullName: 'C Major Sixth',
+    variations: [{ frets: ['x', 3, 2, 2, 1, 0], fingers: ['x', 3, 2, 2, 1, 0], suffix: 'open' }],
   },
-  'Bbm(maj7)': {
-    name: 'Bbm(maj7)',
-    fullName: 'Bb Minor Major 7th',
-    variations: [
-      { frets: ['x', 1, 3, 2, 2, 1], fingers: ['x', 1, 3, 2, 2, 1], barres: [1], suffix: 'barre' },
-    ],
+  F6: {
+    name: 'F6',
+    fullName: 'F Major Sixth',
+    variations: [{ frets: [1, 3, 0, 2, 1, 1], fingers: [1, 3, 1, 2, 1, 1], suffix: 'open' }],
   },
-  BbmMaj7: {
-    // Alias
-    name: 'BbmMaj7',
-    fullName: 'Bb Minor Major 7th',
-    variations: [
-      { frets: ['x', 1, 3, 2, 2, 1], fingers: ['x', 1, 3, 2, 2, 1], barres: [1], suffix: 'barre' },
-    ],
+  Abm7: {
+    name: 'Abm7',
+    fullName: 'A-flat Minor Seventh',
+    variations: [{ frets: [4, 6, 4, 1, 1, 4], fingers: [1, 3, 1, 1, 1, 1], suffix: 'open' }],
+  },
+  Dbmaj6: {
+    name: 'Dbmaj6',
+    fullName: 'D-flat Major Sixth',
+    variations: [{ frets: ['x', 4, 8, 10, 9, 4], fingers: ['x', 1, 3, 4, 3, 1], suffix: 'open' }],
   },
 };
 
+/**
+ * The names of the same chord are written in different ways: EbMaj7 and Ebmaj7
+ * are the same chord, and so are Cmin and Cm. The lookup folds those together
+ * so a chord is never missing just because it was spelled differently.
+ */
+export function normaliseChordName(chordName: string): string {
+  return chordName
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/\(([^)]*)\)/g, '$1')
+    .replace(/^([A-G][#b]?)min/, '$1m')
+    .toLowerCase();
+}
+
+/**
+ * Chords whose names are written in more than one way. A flat root followed
+ * by "m6" is ambiguous, so it is spelled out here.
+ */
+const CHORD_ALIASES: Record<string, string> = {
+  dbm6: 'dbmaj6',
+  gbm6: 'gbmaj6',
+};
+
+const CHORD_INDEX: Record<string, ChordDefinition> = (() => {
+  const index: Record<string, ChordDefinition> = {};
+  for (const [name, definition] of Object.entries(CHORD_LIBRARY)) {
+    const key = normaliseChordName(name);
+    if (!(key in index)) index[key] = definition;
+  }
+  for (const [alias, target] of Object.entries(CHORD_ALIASES)) {
+    if (index[target]) index[alias] = index[target];
+  }
+  return index;
+})();
+
 export function getChord(chordName: string): ChordDefinition | null {
-  // Normalize the chord name (basic)
-  const normalized = chordName.trim();
-  return CHORD_LIBRARY[normalized] || null;
+  return CHORD_INDEX[normaliseChordName(chordName)] ?? null;
 }

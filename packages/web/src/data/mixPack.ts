@@ -84,49 +84,4 @@ When the [C7]saints go marching [F]in`,
     },
     rightsStatus: 'open' as const,
   }),
-  mixSong({
-    id: 'mix-pack-he-aint-heavy-hes-my-brother',
-    title: "He Ain't Heavy, He's My Brother",
-    artist: 'Bob Russell & Bobby Scott',
-    tags: ['Pop', 'Traditional', 'Ballad'],
-    key: 'C',
-    bpm: 80,
-    content: `{start_of_verse}
-[C]The road is long with many a [F]winding turn
-That [C]leads us to who [G7]knows where
-But [C]I'm strong enough to [F]carry him
-He [C]ain't heavy, he's my [G7]brother`,
-  }),
-  mixSong({
-    id: 'mix-pack-blowin-in-the-wind',
-    title: "Blowin' in the Wind",
-    artist: 'Bob Dylan',
-    tags: ['Folk', 'Protest', 'Traditional'],
-    key: 'G',
-    bpm: 100,
-    content: `{start_of_verse}
-[G]How many roads must a man walk [C]down
-Before you [G]call him a man?
-Yes, and [G]how many seas must a white dove [C]sail
-Before she [D7]sleeps in the sand?
-Yes, and [G]how many times must the cannonballs [C]fly
-Before they're [D7]forever banned?
-The [C]answer, my [D7]friend, is [G]blowin' in the [Em]wind
-The [C]answer is [D7]blowin' in the [G]wind`,
-  }),
-  mixSong({
-    id: 'mix-pack-leaving-on-a-jet-plane',
-    title: 'Leaving on a Jet Plane',
-    artist: 'John Denver',
-    tags: ['Folk', 'Traditional', 'Ballad'],
-    key: 'G',
-    bpm: 90,
-    content: `{start_of_verse}
-[G]All my bags are packed, I'm [C]ready to go
-I'm [G]standing here outside your [D7]door
-I [G]hate to wake you up to say [C]goodbye
-But [G]the dawn is breaking, it's [D7]early morn
-The [G]taxi's waiting, he's [C]blowing his horn
-Already [G]I'm so lonesome I could [D7]die`,
-  }),
 ];

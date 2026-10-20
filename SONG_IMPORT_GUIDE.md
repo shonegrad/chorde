@@ -35,17 +35,30 @@ ChordPro is a simple text format for guitar chords:
     id: 'artist-song-title',
     title: 'Song Title',
     artist: 'Artist Name',
-    tags: ['rock', 'acoustic'],
+    tags: ['folk', 'acoustic'],
     key: 'C',
     capo: 0,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    attribution: {
+        sourceName: 'Traditional',
+        sourceUrl: '',
+        license: 'public-domain',
+        author: 'Artist Name',
+        notes: 'Where this came from and why it is public domain.',
+        verifiedBy: 'manual',
+    },
+    rightsStatus: 'open',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     content: `{start_of_verse}
 [C]Your chord [G]progression
 [Am]With lyrics [F]here
     `
 }
 ```
+
+A song added this way also has to be added to the reviewed list in
+`packages/web/src/lib/__tests__/songValidation.test.ts`, which is what keeps the repository
+honest about what is public domain.
 
 ## Method 2: User Import Feature (In-App)
 
@@ -99,30 +112,28 @@ Always include:
 
 ## Current Song Count
 
-As of now: **20 songs** in the library (public domain seed songs)
+As of now: **16 songs** in the built-in library, all public domain. Your own transcriptions and
+imports are added on top of that, and are only ever in your browser.
 
-## Roadmap to 1000 Songs
+## How the library grows
 
-**Phase 1 (50 songs)**: Most requested classics
+The built-in library stays small and safe. It grows in three ways:
 
-- Beatles, Oasis, Nirvana, etc.
-- Focus on beginner-friendly songs
+**1. Your own songs.** Most of what you will add is your own work - songs you have written, or
+transcriptions of songs you know. Those are yours, and they belong in your own library.
 
-**Phase 2 (200 songs)**: Genre diversity
+**2. Public domain material.** Traditional songs, hymns and folk songs that are out of copyright.
+There are thousands of these, and they can be added one at a time, each one checked.
 
-- Rock, Pop, Country, Folk, Jazz
-- Range of difficulty levels
+**3. Creative Commons material.** Where the licence allows sharing.
 
-**Phase 3 (500 songs)**: Deep catalog
+What the library does **not** do is carry popular commercial songs. Chords for "Wonderwall" or
+"Hotel California" are someone's copyright, and the ChordPro text for them is no less
+copyrighted than a recording. If you want those in your library, transcribe them yourself - that
+is a personal use, and it is what this app is for.
 
-- Deep cuts from popular artists
-- Regional/cultural variety
-
-**Phase 4 (1000 songs)**: Comprehensive library
-
-- User submissions
-- Automated quality checks
-- Community curation
+The quality bar matters more than the count: a hundred accurate transcriptions are worth more
+than a thousand shaky ones.
 
 ## Legal Note
 

@@ -23,15 +23,13 @@ interface LibraryState {
 }
 
 async function loadSeedSongs(): Promise<Song[]> {
-  const [{ SEED_SONGS }, { ROCK_PACK }, { ROCK_PACK_2 }, { JAZZ_PACK }, { MIX_PACK }] =
-    await Promise.all([
-      import('../data/seedSongs'),
-      import('../data/rockPack'),
-      import('../data/rockPack2'),
-      import('../data/jazzPack'),
-      import('../data/mixPack'),
-    ]);
-  return [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2, ...JAZZ_PACK, ...MIX_PACK];
+  const [{ SEED_SONGS }, { ROCK_PACK }, { ROCK_PACK_2 }, { MIX_PACK }] = await Promise.all([
+    import('../data/seedSongs'),
+    import('../data/rockPack'),
+    import('../data/rockPack2'),
+    import('../data/mixPack'),
+  ]);
+  return [...SEED_SONGS, ...ROCK_PACK, ...ROCK_PACK_2, ...MIX_PACK];
 }
 
 const VIEW_MODE_KEY = 'chorde_view_mode';
