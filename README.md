@@ -5,6 +5,9 @@
 ## ✨ Features
 
 - **ChordPro Support**: Parse and render songs with chord embedding.
+- **Writing Desk**: Write and transcribe your own songs with autosave, undo and redo, earlier
+  versions, a chord palette that offers the chords of your key first, a metronome, and a key that
+  is worked out from what you wrote. Your songs are kept separate from the built-in ones.
 - **Chords Over Lyrics**: Each chord sits directly above the word it belongs to, the way printed
   chord sheets are laid out.
 - **Search-Based Import**: Search and import songs from public domain sources (OpenHymnal, etc.).
@@ -32,6 +35,8 @@
 - **Local Storage**: Your library is saved locally in your browser and works offline. Changes in
   another tab are picked up straight away.
 - **Light and Dark**: Follows the system setting by default, or pick one in Settings.
+- **Public Domain Only**: Every song that ships with the app is public domain, and a test makes
+  sure it stays that way.
 - **Keyboard Friendly**: Arrow keys transpose, `+` and `-` change the text size, space starts the
   auto-scroll, and `?` shows the full list.
 - **Works on a Phone**: A bottom navigation bar keeps every screen within reach, and the song
