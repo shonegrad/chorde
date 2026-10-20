@@ -393,7 +393,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                     if (isMobile && onClose) onClose();
                   }}
                 >
-                  <ListItemText primary={sl.name} secondary={`${sl.songIds.length} songs`} />
+                  <ListItemText primary={sl.name} secondary={`${sl.songs.length} songs`} />
                 </ListItemButton>
               ))}
             </List>

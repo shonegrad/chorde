@@ -3,6 +3,7 @@ import type { DisplayMode, ParsedSong } from '../types';
 import { chordToNashville } from '../lib/nashville';
 import { ChordStaff } from './ChordStaff';
 import { ChordTab } from './ChordTab';
+import '../styles/SongViewer.css';
 
 interface SongBodyProps {
   lines: ParsedSong;

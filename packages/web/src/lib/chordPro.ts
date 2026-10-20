@@ -7,6 +7,7 @@ export interface SongMetadata {
   capo?: number;
   tempo?: number;
   timeSignature?: string;
+  duration?: string;
 }
 
 export const extractMetadata = (content: string): SongMetadata => {
@@ -18,6 +19,7 @@ export const extractMetadata = (content: string): SongMetadata => {
   let capo: number | undefined;
   let tempo: number | undefined;
   let timeSignature: string | undefined;
+  let duration: string | undefined;
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -69,6 +71,13 @@ export const extractMetadata = (content: string): SongMetadata => {
       timeSignature = timeMatch[1].replace(/\s+/g, '');
       continue;
     }
+
+    // Length: {duration: ...}, {duration: 4:28}
+    const durationMatch = trimmed.match(/\{(?:duration):\s*([^}]+)\}/i);
+    if (durationMatch) {
+      duration = durationMatch[1].trim();
+      continue;
+    }
   }
 
   return {
@@ -78,6 +87,7 @@ export const extractMetadata = (content: string): SongMetadata => {
     capo,
     tempo,
     timeSignature,
+    duration,
   };
 };
 

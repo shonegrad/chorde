@@ -1,5 +1,5 @@
 import type { Song } from '../types';
-import type { Setlist } from '../store/setlistStore';
+import type { Setlist } from '@chorde/shared';
 
 export const SNAPSHOT_SCHEMA_VERSION = 1;
 

@@ -4,6 +4,7 @@ import { parseChordPro } from '../lib/chordPro';
 import { exportToChordPro, exportToPdf } from '../lib/export';
 import { transposeChord, transposeKey, keyPrefersFlats } from '../lib/music';
 import { useAppSettings } from '../lib/settings';
+import { useAutoScroll } from '../lib/useAutoScroll';
 import {
   loadSongPreferences,
   loadViewerPreferences,
@@ -62,7 +63,6 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
-import '../styles/SongViewer.css';
 
 interface SongViewerProps {
   song: Song;
@@ -99,7 +99,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [selectedChord, setSelectedChord] = useState<string | null>(null);
   const [autoScroll, setAutoScroll] = useState(false);
   const [manualScrollSpeed, setManualScrollSpeed] = useState<number | null>(null);
-  const scrollSpeedRef = useRef(40);
   const [loopMode, setLoopMode] = useState(false);
   const [loopSection, setLoopSection] = useState<number | null>(null);
   const [displayMode, setDisplayMode] = useState<DisplayMode>(initialPrefs.displayMode);
@@ -108,11 +107,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [setlistOpen, setSetlistOpen] = useState(false);
-  const contentContainerRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const animationFrameRef = useRef<number | null>(null);
-  const lastScrollTimeRef = useRef<number>(0);
-  const scrollAccumulatorRef = useRef<number>(0);
 
   // Tempo controls
   const [bpm, setBpm] = useState<number | null>(song.bpm ?? null);
@@ -172,12 +167,33 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     return extracted;
   }, [parsedContent]);
 
-  const jumpToSection = useCallback((lineIndex: number) => {
-    const lineElement = lineRefs.current[lineIndex];
-    if (lineElement && contentContainerRef.current) {
-      lineElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, []);
+  // BPM-based scroll speed calculation
+  const computedScrollSpeed = useMemo(() => {
+    const beatsPerLine = stageMode.beatsPerLine;
+    const pixelPerBeat = 40;
+    const calculatedBpm = bpm ?? stageMode.defaultBpm;
+    return (calculatedBpm / 60) * beatsPerLine * pixelPerBeat;
+  }, [bpm, stageMode.beatsPerLine, stageMode.defaultBpm]);
+
+  // Auto-scroll with looping support.
+  const contentContainerRef = useAutoScroll({
+    enabled: autoScroll,
+    speed: manualScrollSpeed ?? computedScrollSpeed,
+    linesRef: lineRefs,
+    sectionStarts: sections.map((section) => section.lineIndex),
+    loopSection: loopMode ? loopSection : null,
+    totalLines: parsedContent.length,
+  });
+
+  const jumpToSection = useCallback(
+    (lineIndex: number) => {
+      const lineElement = lineRefs.current[lineIndex];
+      if (lineElement && contentContainerRef.current) {
+        lineElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    },
+    [contentContainerRef]
+  );
 
   /*
    * Work out which section is being looked at, so the section buttons can show
@@ -197,89 +213,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     }
 
     setActiveSection((previous) => (previous === current ? previous : current));
-  }, [sections]);
-
-  // BPM-based scroll speed calculation
-  const computedScrollSpeed = useMemo(() => {
-    const beatsPerLine = stageMode.beatsPerLine;
-    const pixelPerBeat = 40;
-    const calculatedBpm = bpm ?? stageMode.defaultBpm;
-    return (calculatedBpm / 60) * beatsPerLine * pixelPerBeat;
-  }, [bpm, stageMode.beatsPerLine, stageMode.defaultBpm]);
-
-  useEffect(() => {
-    scrollSpeedRef.current = computedScrollSpeed;
-  }, [computedScrollSpeed]);
-
-  // Auto-scroll effect with looping support
-  useEffect(() => {
-    if (!autoScroll || !contentContainerRef.current) {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-      return;
-    }
-
-    const scroll = () => {
-      if (!contentContainerRef.current || !autoScroll) return;
-
-      const now = Date.now();
-      const deltaTime = (now - lastScrollTimeRef.current) / 1000;
-      lastScrollTimeRef.current = now;
-
-      // Calculate scroll amount and accumulate fractional pixels
-      const scrollAmount = scrollSpeedRef.current * deltaTime;
-      scrollAccumulatorRef.current += scrollAmount;
-
-      // Only scroll when we have at least 1 pixel accumulated (fixes slow speed scrolling)
-      const pixelsToScroll = Math.floor(scrollAccumulatorRef.current);
-      if (pixelsToScroll > 0) {
-        contentContainerRef.current.scrollTop += pixelsToScroll;
-        scrollAccumulatorRef.current -= pixelsToScroll;
-      }
-
-      // Check if we've reached the loop end
-      if (loopMode && loopSection !== null && sections.length > 0) {
-        const currentSection = sections[loopSection];
-        const nextSection = sections[loopSection + 1];
-
-        const sectionEndLine = nextSection ? nextSection.lineIndex : parsedContent.length;
-        const sectionEndElement = lineRefs.current[sectionEndLine - 1];
-
-        if (sectionEndElement && contentContainerRef.current) {
-          const containerTop = contentContainerRef.current.getBoundingClientRect().top;
-          const elementBottom = sectionEndElement.getBoundingClientRect().bottom;
-
-          if (elementBottom <= containerTop + 100) {
-            jumpToSection(currentSection.lineIndex);
-            return;
-          }
-        }
-      }
-
-      // Stop if reached bottom (only when not looping)
-      if (!loopMode) {
-        const { scrollTop, scrollHeight, clientHeight } = contentContainerRef.current;
-        if (scrollTop + clientHeight >= scrollHeight - 10) {
-          setAutoScroll(false);
-          return;
-        }
-      }
-
-      animationFrameRef.current = requestAnimationFrame(scroll);
-    };
-
-    lastScrollTimeRef.current = Date.now();
-    scrollAccumulatorRef.current = 0;
-    animationFrameRef.current = requestAnimationFrame(scroll);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [autoScroll, loopMode, loopSection, sections, parsedContent.length, jumpToSection]);
+  }, [sections, contentContainerRef]);
 
   // Play click sound for count-in
   const playClickSound = useCallback(
@@ -588,9 +522,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                       min={15}
                       max={80}
                       onChange={(_, val) => {
-                        const newSpeed = val as number;
-                        setManualScrollSpeed(newSpeed);
-                        scrollSpeedRef.current = newSpeed;
+                        setManualScrollSpeed(val as number);
                       }}
                       aria-label="Scroll speed"
                     />

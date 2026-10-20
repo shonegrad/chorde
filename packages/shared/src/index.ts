@@ -107,6 +107,29 @@ export interface SongContent {
   sourceUrl?: string;
 }
 
+/** A song in a setlist, with how it should be played. */
+export interface SetlistSong {
+  songId: string;
+  /** How many semitones to transpose this song when playing it. */
+  transpose?: number;
+  /** The capo to use for this song. */
+  capo?: number;
+  /** A note for whoever is playing. */
+  note?: string;
+}
+
+export interface Setlist {
+  id: string;
+  name: string;
+  songs: SetlistSong[];
+  /** The key the whole set is played in. */
+  targetKey?: string;
+  /** A note for the set as a whole. */
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface SourceAdapter {
   id: string;
   name: string;

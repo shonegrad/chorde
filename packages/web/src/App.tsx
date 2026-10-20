@@ -29,6 +29,9 @@ const Settings = React.lazy(() =>
 const SetlistViewer = React.lazy(() =>
   import('./components/SetlistViewer').then((m) => ({ default: m.SetlistViewer }))
 );
+const SetlistPlayer = React.lazy(() =>
+  import('./components/SetlistPlayer').then((m) => ({ default: m.SetlistPlayer }))
+);
 
 const LoadingFallback = (
   <Box
@@ -352,6 +355,16 @@ function App() {
               <ErrorBoundary>
                 <Suspense fallback={LoadingFallback}>
                   <ChordBrowser onBack={() => navigate('/')} />
+                </Suspense>
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/setlist/:id/play"
+            element={
+              <ErrorBoundary>
+                <Suspense fallback={LoadingFallback}>
+                  <SetlistPlayer />
                 </Suspense>
               </ErrorBoundary>
             }

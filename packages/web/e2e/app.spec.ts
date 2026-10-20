@@ -262,6 +262,41 @@ test.describe('Chorde E2E - Online search', () => {
   });
 });
 
+test.describe('Chorde E2E - Performing a setlist', () => {
+  test('plays through a setlist', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /my songs/i })).toBeVisible({ timeout: 15000 });
+
+    page.once('dialog', async (dialog) => {
+      await dialog.accept('E2E Set');
+    });
+
+    await openNavigation(page);
+    await page.getByRole('button', { name: 'Setlists' }).click();
+    await page.getByRole('button', { name: 'New Setlist' }).click();
+
+    await page.getByRole('button', { name: 'Add Song' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.waitFor();
+    const addButtons = dialog.getByRole('button', { name: /^Add / });
+    await addButtons.nth(0).click();
+    await addButtons.nth(1).click();
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+
+    // The player opens on the first song.
+    await expect(page.getByText('1 of 2')).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole('button', { name: /show chord diagram for/i }).first()
+    ).toBeVisible();
+
+    // And moves on to the next one.
+    await page.getByRole('button', { name: 'Next song' }).click();
+    await expect(page.getByText('2 of 2')).toBeVisible();
+  });
+});
+
 test.describe('Chorde E2E - Writing desk', () => {
   test('writes a song and keeps it', async ({ page }) => {
     await page.goto('./');
