@@ -103,4 +103,9 @@ export interface SourceAdapter {
   name: string;
   search(query: string): Promise<SearchResult[]>;
   fetchSong(id: string): Promise<SongContent>;
+  /**
+   * Optional: fill in details that only the song file knows, such as the
+   * writer or the key. Only the first few results are usually enriched.
+   */
+  enrichResults?(results: SearchResult[]): Promise<SearchResult[]>;
 }

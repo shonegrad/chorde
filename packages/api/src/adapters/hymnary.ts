@@ -1,5 +1,5 @@
 import { BaseAdapter } from './base.js';
-import type { SearchResult, SongContent } from '../types.js';
+import type { LicenseType, SearchResult, SongContent } from '@chorde/shared';
 
 interface HymnData {
   id: string;
@@ -227,7 +227,7 @@ Echoes of mercy, whispers of love.`,
 export class HymnaryAdapter extends BaseAdapter {
   id = 'hymnary';
   name = 'Hymnary.org';
-  license = 'public-domain';
+  license: LicenseType = 'public-domain';
 
   async search(query: string): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase().trim();

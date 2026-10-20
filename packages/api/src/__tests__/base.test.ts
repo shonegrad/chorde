@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { BaseAdapter } from '../adapters/base.js';
-import type { SearchResult, SongContent } from '../types.js';
+import type { SearchResult, SongContent } from '@chorde/shared';
 
 class TestAdapter extends BaseAdapter {
   id = 'test';

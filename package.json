@@ -21,7 +21,7 @@
     "dev": "npm run dev --workspace=@chorde/web",
     "dev:api": "npm run dev --workspace=@chorde/api",
     "dev:all": "npm run dev --workspace=@chorde/web & npm run dev --workspace=@chorde/api",
-    "build": "npm run build --workspaces",
+    "build": "npm run build -w @chorde/shared && npm run build -w @chorde/web && npm run build -w @chorde/api",
     "lint": "npm run lint --workspaces",
     "test": "npm run test --workspaces",
     "predeploy": "npm run build --workspace=@chorde/web",

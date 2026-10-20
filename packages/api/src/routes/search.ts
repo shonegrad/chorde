@@ -5,7 +5,7 @@ import { HymnaryAdapter } from '../adapters/hymnary.js';
 import { ChordProOrgAdapter } from '../adapters/chordproorg.js';
 import { SearchQuerySchema } from '../schemas/index.js';
 import { dedupeResults, rankResults } from '../lib/ranking.js';
-import type { SearchResult } from '../types.js';
+import type { SearchResult } from '@chorde/shared';
 
 const app = new Hono();
 

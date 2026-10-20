@@ -11,9 +11,9 @@ export type {
   SongContent,
   SourceAdapter,
   SongAttribution,
-} from '@chorde/shared/src/index';
+} from '@chorde/shared';
 
-import type { LicenseType } from '@chorde/shared/src/index';
+import type { LicenseType } from '@chorde/shared';
 
 export type { LicenseType };
 

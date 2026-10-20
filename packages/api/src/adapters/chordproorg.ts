@@ -1,5 +1,5 @@
 import { BaseAdapter } from './base.js';
-import type { SearchResult, SongContent } from '../types.js';
+import type { LicenseType, SearchResult, SongContent } from '@chorde/shared';
 
 interface ChordProExample {
   id: string;
@@ -180,7 +180,7 @@ The [G]baffled king com[E7]posing Halle[Am]lujah
 export class ChordProOrgAdapter extends BaseAdapter {
   id = 'chordpro';
   name = 'ChordPro.org';
-  license = 'unknown';
+  license: LicenseType = 'unknown';
 
   async search(query: string): Promise<SearchResult[]> {
     const lowerQuery = query.toLowerCase().trim();

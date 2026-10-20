@@ -1,5 +1,5 @@
 import { BaseAdapter } from './base.js';
-import type { SearchResult, SongContent } from '../types.js';
+import type { LicenseType, SearchResult, SongContent } from '@chorde/shared';
 
 interface HymnIndex {
   title: string;
@@ -12,7 +12,7 @@ interface HymnIndex {
 export class OpenHymnalAdapter extends BaseAdapter {
   id = 'openhymnal';
   name = 'OpenHymnal';
-  license = 'public-domain';
+  license: LicenseType = 'public-domain';
 
   private baseUrl = 'https://raw.githubusercontent.com/mattgraham/worship/master';
   indexCache: HymnIndex[] | null = null;

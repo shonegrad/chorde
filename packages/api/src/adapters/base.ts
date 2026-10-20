@@ -1,10 +1,10 @@
-import { SourceAdapter, type SearchResult, type SongContent } from '../types.js';
+import type { LicenseType, SearchResult, SongContent, SourceAdapter } from '@chorde/shared';
 
 // Abstract base class for source adapters
 export abstract class BaseAdapter implements SourceAdapter {
   abstract id: string;
   abstract name: string;
-  license: string = 'unknown';
+  license: LicenseType = 'unknown';
 
   abstract search(query: string): Promise<SearchResult[]>;
   abstract fetchSong(id: string): Promise<SongContent>;

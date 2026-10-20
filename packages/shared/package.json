@@ -1,17 +1,34 @@
 {
   "name": "@chorde/shared",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Shared types and utilities for Chorde",
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "echo \"Shared package is TypeScript source-only, no build needed\"",
-    "lint": "echo \"No linter configured for shared package\"",
-    "test": "echo \"No tests yet\""
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "prepare": "npm run build",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
-    "typescript": "~5.9.3"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.58.2",
+    "vitest": "^4.0.16"
   }
 }
