@@ -96,7 +96,8 @@ function SongViewerRoute() {
           }}
           setlists={setlists.map((setlist) => ({ id: setlist.id, name: setlist.name }))}
           onAddToSetlist={(songId: string, setlistId: string) => {
-            addSongToSetlist(setlistId, songId);
+            const song = songs.find((candidate) => candidate.id === songId);
+            addSongToSetlist(setlistId, songId, { title: song?.title, artist: song?.artist });
             const setlist = setlists.find((candidate) => candidate.id === setlistId);
             notifySuccess(`Added to "${setlist?.name ?? 'setlist'}"`);
           }}
@@ -300,7 +301,10 @@ function SongListView() {
   };
 
   const handleAddToSetlist = (ids: string[], setlistId: string) => {
-    ids.forEach((id) => addSongToSetlist(setlistId, id));
+    ids.forEach((id) => {
+      const song = songs.find((candidate) => candidate.id === id);
+      addSongToSetlist(setlistId, id, { title: song?.title, artist: song?.artist });
+    });
     const setlist = setlists.find((candidate) => candidate.id === setlistId);
     notifySuccess(
       `Added ${ids.length} ${ids.length === 1 ? 'song' : 'songs'} to "${setlist?.name ?? 'setlist'}"`

@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSetlistStore } from '../store/setlistStore';
+import { readSetlistFile, setlistFromFile } from '../lib/setlistFile';
+import { createId } from '../lib/id';
 import type { Song, SongFilter } from '../types';
 import { APP_VERSION } from '../version';
 import {
@@ -100,6 +102,31 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
   const location = useLocation();
   const setlists = useSetlistStore((s) => s.setlists);
   const createSetlist = useSetlistStore((s) => s.createSetlist);
+  const addSetlist = useSetlistStore((s) => s.addSetlist);
+  const setlistFileInput = React.useRef<HTMLInputElement>(null);
+
+  /*
+   * Read a setlist that was written down somewhere else.
+   *
+   * The songs that are in the library are linked to it, and the ones that are
+   * not are kept by their title, so that the set still says what it is.
+   */
+  const handleSetlistFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    try {
+      const read = await readSetlistFile(file);
+      const songById = new Map(songs.map((song) => [song.id, song]));
+      const setlist = setlistFromFile(read, songById, createId);
+      addSetlist(setlist);
+      navigate(`/setlist/${setlist.id}`);
+      closeIfMobile();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'That file could not be read.');
+    }
+  };
 
   const [keysExpanded, setKeysExpanded] = React.useState(false);
   const [artistsExpanded, setArtistsExpanded] = React.useState(false);
@@ -480,6 +507,17 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 <AddIcon sx={{ mr: 1 }} fontSize="small" />
                 <ListItemText primary="New Setlist" />
               </ListItemButton>
+              <ListItemButton sx={{ pl: 7 }} onClick={() => setlistFileInput.current?.click()}>
+                <DownloadIcon sx={{ mr: 1 }} fontSize="small" />
+                <ListItemText primary="Read a setlist" />
+              </ListItemButton>
+              <input
+                ref={setlistFileInput}
+                hidden
+                type="file"
+                accept="application/json,.json,.chordset.json"
+                onChange={handleSetlistFile}
+              />
               {setlists.map((sl) => (
                 <ListItemButton
                   key={sl.id}
@@ -487,7 +525,10 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   selected={isHere(`/setlist/${sl.id}`)}
                   onClick={() => goTo(`/setlist/${sl.id}`)}
                 >
-                  <ListItemText primary={sl.name} secondary={`${sl.songs.length} songs`} />
+                  <ListItemText
+                    primary={sl.name}
+                    secondary={`${sl.songs.length} ${sl.songs.length === 1 ? 'song' : 'songs'}`}
+                  />
                 </ListItemButton>
               ))}
             </List>

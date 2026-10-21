@@ -140,6 +140,13 @@ export interface SongContent {
 /** A song in a setlist, with how it should be played. */
 export interface SetlistSong {
   songId: string;
+  /**
+   * The title of the song, kept so that a set reads properly even when the
+   * song is not in the library.
+   */
+  title?: string;
+  /** The writer of the song, kept for the same reason. */
+  artist?: string;
   /** How many semitones to transpose this song when playing it. */
   transpose?: number;
   /** The capo to use for this song. */

@@ -371,6 +371,42 @@ test.describe('Chorde E2E - Setlists', () => {
 
     await expect(page.getByText('E2E Setlist')).toBeVisible();
   });
+  test('writes a setlist down and reads it back', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    page.once('dialog', async (dialog) => {
+      await dialog.accept('E2E Written Set');
+    });
+
+    await openNavigation(page);
+    await page.getByRole('button', { name: 'Setlists' }).click();
+    await page.getByRole('button', { name: 'New Setlist' }).click();
+
+    await page.getByRole('button', { name: 'Add Song' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.waitFor();
+    await dialog.getByRole('button', { name: /^Add / }).first().click();
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    // The setlist is written to a file.
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Save the setlist to a file' }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/\.chordset\.json$/);
+
+    const path = await download.path();
+    if (!path) throw new Error('The setlist was not downloaded.');
+
+    // And read back in.
+    await page.goto('./');
+    await openNavigation(page);
+    await page.getByRole('button', { name: 'Setlists' }).click();
+    await page.locator('input[type="file"]').setInputFiles(path);
+
+    // The set is there a second time, the one that was read back in.
+    await expect(page.getByText('E2E Written Set')).toHaveCount(2);
+  });
 });
 
 test.describe('Chorde E2E - Songs in a key', () => {

@@ -100,21 +100,28 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**The API needs a host.** It is a decision rather than a piece of work: until it has one, online
-search is hidden in production. Everything else in the app works without it.
+**A song cannot be shared.** There is no link to a song and no way to send one to somebody else.
+A setlist can be written down and read back, and a song cannot.
 
-What the app cannot do yet, and what a musician would notice:
+After that:
 
-- **A songbook is not a setlist.** The songs are in the library and the sets are separate, and
-  there is no way to say "the set I play on Sunday" and have the songs follow.
-- **There is no way to write a setlist down and bring it in.** The setlists live in the browser
-  only. A setlist could be exported as a file and read back on another device.
-- **A song cannot be shared.** There is no link to a song and no way to send one to someone else.
 - **Nothing is printed as a MIDI file**, and there is no way to send the chords of a song to
   another program.
+- **The API needs a host**, which is a decision rather than a piece of work: until it has one,
+  online search is hidden in production.
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+A setlist can be written down. The parts worth knowing:
+
+- `lib/setlistFile.ts` writes a setlist to a file and reads it back. The file is JSON, with the
+  name, the key the set is played in, and how each song is played.
+- The title of every song is kept in the file, and in the setlist itself, so a set reads properly
+  even when a song is not in the library. A song that is not there is kept by its title.
+- A song that is in the library is linked to it when the file is read in, by its id or by its
+  title.
+- The setlists are in the sidebar under "Setlists", with "Read a setlist" beside "New Setlist".
 
 The chords a player reaches for most are done. The parts worth knowing:
 

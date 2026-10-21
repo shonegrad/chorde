@@ -9,9 +9,15 @@ interface SetlistState {
   setlists: Setlist[];
   loadSetlists: () => void;
   createSetlist: (name: string) => Setlist;
+  /** Add a setlist that was made somewhere else. */
+  addSetlist: (setlist: Setlist) => void;
   renameSetlist: (id: string, name: string) => void;
   deleteSetlist: (id: string) => void;
-  addSong: (setlistId: string, songId: string) => void;
+  addSong: (
+    setlistId: string,
+    songId: string,
+    details?: { title?: string; artist?: string }
+  ) => void;
   removeSong: (setlistId: string, songId: string) => void;
   reorderSongs: (setlistId: string, songIds: string[]) => void;
   /** Change how one song in the set is played. */
@@ -97,6 +103,14 @@ export const useSetlistStore = create<SetlistState>((set, get) => ({
     return setlist;
   },
 
+  addSetlist: (setlist) => {
+    set((state) => {
+      const next = [...state.setlists, setlist];
+      saveToStorage(next);
+      return { setlists: next };
+    });
+  },
+
   renameSetlist: (id, name) => {
     set((state) => {
       const next = state.setlists.map((s) => (s.id === id ? touch({ ...s, name }) : s));
@@ -113,12 +127,17 @@ export const useSetlistStore = create<SetlistState>((set, get) => ({
     });
   },
 
-  addSong: (setlistId, songId) => {
+  addSong: (setlistId, songId, details) => {
     set((state) => {
       const next = state.setlists.map((s) => {
         if (s.id !== setlistId) return s;
         if (s.songs.some((song) => song.songId === songId)) return s;
-        return touch({ ...s, songs: [...s.songs, { songId }] });
+        // The title is kept, so that the set reads properly even when the song
+        // is not in the library.
+        return touch({
+          ...s,
+          songs: [...s.songs, { songId, title: details?.title, artist: details?.artist }],
+        });
       });
       saveToStorage(next);
       return { setlists: next };

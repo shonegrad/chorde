@@ -413,7 +413,11 @@ export const SetlistPlayer: React.FC = () => {
   if (!song) {
     return (
       <Box sx={{ p: 4 }}>
-        <Typography>This song is no longer in your library.</Typography>
+        <Typography>
+          {entry?.title
+            ? `"${entry.title}" is not in your library any more.`
+            : 'This song is no longer in your library.'}
+        </Typography>
         <Button onClick={() => navigate(`/setlist/${setlist.id}`)}>Back to the setlist</Button>
       </Box>
     );

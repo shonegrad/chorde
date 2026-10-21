@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSetlistStore } from '../store/setlistStore';
 import { useLibraryStore } from '../store/libraryStore';
 import { printSetlist } from '../lib/printSetlist';
+import { downloadSetlistFile } from '../lib/setlistFile';
 import { describeRunningTime, runningTime } from '../lib/duration';
 import {
   Box,
@@ -32,6 +33,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import PrintIcon from '@mui/icons-material/Print';
 import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
+import DownloadIcon from '@mui/icons-material/Download';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -200,6 +202,17 @@ export const SetlistViewer: React.FC = () => {
             </IconButton>
           </span>
         </Tooltip>
+        <Tooltip title="Write the setlist down">
+          <span>
+            <IconButton
+              onClick={() => downloadSetlistFile(setlist, songById)}
+              disabled={entries.length === 0}
+              aria-label="Save the setlist to a file"
+            >
+              <DownloadIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
         <IconButton
           color="error"
           onClick={() => setConfirmDelete(true)}
@@ -255,6 +268,9 @@ export const SetlistViewer: React.FC = () => {
           {entries.map((entry, idx) => {
             const song = songById.get(entry.songId);
             const missing = !song;
+            // The set keeps the title of every song, so that it reads
+            // properly even when the song is not in the library.
+            const title = song?.title ?? entry.title ?? 'A song that is not in your library';
 
             return (
               <Paper key={entry.songId} sx={{ mb: 1 }}>
@@ -264,14 +280,14 @@ export const SetlistViewer: React.FC = () => {
                       <IconButton
                         onClick={() => move(idx, -1)}
                         disabled={idx === 0}
-                        aria-label={`Move ${song?.title ?? 'the song'} up`}
+                        aria-label={`Move ${title} up`}
                       >
                         <ArrowUpwardIcon />
                       </IconButton>
                       <IconButton
                         onClick={() => move(idx, 1)}
                         disabled={idx === entries.length - 1}
-                        aria-label={`Move ${song?.title ?? 'the song'} down`}
+                        aria-label={`Move ${title} down`}
                       >
                         <ArrowDownwardIcon />
                       </IconButton>
@@ -280,7 +296,7 @@ export const SetlistViewer: React.FC = () => {
                           setSettingsFor(entry.songId);
                           setNoteDraft(entry.note ?? '');
                         }}
-                        aria-label={`How to play ${song?.title ?? 'the song'}`}
+                        aria-label={`How to play ${title}`}
                       >
                         <MusicNoteIcon />
                       </IconButton>
@@ -295,7 +311,7 @@ export const SetlistViewer: React.FC = () => {
                       <IconButton
                         color="error"
                         onClick={() => removeSong(setlist.id, entry.songId)}
-                        aria-label={`Remove ${song?.title ?? 'the song'}`}
+                        aria-label={`Remove ${title}`}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -303,7 +319,7 @@ export const SetlistViewer: React.FC = () => {
                   }
                 >
                   <ListItemText
-                    primary={`${idx + 1}. ${song?.title ?? 'A song that is no longer in your library'}`}
+                    primary={`${idx + 1}. ${title}`}
                     secondary={
                       missing
                         ? 'This song is not in your library any more.'
@@ -378,7 +394,9 @@ export const SetlistViewer: React.FC = () => {
                   key={song.id}
                   secondaryAction={
                     <IconButton
-                      onClick={() => addSong(setlist.id, song.id)}
+                      onClick={() =>
+                        addSong(setlist.id, song.id, { title: song.title, artist: song.artist })
+                      }
                       aria-label={`Add ${song.title}`}
                     >
                       <AddIcon />

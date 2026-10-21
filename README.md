@@ -69,7 +69,8 @@
 - **Nashville Number System**: View songs in numbers for universal playability.
 - **Performance**: Lazy loading for large song libraries.
 - **Setlists Know How Long They Take**: A setlist adds up the lengths of its songs and says how
-  long it runs.
+  long it runs. It can also be written down to a file and read back on another device, and a song
+  that is not in your library is kept in the set by its title, so the set still reads properly.
 - **Responsive Design**: Works great on desktop and tablets.
 
 ## 🏗️ Project Structure

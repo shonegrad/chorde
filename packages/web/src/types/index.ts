@@ -13,6 +13,8 @@ export type {
   SongContent,
   SourceAdapter,
   SongAttribution,
+  Setlist,
+  SetlistSong,
 } from '@chorde/shared';
 
 import type { LicenseType } from '@chorde/shared';
