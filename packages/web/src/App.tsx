@@ -222,6 +222,10 @@ function SongListView() {
       if (activeFilter.type === 'artist') return song.artist === activeFilter.value;
       if (activeFilter.type === 'key') return song.key === activeFilter.value;
       if (activeFilter.type === 'favourite') return Boolean(song.favorite);
+      if (activeFilter.type === 'known') return Boolean(song.known);
+      if (activeFilter.type === 'played' || activeFilter.type === 'popular') {
+        return (song.playCount ?? 0) > 0;
+      }
       if (activeFilter.type === 'mine') {
         return song.origin === 'user' || song.origin === 'import';
       }

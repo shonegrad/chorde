@@ -100,18 +100,28 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**The library.** No play history, so there is no "recently played" and no "most played", and a
-song cannot be marked as one you know well.
+**The chords you use most.** The shapes a player has drawn are kept, and the library knows what was
+played and when, but there is no list of the chords a player reaches for most, which is the list
+they would want in front of them.
 
 After that:
 
-- **The chords you use most.** The shapes a player has drawn are kept now, but there is no list of
-  the chords they play most, which is the list they would want in front of them.
 - **The API needs a host**, which is a decision rather than a piece of work: until it has one,
   online search is hidden in production.
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+The library knows what was played. The parts worth knowing:
+
+- A song records when it was last opened and how many times it has been opened. The reader records
+  it, once for each song, however many times the song is saved while it is open.
+- The library can be sorted by "Recently played" and by "Most played", and the sidebar has
+  "Recently Played" for the songs that have been played.
+- A song can be marked as one the player knows. The reader has a mark beside the favourite, the
+  library says "You know this" on the card, and the sidebar has "Songs I Know".
+- A filter that is about playing says how the songs should be ordered too: "Recently played" is no
+  use if the songs are then shown by title.
 
 The player's own shapes are done. The parts worth knowing:
 

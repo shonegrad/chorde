@@ -459,6 +459,31 @@ test.describe('Chorde E2E - Organising the library', () => {
     ).toBeVisible();
   });
 
+  test('remembers what was played, and what the player knows', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    // Open a song, so that it has been played.
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    // Say that you know it.
+    await page.getByRole('button', { name: /mark as a song you know/i }).click();
+    await expect(
+      page.getByRole('button', { name: /mark as a song you do not know yet/i })
+    ).toBeVisible();
+
+    await page.goto('./');
+    await openNavigation(page);
+
+    // The sidebar knows what was played and what is known.
+    await expect(page.getByRole('button', { name: /^Recently Played \d+/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Songs I Know \d+/ })).toBeVisible();
+
+    await page.getByRole('button', { name: /recently played/i }).click();
+    await expect(page.getByRole('heading', { name: /songs \(1\)/i })).toBeVisible();
+  });
+
   test('finds a song by its lyrics', async ({ page }) => {
     await page.goto('./');
     await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });

@@ -71,6 +71,34 @@ describe('sorting the library', () => {
     const withFavourite = [...library, song({ id: 'd', title: 'Delta', favorite: true })];
     expect(sortSongs(withFavourite, 'favourite')[0].title).toBe('Delta');
   });
+
+  it('puts the songs played lately first', () => {
+    const played = [
+      song({ id: 'a', title: 'Old', lastOpenedAt: '2026-01-01T00:00:00.000Z' }),
+      song({ id: 'b', title: 'New', lastOpenedAt: '2026-06-01T00:00:00.000Z' }),
+      song({ id: 'c', title: 'Never' }),
+    ];
+
+    expect(sortSongs(played, 'played').map((s) => s.title)).toEqual(['New', 'Old', 'Never']);
+  });
+
+  it('puts the songs played most first', () => {
+    const played = [
+      song({ id: 'a', title: 'Once', playCount: 1 }),
+      song({ id: 'b', title: 'Often', playCount: 9 }),
+    ];
+
+    expect(sortSongs(played, 'popular').map((s) => s.title)).toEqual(['Often', 'Once']);
+  });
+
+  it('puts the songs the player knows first', () => {
+    const known = [
+      song({ id: 'a', title: 'Learning' }),
+      song({ id: 'b', title: 'Learnt', known: true }),
+    ];
+
+    expect(sortSongs(known, 'known').map((s) => s.title)).toEqual(['Learnt', 'Learning']);
+  });
 });
 
 describe('grouping the library', () => {

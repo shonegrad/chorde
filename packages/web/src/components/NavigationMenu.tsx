@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSetlistStore } from '../store/setlistStore';
-import type { Song } from '../types';
+import type { Song, SongFilter } from '../types';
 import { APP_VERSION } from '../version';
 import {
   Drawer,
@@ -31,16 +31,16 @@ import PersonIcon from '@mui/icons-material/Person';
 import KeyIcon from '@mui/icons-material/Key';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import StarIcon from '@mui/icons-material/Star';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import HistoryIcon from '@mui/icons-material/History';
 import EditIcon from '@mui/icons-material/Edit';
 import QueueMusicIcon from '@mui/icons-material/QueueMusic';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 interface NavigationMenuProps {
   songs: Song[];
-  activeFilter: { type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine'; value: string } | null;
-  onFilterChange: (
-    filter: { type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine'; value: string } | null
-  ) => void;
+  activeFilter: SongFilter | null;
+  onFilterChange: (filter: SongFilter | null) => void;
   open: boolean;
   onClose?: () => void;
 }
@@ -137,6 +137,13 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
     [songs]
   );
 
+  const knownCount = useMemo(() => songs.filter((song) => song.known).length, [songs]);
+
+  const playedCount = useMemo(
+    () => songs.filter((song) => (song.playCount ?? 0) > 0).length,
+    [songs]
+  );
+
   const availableKeys = useMemo(() => {
     const keySet = new Set(songs.map((s) => s.key).filter(Boolean) as string[]);
     return ALL_KEYS.filter((key) => keySet.has(key));
@@ -147,7 +154,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
   };
 
   const handleFilterClick = (
-    type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine',
+    type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine' | 'played' | 'popular' | 'known',
     value: string
   ) => {
     if (activeFilter?.type === type && activeFilter?.value === value) {
@@ -302,6 +309,38 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 secondary={`${favouriteCount} ${favouriteCount === 1 ? 'song' : 'songs'}`}
                 primaryTypographyProps={{
                   fontWeight: activeFilter?.type === 'favourite' ? 'bold' : 'normal',
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={activeFilter?.type === 'known'}
+              onClick={() => handleFilterClick('known', 'true')}
+            >
+              <CheckCircleIcon sx={{ mr: 2, color: 'action.active' }} />
+              <ListItemText
+                primary="Songs I Know"
+                secondary={`${knownCount} ${knownCount === 1 ? 'song' : 'songs'}`}
+                primaryTypographyProps={{
+                  fontWeight: activeFilter?.type === 'known' ? 'bold' : 'normal',
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={activeFilter?.type === 'played'}
+              onClick={() => handleFilterClick('played', 'true')}
+            >
+              <HistoryIcon sx={{ mr: 2, color: 'action.active' }} />
+              <ListItemText
+                primary="Recently Played"
+                secondary={`${playedCount} ${playedCount === 1 ? 'song' : 'songs'}`}
+                primaryTypographyProps={{
+                  fontWeight: activeFilter?.type === 'played' ? 'bold' : 'normal',
                 }}
               />
             </ListItemButton>

@@ -19,6 +19,9 @@ export const useLibraryFilter = (): [SongFilter | null, (filter: SongFilter | nu
   const key = searchParams.get('key');
   const favourite = searchParams.get('favourite');
   const mine = searchParams.get('mine');
+  const played = searchParams.get('played');
+  const popular = searchParams.get('popular');
+  const known = searchParams.get('known');
 
   const activeFilter = useMemo<SongFilter | null>(() => {
     if (tag) return { type: 'tag', value: tag };
@@ -26,8 +29,11 @@ export const useLibraryFilter = (): [SongFilter | null, (filter: SongFilter | nu
     if (key) return { type: 'key', value: key };
     if (favourite) return { type: 'favourite', value: favourite };
     if (mine) return { type: 'mine', value: mine };
+    if (played) return { type: 'played', value: played };
+    if (popular) return { type: 'popular', value: popular };
+    if (known) return { type: 'known', value: known };
     return null;
-  }, [tag, artist, key, favourite, mine]);
+  }, [tag, artist, key, favourite, mine, played, popular, known]);
 
   const setFilter = useCallback(
     (filter: SongFilter | null) => {

@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import type { Song, ViewMode } from '../types';
+import type { Song, SongFilter, ViewMode } from '../types';
 import {
   Container,
   Typography,
@@ -60,6 +60,9 @@ const SORT_OPTIONS: { value: SortOrder; label: string }[] = [
   { value: 'length', label: 'Length' },
   { value: 'tempo', label: 'Tempo' },
   { value: 'capo', label: 'Capo' },
+  { value: 'played', label: 'Recently played' },
+  { value: 'popular', label: 'Most played' },
+  { value: 'known', label: 'Songs I know first' },
   { value: 'recent', label: 'Recently added' },
   { value: 'favourite', label: 'Favourites first' },
 ];
@@ -86,7 +89,7 @@ interface SongListProps {
   onCreate: () => void;
   onImportNav: () => void;
   onChordsNav: () => void;
-  activeFilter?: { type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine'; value: string } | null;
+  activeFilter?: SongFilter | null;
   onClearFilter?: () => void;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
@@ -123,6 +126,7 @@ export const SongList: React.FC<SongListProps> = ({
   const [sortOrder, setSortOrder] = useState<SortOrder>('title');
   const [groupBy, setGroupBy] = useState<GroupBy>('none');
   const [onlyIncomplete, setOnlyIncomplete] = useState(false);
+  const [onlyKnown, setOnlyKnown] = useState(false);
   const [searchLyrics, setSearchLyrics] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -135,6 +139,26 @@ export const SongList: React.FC<SongListProps> = ({
   const [transposeDialogOpen, setTransposeDialogOpen] = useState(false);
   const [transposeDraft, setTransposeDraft] = useState(0);
   const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
+
+  /*
+   * A filter that is about playing says how the songs should be ordered too.
+   *
+   * "Recently played" is no use if the songs are then shown by title.
+   */
+  const impliedSort: SortOrder | undefined =
+    activeFilter?.type === 'played'
+      ? 'played'
+      : activeFilter?.type === 'popular'
+        ? 'popular'
+        : activeFilter?.type === 'known'
+          ? 'known'
+          : undefined;
+
+  const [lastImpliedSort, setLastImpliedSort] = useState<string | undefined>(undefined);
+  if (impliedSort && impliedSort !== lastImpliedSort) {
+    setLastImpliedSort(impliedSort);
+    setSortOrder(impliedSort);
+  }
 
   // Every tag in the library, so a tag can be switched to without clearing
   // the current filter first.
@@ -163,18 +187,20 @@ export const SongList: React.FC<SongListProps> = ({
       // that does not say what key it is in is not finished.
       const matchesComplete =
         !onlyIncomplete || !s.key || !s.duration || parseDuration(s.duration) === undefined;
-      return matchesSearch && matchesTag && matchesComplete;
+      // The songs the player says they know.
+      const matchesKnown = !onlyKnown || Boolean(s.known);
+      return matchesSearch && matchesTag && matchesComplete && matchesKnown;
     });
 
     return sortSongs(matches, sortOrder);
-  }, [songs, search, searchLyrics, selectedTag, sortOrder, lyricsById, onlyIncomplete]);
+  }, [songs, search, searchLyrics, selectedTag, sortOrder, lyricsById, onlyIncomplete, onlyKnown]);
 
   const [visibleCount, setVisibleCount] = useState(12);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Show the first page again whenever the result set changes. Adjusting the
   // state during render avoids an extra pass of rendering.
-  const resultKey = `${search}|${searchLyrics}|${selectedTag}|${sortOrder}|${groupBy}|${onlyIncomplete}|${activeFilter?.type ?? ''}:${activeFilter?.value ?? ''}`;
+  const resultKey = `${search}|${searchLyrics}|${selectedTag}|${sortOrder}|${groupBy}|${onlyIncomplete}|${onlyKnown}|${activeFilter?.type ?? ''}:${activeFilter?.value ?? ''}`;
   const [lastResultKey, setLastResultKey] = useState(resultKey);
   if (resultKey !== lastResultKey) {
     setLastResultKey(resultKey);
@@ -331,6 +357,11 @@ export const SongList: React.FC<SongListProps> = ({
           {(song.capo || 0) > 0 && (
             <Typography variant="body2" color="primary">
               Capo: {song.capo}
+            </Typography>
+          )}
+          {song.known && (
+            <Typography variant="body2" color="success.main">
+              You know this
             </Typography>
           )}
         </Stack>
@@ -606,11 +637,21 @@ export const SongList: React.FC<SongListProps> = ({
                 ? 'Artist'
                 : activeFilter.type === 'favourite'
                   ? 'Favourites'
-                  : activeFilter.type === 'mine'
-                    ? 'My Songs'
-                    : 'Tag'}
+                  : activeFilter.type === 'known'
+                    ? 'Songs I Know'
+                    : activeFilter.type === 'played'
+                      ? 'Recently Played'
+                      : activeFilter.type === 'popular'
+                        ? 'Most Played'
+                        : activeFilter.type === 'mine'
+                          ? 'My Songs'
+                          : 'Tag'}
             :{' '}
-            {activeFilter.type === 'favourite' || activeFilter.type === 'mine'
+            {activeFilter.type === 'favourite' ||
+            activeFilter.type === 'mine' ||
+            activeFilter.type === 'known' ||
+            activeFilter.type === 'played' ||
+            activeFilter.type === 'popular'
               ? ''
               : activeFilter.value}
           </strong>
@@ -720,6 +761,16 @@ export const SongList: React.FC<SongListProps> = ({
           role="button"
           aria-pressed={onlyIncomplete}
           title="The songs that do not say what key they are in, or how long they take"
+        />
+        <Chip
+          label="Songs I know"
+          color={onlyKnown ? 'primary' : 'default'}
+          variant={onlyKnown ? 'filled' : 'outlined'}
+          onClick={() => setOnlyKnown((prev) => !prev)}
+          clickable
+          role="button"
+          aria-pressed={onlyKnown}
+          title="The songs you have learned"
         />
       </Stack>
 

@@ -38,6 +38,12 @@ export interface Song {
   notes?: string;
   /** Marked as a favourite, so it can be found again quickly. */
   favorite?: boolean;
+  /** When the song was last opened, so the library can say what was played. */
+  lastOpenedAt?: string;
+  /** How many times the song has been opened. */
+  playCount?: number;
+  /** The player has learned this song. */
+  known?: boolean;
   /** Whether this is one of the built-in songs, an import, or your own. */
   origin?: SongOrigin;
   attribution: SongAttribution;
@@ -92,7 +98,7 @@ export type ViewMode = 'grid' | 'list';
 export type ParsedSong = ParsedLine[];
 
 export interface SongFilter {
-  type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine';
+  type: 'tag' | 'artist' | 'key' | 'favourite' | 'mine' | 'played' | 'popular' | 'known';
   value: string;
 }
 

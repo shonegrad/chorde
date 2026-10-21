@@ -15,6 +15,9 @@ export type SortOrder =
   | 'artist'
   | 'key'
   | 'recent'
+  | 'played'
+  | 'popular'
+  | 'known'
   | 'favourite'
   | 'length'
   | 'tempo'
@@ -86,6 +89,29 @@ export const sortSongs = (songs: Song[], order: SortOrder): Song[] => {
     if (order === 'favourite') {
       const favourite = Number(Boolean(b.favorite)) - Number(Boolean(a.favorite));
       if (favourite !== 0) return favourite;
+    }
+
+    if (order === 'known') {
+      const known = Number(Boolean(b.known)) - Number(Boolean(a.known));
+      if (known !== 0) return known;
+    }
+
+    if (order === 'played') {
+      // The songs that were played lately come first. A song that has never
+      // been played goes at the end.
+      const first = a.lastOpenedAt ? new Date(a.lastOpenedAt).getTime() : undefined;
+      const second = b.lastOpenedAt ? new Date(b.lastOpenedAt).getTime() : undefined;
+      if (first === undefined && second !== undefined) return 1;
+      if (second === undefined && first !== undefined) return -1;
+      if (first !== undefined && second !== undefined && first !== second) return second - first;
+      return a.title.localeCompare(b.title);
+    }
+
+    if (order === 'popular') {
+      const first = a.playCount ?? 0;
+      const second = b.playCount ?? 0;
+      if (first !== second) return second - first;
+      return a.title.localeCompare(b.title);
     }
 
     if (order === 'recent') {

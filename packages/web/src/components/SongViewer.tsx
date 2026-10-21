@@ -79,6 +79,8 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import EditIcon from '@mui/icons-material/Edit';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -155,6 +157,26 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   useEffect(() => {
     saveSongPreferences(song.id, { transpose, capo });
   }, [song.id, transpose, capo]);
+
+  /*
+   * The song has been opened, so it has been played.
+   *
+   * The library keeps a record of what was played and when, so that it can
+   * say what was played lately. The song is only recorded once, however many
+   * times it is saved while it is open.
+   */
+  const lastRecorded = useRef<string | null>(null);
+  useEffect(() => {
+    if (!onUpdateSong) return;
+    if (lastRecorded.current === song.id) return;
+    lastRecorded.current = song.id;
+
+    void onUpdateSong({
+      ...song,
+      lastOpenedAt: new Date().toISOString(),
+      playCount: (song.playCount ?? 0) + 1,
+    });
+  }, [onUpdateSong, song]);
 
   // The key the chords are written in, and the key they sound in.
   const writtenKey = song.key;
@@ -446,6 +468,10 @@ export const SongViewer: React.FC<SongViewerProps> = ({
 
   const handleToggleFavorite = () => {
     onUpdateSong?.({ ...song, favorite: !song.favorite, updatedAt: new Date().toISOString() });
+  };
+
+  const handleToggleKnown = () => {
+    onUpdateSong?.({ ...song, known: !song.known, updatedAt: new Date().toISOString() });
   };
 
   const handleDurationChange = () => {
@@ -1120,6 +1146,22 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                     aria-pressed={Boolean(song.favorite)}
                   >
                     {song.favorite ? <StarIcon color="primary" /> : <StarBorderIcon />}
+                  </IconButton>
+                </Tooltip>
+              )}
+              {onUpdateSong && (
+                <Tooltip
+                  title={song.known ? 'You know this song' : 'Mark as a song you know'}
+                  sx={{ mb: 3 }}
+                >
+                  <IconButton
+                    onClick={handleToggleKnown}
+                    aria-label={
+                      song.known ? 'Mark as a song you do not know yet' : 'Mark as a song you know'
+                    }
+                    aria-pressed={Boolean(song.known)}
+                  >
+                    {song.known ? <CheckCircleIcon color="success" /> : <CheckCircleOutlineIcon />}
                   </IconButton>
                 </Tooltip>
               )}
