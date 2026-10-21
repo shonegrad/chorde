@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Song } from '../types';
 import { createId } from '../lib/id';
 import { extractMetadata } from '../lib/chordPro';
+import { readDuration } from '../lib/duration';
 import { transposeChordProContent, keyPrefersFlats } from '../lib/music';
 import { keyShift } from '../lib/keys';
 import { chordsOutsideKey, suggestChords } from '../lib/chordSuggestions';
@@ -172,7 +173,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
           key: snapshot.key ?? metadata.key,
           bpm: snapshot.bpm,
           timeSignature: snapshot.timeSignature ?? '4/4',
-          duration: snapshot.duration,
+          duration: snapshot.duration ?? readDuration(metadata.duration),
           notes: snapshot.notes,
           tags: snapshot.tags,
           favorite: initialSong?.favorite,

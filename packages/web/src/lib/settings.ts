@@ -3,10 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 export const SETTINGS_STORAGE_KEY = 'chorde_settings';
 
 export interface AppSettings {
-  cloudSync: {
-    lastBackupAt: string | null;
-    lastRestoreAt: string | null;
-  };
   stageMode: {
     defaultBpm: number;
     beatsPerLine: number;
@@ -17,10 +13,6 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  cloudSync: {
-    lastBackupAt: null,
-    lastRestoreAt: null,
-  },
   stageMode: {
     defaultBpm: 120,
     beatsPerLine: 4,
@@ -39,7 +31,6 @@ const readStoredSettings = (): AppSettings => {
   try {
     const parsed = JSON.parse(stored) as Partial<AppSettings>;
     return {
-      cloudSync: { ...DEFAULT_SETTINGS.cloudSync, ...parsed.cloudSync },
       stageMode: { ...DEFAULT_SETTINGS.stageMode, ...parsed.stageMode },
     };
   } catch {

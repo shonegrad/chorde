@@ -46,6 +46,19 @@ export const formatDuration = (seconds: number): string => {
   return `${minutes}:${pad(rest)}`;
 };
 
+/**
+ * A length that we can actually use.
+ *
+ * The length may come from a `{duration:}` directive in a ChordPro file, and
+ * from there it can be anything at all. A length we cannot read is dropped
+ * rather than kept, so that a set never adds up a time that means nothing.
+ */
+export const readDuration = (value?: string): string | undefined => {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  return parseDuration(trimmed) === undefined ? undefined : trimmed;
+};
+
 export interface RunningTime {
   /** How long the songs add up to, in seconds. */
   seconds: number;

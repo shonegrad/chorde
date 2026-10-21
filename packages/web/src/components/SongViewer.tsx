@@ -23,6 +23,7 @@ import {
   MIN_FONT_SIZE,
 } from '../lib/preferences';
 import { SongBody } from './SongBody';
+import { SongNote } from './SongNote';
 import { TagEditor } from './TagEditor';
 import { ChordModal } from './ChordModal';
 import { SectionNav } from './SectionNav';
@@ -114,9 +115,11 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const initialPrefs = useMemo(() => loadViewerPreferences(), []);
   const initialSongPrefs = useMemo(() => loadSongPreferences(song.id), [song.id]);
 
-  const [transpose, setTranspose] = useState(initialSongPrefs.transpose);
+  const [transpose, setTranspose] = useState(initialSongPrefs.transpose ?? 0);
   const [fontSize, setFontSize] = useState(initialPrefs.fontSize);
-  const [capo, setCapo] = useState(initialSongPrefs.capo || song.capo || 0);
+  // A capo of zero is a real choice — "no capo" — so a stored zero must not
+  // fall through to the capo the song was written with.
+  const [capo, setCapo] = useState(initialSongPrefs.capo ?? song.capo ?? 0);
   const [selectedChord, setSelectedChord] = useState<string | null>(null);
   const [autoScroll, setAutoScroll] = useState(false);
   const [manualScrollSpeed, setManualScrollSpeed] = useState<number | null>(null);
@@ -456,8 +459,18 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     onUpdateSong?.({ ...song, tags, updatedAt: new Date().toISOString() });
   };
 
+  const handleNoteChange = () => {
+    const value = noteDraft.trim();
+    onUpdateSong?.({
+      ...song,
+      notes: value || undefined,
+      updatedAt: new Date().toISOString(),
+    });
+  };
+
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [durationDraft, setDurationDraft] = useState(song.duration ?? '');
+  const [noteDraft, setNoteDraft] = useState(song.notes ?? '');
 
   // Keyboard shortcuts, so a song can be played without touching the screen.
   useEffect(() => {
@@ -1243,6 +1256,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             )}
           </Box>
 
+          <SongNote note={song.notes} />
+
           <SongBody
             lines={parsedContent}
             displayMode={displayMode}
@@ -1296,6 +1311,29 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                 handleDurationChange();
               }}
               onBlur={handleDurationChange}
+            />
+          </Box>
+
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Note
+            </Typography>
+            <TextField
+              size="small"
+              fullWidth
+              multiline
+              minRows={2}
+              placeholder="Play quietly here"
+              value={noteDraft}
+              onChange={(event) => setNoteDraft(event.target.value)}
+              inputProps={{ 'aria-label': 'The note for this song' }}
+              helperText="A note for whoever plays this song. It is shown when the song is read and on stage."
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' || event.shiftKey) return;
+                event.preventDefault();
+                handleNoteChange();
+              }}
+              onBlur={handleNoteChange}
             />
           </Box>
         </DialogContent>

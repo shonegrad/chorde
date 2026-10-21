@@ -32,6 +32,9 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       timeout: 120000,
       url: 'http://localhost:5173/chorde/',
+      // The search API runs alongside the app, so the online search tab is
+      // there and the tests that use it are actually run.
+      env: { VITE_ENABLE_ONLINE_SEARCH: 'true' },
     },
     {
       command: 'npm run dev:api',

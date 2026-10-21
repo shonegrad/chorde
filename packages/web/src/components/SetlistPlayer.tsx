@@ -14,6 +14,7 @@ import {
   type SequenceHandle,
 } from '../lib/audio';
 import { SongBody } from './SongBody';
+import { SongNote } from './SongNote';
 import {
   AppBar,
   Box,
@@ -370,6 +371,7 @@ export const SetlistPlayer: React.FC = () => {
         }}
       >
         <Box sx={{ maxWidth: 720, mx: 'auto' }}>
+          <SongNote note={song.notes} variant="stage" />
           <SongBody
             lines={prepared.lines}
             displayMode="chords"

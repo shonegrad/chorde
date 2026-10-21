@@ -112,6 +112,40 @@ describe('SongViewer', () => {
     expect(screen.getByText(/sounds in A/)).toBeInTheDocument();
   });
 
+  it('keeps "no capo" when the song was written with one', () => {
+    const withCapo = { ...song, capo: 2 };
+
+    const { unmount } = renderViewer(withCapo);
+
+    fireEvent.mouseDown(screen.getByLabelText('Capo position'));
+    fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'None' }));
+
+    unmount();
+
+    renderViewer(withCapo);
+
+    expect(screen.getByLabelText('Capo position')).toHaveTextContent('None');
+    expect(screen.queryByText(/Capo 2/)).not.toBeInTheDocument();
+  });
+
+  it('starts from the capo the song was written with', () => {
+    renderViewer({ ...song, capo: 2 });
+
+    expect(screen.getByLabelText('Capo position')).toHaveTextContent('2');
+  });
+
+  it('shows the note written on the song', () => {
+    renderViewer({ ...song, notes: 'Play quietly here' });
+
+    expect(screen.getByText('Play quietly here')).toBeInTheDocument();
+  });
+
+  it('shows no note when the song has none', () => {
+    renderViewer(song);
+
+    expect(screen.queryByLabelText('Note for this song')).not.toBeInTheDocument();
+  });
+
   it('shows the current text size and changes it', () => {
     renderViewer(song);
 

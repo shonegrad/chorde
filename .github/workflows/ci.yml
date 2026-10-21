@@ -66,6 +66,11 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
 
+    env:
+      # The search API runs alongside the app, so the online search tab is
+      # there and the tests that use it are run rather than skipped.
+      VITE_ENABLE_ONLINE_SEARCH: 'true'
+
     steps:
       - uses: actions/checkout@v4
 

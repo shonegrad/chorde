@@ -116,6 +116,13 @@ describe('the performance view', () => {
     await waitFor(() => expect(screen.getByText('4')).toBeInTheDocument());
   });
 
+  it('shows the note written on the song', async () => {
+    useLibraryStore.setState({ songs: [{ ...song, notes: 'Play quietly here' }, secondSong] });
+    renderPlayer();
+
+    await waitFor(() => expect(screen.getByText('Play quietly here')).toBeInTheDocument());
+  });
+
   it('says so when a song is no longer in the library', async () => {
     useLibraryStore.setState({ songs: [secondSong] });
     renderPlayer();

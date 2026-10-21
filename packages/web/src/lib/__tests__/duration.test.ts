@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { describeRunningTime, formatDuration, parseDuration, runningTime } from '../duration';
+import {
+  describeRunningTime,
+  formatDuration,
+  parseDuration,
+  readDuration,
+  runningTime,
+} from '../duration';
 
 describe('reading a duration', () => {
   it('reads minutes and seconds', () => {
@@ -17,6 +23,19 @@ describe('reading a duration', () => {
     expect(parseDuration('4')).toBeUndefined();
     expect(parseDuration('')).toBeUndefined();
     expect(parseDuration(undefined)).toBeUndefined();
+  });
+});
+
+describe('keeping a length we can use', () => {
+  it('keeps a length it can read', () => {
+    expect(readDuration('4:28')).toBe('4:28');
+    expect(readDuration(' 1:04:28 ')).toBe('1:04:28');
+  });
+
+  it('drops a length it cannot read', () => {
+    expect(readDuration('about four minutes')).toBeUndefined();
+    expect(readDuration('4:70')).toBeUndefined();
+    expect(readDuration(undefined)).toBeUndefined();
   });
 });
 

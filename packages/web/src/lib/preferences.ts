@@ -15,6 +15,15 @@ export interface SongPreferences {
   capo: number;
 }
 
+/**
+ * The preferences remembered for a song, when there are any.
+ *
+ * A value that was never chosen is left out, so that the song's own value can
+ * be used instead. Zero is a choice — "no capo" — and must not be confused
+ * with a preference that was never set.
+ */
+export type SongPreferenceOverrides = Partial<SongPreferences>;
+
 export const DEFAULT_VIEWER_PREFERENCES: ViewerPreferences = {
   fontSize: 20,
   displayMode: 'chords',
@@ -67,13 +76,15 @@ export const saveViewerPreferences = (preferences: ViewerPreferences): void => {
   writeJson(VIEWER_PREFS_KEY, preferences);
 };
 
-export const loadSongPreferences = (songId: string): SongPreferences => {
-  const all = readJson<Record<string, Partial<SongPreferences>>>(SONG_PREFS_KEY) ?? {};
+export const loadSongPreferences = (songId: string): SongPreferenceOverrides => {
+  const all = readJson<Record<string, SongPreferenceOverrides>>(SONG_PREFS_KEY) ?? {};
   const stored = all[songId] ?? {};
-  return {
-    transpose: typeof stored.transpose === 'number' ? stored.transpose : 0,
-    capo: typeof stored.capo === 'number' ? stored.capo : 0,
-  };
+  const overrides: SongPreferenceOverrides = {};
+
+  if (typeof stored.transpose === 'number') overrides.transpose = stored.transpose;
+  if (typeof stored.capo === 'number') overrides.capo = stored.capo;
+
+  return overrides;
 };
 
 export const saveSongPreferences = (songId: string, preferences: SongPreferences): void => {
