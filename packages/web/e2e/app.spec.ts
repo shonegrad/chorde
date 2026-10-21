@@ -216,6 +216,31 @@ test.describe('Chorde E2E - Song Viewer', () => {
     await popup.close();
   });
 
+  test('sends a song to somebody else in a link', async ({ page, context }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await clickSongControl(page, 'Copy a link to this song');
+
+    const link = await page.getByLabel('The link to this song').inputValue();
+    expect(link).toContain('#song=');
+
+    // The link carries the song with it.
+    const other = await context.newPage();
+    await other.goto(link);
+
+    await expect(other.getByRole('heading', { name: /somebody sent you a song/i })).toBeVisible({
+      timeout: 15000,
+    });
+    await other.getByRole('button', { name: /add to my library/i }).click();
+
+    await expect(other.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 15000 });
+    await other.close();
+  });
+
   test('keeps the sidebar beside the song on a big screen', async ({ page }) => {
     // On a phone the sidebar is a drawer, so it is not beside the song.
     const size = page.viewportSize();

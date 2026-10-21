@@ -24,12 +24,14 @@ import {
 } from '../lib/preferences';
 import { SongBody } from './SongBody';
 import { SongNote } from './SongNote';
+import { songLink } from '../lib/shareLink';
 import { PrintDialog } from './PrintDialog';
 import { TagEditor } from './TagEditor';
 import { ChordModal } from './ChordModal';
 import { SectionNav } from './SectionNav';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import {
+  Alert,
   AppBar,
   Toolbar,
   Typography,
@@ -75,6 +77,7 @@ import AddIcon from '@mui/icons-material/Add';
 import TextDecreaseIcon from '@mui/icons-material/TextDecrease';
 import TextIncreaseIcon from '@mui/icons-material/TextIncrease';
 import DownloadIcon from '@mui/icons-material/Download';
+import LinkIcon from '@mui/icons-material/Link';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import EditIcon from '@mui/icons-material/Edit';
 import StarIcon from '@mui/icons-material/Star';
@@ -135,6 +138,10 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [setlistOpen, setSetlistOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareLink, setShareLink] = useState('');
+  const [shareError, setShareError] = useState<string | undefined>(undefined);
   const [playingProgression, setPlayingProgression] = useState<ProgressionChord[] | null>(null);
   const [moreAnchor, setMoreAnchor] = useState<HTMLElement | null>(null);
   const [currentChord, setCurrentChord] = useState<string | null>(null);
@@ -472,6 +479,35 @@ export const SongViewer: React.FC<SongViewerProps> = ({
 
   const handleToggleKnown = () => {
     onUpdateSong?.({ ...song, known: !song.known, updatedAt: new Date().toISOString() });
+  };
+
+  /*
+   * A link that carries the song.
+   *
+   * There is no server to hold the song, so the link holds it. The words of
+   * the song go into the link, squeezed down so that the link is not too long.
+   */
+  const handleShareLink = async () => {
+    setShareError(undefined);
+    try {
+      const built = await songLink(song);
+      setShareLink(built);
+      // The link is copied as well, so that it is ready to be sent.
+      await navigator.clipboard.writeText(built).catch(() => undefined);
+    } catch {
+      setShareError('The link could not be made.');
+    }
+    setShareOpen(true);
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2500);
+    } catch {
+      setLinkCopied(false);
+    }
   };
 
   const handleDurationChange = () => {
@@ -924,6 +960,12 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                   </IconButton>
                 </Tooltip>
 
+                <Tooltip title="Send this song to somebody else">
+                  <IconButton onClick={handleShareLink} aria-label="Copy a link to this song">
+                    <LinkIcon />
+                  </IconButton>
+                </Tooltip>
+
                 <Tooltip title="Print / save as PDF">
                   <IconButton onClick={() => setPrintOpen(true)} aria-label="Print or save as PDF">
                     <PictureAsPdfIcon />
@@ -1081,6 +1123,19 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               <DownloadIcon fontSize="small" />
             </ListItemIcon>
             Download ChordPro file
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              void handleShareLink();
+              setMoreAnchor(null);
+            }}
+            aria-label="Copy a link to this song"
+          >
+            <ListItemIcon>
+              <LinkIcon fontSize="small" />
+            </ListItemIcon>
+            Copy a link to this song
           </MenuItem>
 
           <MenuItem
@@ -1457,6 +1512,34 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         capo={capo}
         preferFlats={preferFlats}
       />
+
+      {/* A link that carries the song */}
+      <Dialog open={shareOpen} onClose={() => setShareOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>A link to this song</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            The link carries the song with it, so anybody who opens it can add the song to their own
+            library. Nothing is sent anywhere until they do.
+          </Typography>
+          {shareError ? (
+            <Alert severity="warning">{shareError}</Alert>
+          ) : (
+            <TextField
+              fullWidth
+              size="small"
+              value={shareLink}
+              inputProps={{ readOnly: true, 'aria-label': 'The link to this song' }}
+              onFocus={(event) => event.target.select()}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShareOpen(false)}>Close</Button>
+          <Button variant="contained" onClick={handleCopyLink}>
+            {linkCopied ? 'Copied' : 'Copy'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Keyboard shortcuts */}
       <Dialog

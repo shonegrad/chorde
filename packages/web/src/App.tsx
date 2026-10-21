@@ -20,6 +20,8 @@ import { MobileNav } from './components/MobileNav';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useLibraryFilter } from './lib/useLibraryFilter';
 import { transposeSong } from './lib/library';
+import { clearSharedSong, readSharedSong, type SharedSong } from './lib/shareLink';
+import { SharedSongDialog } from './components/SharedSongDialog';
 // The shapes a player has drawn for themselves, so that the app draws those
 // shapes for those chords from the start.
 import './lib/customChords';
@@ -181,6 +183,39 @@ function AppLayout() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const [navOpen, setNavOpen] = useState(false);
+  const saveSong = useLibraryStore((s) => s.saveSong);
+  const { notifySuccess, notifyError } = useNotification();
+  const navigate = useNavigate();
+
+  /*
+   * A song that was sent to you comes in the link.
+   *
+   * The link carries the song with it, so there is nothing to look up, and it
+   * is read however the app was opened.
+   */
+  const [sharedSong, setSharedSong] = useState<SharedSong | undefined>(undefined);
+
+  useEffect(() => {
+    let stopped = false;
+
+    const read = () => {
+      void readSharedSong().then((content) => {
+        if (stopped) return;
+        if (content) {
+          setSharedSong(content);
+          clearSharedSong();
+        }
+      });
+    };
+
+    read();
+    window.addEventListener('hashchange', read);
+
+    return () => {
+      stopped = true;
+      window.removeEventListener('hashchange', read);
+    };
+  }, []);
 
   return (
     <Box sx={{ display: 'flex', height: 'var(--app-height)' }}>
@@ -194,6 +229,48 @@ function AppLayout() {
       <Box sx={{ flexGrow: 1, minWidth: 0, overflow: 'auto' }}>
         <Outlet context={{ openNav: () => setNavOpen(true) }} />
       </Box>
+
+      {/* A song that was sent to you */}
+      <SharedSongDialog
+        song={sharedSong}
+        open={Boolean(sharedSong)}
+        onClose={() => setSharedSong(undefined)}
+        onAdd={async (shared) => {
+          const now = new Date().toISOString();
+          const song: Song = {
+            id: createId(),
+            title: shared.title,
+            artist: shared.artist,
+            content: shared.content,
+            format: 'chordpro',
+            key: shared.key,
+            capo: shared.capo,
+            bpm: shared.bpm,
+            timeSignature: '4/4',
+            tags: ['shared'],
+            origin: 'import',
+            attribution: {
+              sourceName: 'Somebody',
+              sourceUrl: '',
+              license: 'custom',
+              author: shared.artist,
+              notes: 'Sent to you in a link.',
+              verifiedBy: 'manual',
+            },
+            rightsStatus: 'unknown',
+            createdAt: now,
+            updatedAt: now,
+          };
+          try {
+            await saveSong(song);
+            notifySuccess(`Added "${song.title}"`);
+            setSharedSong(undefined);
+            navigate(`/song/${song.id}`);
+          } catch {
+            notifyError('Failed to add the song');
+          }
+        }}
+      />
     </Box>
   );
 }

@@ -6,6 +6,8 @@
  * means a ZIP of songs can be read without a library.
  */
 
+import { inflate } from './deflate';
+
 const END_OF_CENTRAL_DIRECTORY = 0x06054b50;
 const CENTRAL_FILE_HEADER = 0x02014b50;
 const LOCAL_FILE_HEADER = 0x04034b50;
@@ -38,21 +40,6 @@ const findCentralDirectory = (view: DataView): number => {
     if (readUint32(view, offset) === END_OF_CENTRAL_DIRECTORY) return offset;
   }
   return -1;
-};
-
-const inflate = async (data: Uint8Array): Promise<Uint8Array> => {
-  if (typeof DecompressionStream === 'undefined') {
-    throw new Error('This browser cannot read a compressed archive.');
-  }
-
-  const source = new Response(data as BodyInit).body;
-  if (!source) {
-    throw new Error('The archive could not be read.');
-  }
-
-  const stream = source.pipeThrough(new DecompressionStream('deflate-raw'));
-  const buffer = await new Response(stream).arrayBuffer();
-  return new Uint8Array(buffer);
 };
 
 /**

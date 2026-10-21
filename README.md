@@ -48,6 +48,8 @@
 - **Plays Like a Guitar**: The chords of a song can be played in the reader and on stage, with the
   volume, the tone and whether there is sound at all set in the settings.
 - **Favourites**: Star the songs you play most and find them again in one click.
+- **Share a Song**: Send somebody else a link to a song. The link carries the song with it, so
+  they can add it to their own library. Nothing is sent anywhere until they do.
 - **Play History**: The app remembers what was played and when, so you can sort by "Recently
   played" or "Most played". Mark the songs you have learned, and the library will tell you which
   ones are still new. The chords you reach for most are offered first when you write.

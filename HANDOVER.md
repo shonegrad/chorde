@@ -100,18 +100,33 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**A song cannot be shared.** There is no link to a song and no way to send one to somebody else.
-A setlist can be written down and read back, and a song cannot.
+**The API needs a host.** It is a decision rather than a piece of work: until it has one, online
+search is hidden in production. Everything else in the app works without it.
 
-After that:
+What the app cannot do yet, and what a musician would notice:
 
 - **Nothing is printed as a MIDI file**, and there is no way to send the chords of a song to
   another program.
-- **The API needs a host**, which is a decision rather than a piece of work: until it has one,
-  online search is hidden in production.
+- **There is no way to play along with a recording.** The app plays the chords of a song, and there
+  is no backing track and no way to keep to one.
+- **A song cannot be shared as a file of its own** in a way that keeps the words, the key and the
+  chords together. The ChordPro file does that, but it does not carry the notes.
+- **The library is not a catalogue of what you want to learn.** There is no place to say "I want to
+  learn this one".
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+A song can be sent to somebody else. The parts worth knowing:
+
+- `lib/shareLink.ts` puts the song into the link, squeezed down with the browser's own
+  `CompressionStream`, so that the link is not too long. A song of a few hundred words is a link of
+  about four hundred characters.
+- There is no server to hold the song, so the link holds it. The app that opens the link reads the
+  song out of it and offers to add it to the library.
+- The link is shown in a window of its own, so that it can be copied by hand if the browser will
+  not let the app write to the clipboard.
+- `lib/deflate.ts` is the squeezing, and the ZIP reader uses it too.
 
 A setlist can be written down. The parts worth knowing:
 
