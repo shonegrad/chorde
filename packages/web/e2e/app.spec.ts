@@ -221,11 +221,17 @@ test.describe('Chorde E2E - Song Viewer', () => {
     // The notes are written on a stave. On a phone the controls are in a menu.
     await openMoreControls(page);
     await page.getByRole('button', { name: 'Notes' }).click();
-    await expect(page.locator('.chord-display--art svg').first()).toBeVisible({ timeout: 20000 });
+
+    const staves = page.locator('.song-line-art-chords svg');
+    await expect(staves.first()).toBeVisible({ timeout: 20000 });
+
+    // The clef and the key signature are only at the start of the song.
+    await expect(staves.first().locator('.vf-clef')).toHaveCount(1);
+    await expect(staves.nth(1).locator('.vf-clef')).toHaveCount(0);
 
     // And the shapes are written in tablature.
     await page.getByRole('button', { name: 'Tabs' }).click();
-    await expect(page.locator('.chord-display--art svg').first()).toBeVisible();
+    await expect(page.locator('.song-line-art-chords svg').first()).toBeVisible();
   });
 
   test('offers the Nashville display mode', async ({ page }) => {

@@ -79,8 +79,8 @@ of the song, the notes spelled the way a musician writes them, and the shapes of
 tablature. B♭ in B♭ major renders as two flats and the notes B♭ D F. The chord reference — the
 window that opens when you click a chord — shows the diagram, the tab and the notes.
 
-The writing is too big to sit over a word, so in a song it is written along the top of the line and
-the words run underneath.
+The writing is too big to sit over a word, so in a song each line of the words is written on one
+stave above it, and the clef and the key signature are only drawn at the start of the song.
 
 ## Milestone 5 — The rest of ChordPro
 

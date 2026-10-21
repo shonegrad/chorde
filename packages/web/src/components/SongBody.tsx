@@ -80,25 +80,51 @@ export const SongBody: React.FC<SongBodyProps> = ({
 
   const tokenized = useMemo(() => lines.map((line) => buildTokens(line)), [lines]);
 
+  // The first line that has any chords on it, so that the clef and the key
+  // signature are only drawn at the start of the song.
+  const firstChordLine = useMemo(() => {
+    const index = tokenized.findIndex((tokens) => tokens.some((token) => token.kind === 'chord'));
+    return index;
+  }, [tokenized]);
+
   const chordLabel = (chord: string): string =>
     displayMode === 'nashville' ? chordToNashville(chord, songKey || 'C') : chord;
 
-  const renderChord = (chord: string): React.ReactNode => {
-    // The chords are written out on the stave, which every chord has.
+  /**
+   * The chords of a line, written out.
+   *
+   * The clef and the key signature are only drawn once, at the start of the
+   * song, the way they are on a page of music.
+   */
+  const notationFor = (chords: string[], showKey: boolean): React.ReactNode => {
     if (isNotation) {
-      return <ChordNotation kind="staff" chord={chord} songKey={songKey} width={112} height={80} />;
+      return (
+        <ChordNotation
+          kind="staff"
+          chords={chords}
+          songKey={songKey}
+          showKey={showKey}
+          width={showKey ? 64 + chords.length * 72 : 10 + chords.length * 72}
+          height={78}
+        />
+      );
     }
 
     // The tab is the shape on the guitar, which only the chords the library
-    // knows about have. The others keep their name.
-    if (isTabs) {
-      const frets = shapeOfChord(chord);
-      if (frets) {
-        return <ChordNotation kind="tab" chord={chord} frets={frets} width={104} height={80} />;
-      }
-    }
+    // knows about have.
+    const shapes = chords.map((chord) => shapeOfChord(chord));
+    if (shapes.some((shape) => !shape)) return null;
 
-    return chordLabel(chord);
+    return (
+      <ChordNotation
+        kind="tab"
+        chords={chords}
+        shapes={shapes as (number | 'x')[][]}
+        showKey={showKey}
+        width={showKey ? 30 + chords.length * 60 : 8 + chords.length * 60}
+        height={80}
+      />
+    );
   };
 
   /**
@@ -117,6 +143,11 @@ export const SongBody: React.FC<SongBodyProps> = ({
       {tokenized.map((tokens, lineIndex) => {
         const line = lines[lineIndex];
         const hasChords = tokens.some((token) => token.kind === 'chord');
+        const lineChords = tokens
+          .filter((token): token is Extract<Token, { kind: 'chord' }> => token.kind === 'chord')
+          .map((token) => token.chord);
+        // The clef and the key signature are only at the start of the song.
+        const firstLine = lineIndex === firstChordLine;
 
         return (
           <div
@@ -133,26 +164,14 @@ export const SongBody: React.FC<SongBodyProps> = ({
             {usesArtwork ? (
               <div className="song-line-art">
                 {/*
-                  The chords are written out along the top of the line, in the
-                  order they are played, and the words run underneath. The
-                  writing is too big to sit over a word without pushing the
-                  words apart.
+                  The chords of the line are written out along the top of it,
+                  in the order they are played, and the words run underneath.
+                  The writing is too big to sit over a word without pushing
+                  the words apart.
                 */}
-                <div className="song-line-art-chords">
-                  {tokens.map((token, tokenIndex) =>
-                    token.kind === 'chord' ? (
-                      <button
-                        key={tokenIndex}
-                        type="button"
-                        className="chord-display chord-display--art"
-                        onClick={() => onChordClick?.(token.chord)}
-                        aria-label={chordButtonLabel(token.chord)}
-                      >
-                        {renderChord(token.chord)}
-                      </button>
-                    ) : null
-                  )}
-                </div>
+                {lineChords.length > 0 && (
+                  <div className="song-line-art-chords">{notationFor(lineChords, firstLine)}</div>
+                )}
 
                 <div className="song-line-content">
                   {tokens.map((token, tokenIndex) =>
@@ -186,14 +205,14 @@ export const SongBody: React.FC<SongBodyProps> = ({
                           onClick={() => onChordClick?.(token.chord)}
                           aria-label={chordButtonLabel(token.chord)}
                         >
-                          {renderChord(token.chord)}
+                          {chordLabel(token.chord)}
                         </button>
                         {token.standalone ? (
                           // Reserves the width of the chord, so chords that
                           // have no words of their own do not sit on top of
                           // each other.
                           <span className="chord-spacer" aria-hidden="true">
-                            {renderChord(token.chord)}
+                            {chordLabel(token.chord)}
                           </span>
                         ) : (
                           <span className="chord-word">{token.word}</span>

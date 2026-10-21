@@ -13,14 +13,20 @@ export type NotationKind = 'staff' | 'tab';
 
 interface ChordNotationProps {
   kind: NotationKind;
-  /** The chord, for example "Bb7". */
-  chord: string;
+  /** The chords to write out, in the order they are played. */
+  chords: string[];
+  /** The shape of each chord, for the tablature. */
+  shapes?: (number | 'x')[][];
   /** The key of the song, which decides how the notes are spelled. */
   songKey?: string;
-  /** The shape of the chord, for the tablature. */
-  frets?: (number | 'x')[];
+  /** Whether to draw the clef and the key signature. */
+  showKey?: boolean;
   width?: number;
   height?: number;
+  /** The colour behind the writing, so the gaps in the lines are not white. */
+  background?: string;
+  /** How much bigger to draw it than it is. */
+  scale?: number;
 }
 
 /** The colours the notation is drawn in, so it follows the theme. */
@@ -30,9 +36,7 @@ interface Ink {
   text: string;
 }
 
-const inkOf = (theme: {
-  palette: { text: { primary: string; secondary: string }; divider: string };
-}): Ink => ({
+const inkOf = (theme: { palette: { text: { primary: string; secondary: string } } }): Ink => ({
   staff: theme.palette.text.secondary,
   notes: theme.palette.text.primary,
   text: theme.palette.text.primary,
@@ -77,16 +81,18 @@ const loadVexflow = (): Promise<typeof import('vexflow/core')> => {
 };
 
 /**
- * Draw a chord and return the SVG of it.
+ * Draw the chords and return the SVG of them.
  */
 const drawNotation = async (
   kind: NotationKind,
-  chord: string,
+  chords: string[],
+  shapes: (number | 'x')[][],
   songKey: string | undefined,
-  frets: (number | 'x')[] | undefined,
+  showKey: boolean,
   width: number,
   height: number,
-  ink: Ink
+  ink: Ink,
+  background: string
 ): Promise<SVGElement | null> => {
   const module = await loadVexflow();
   const { Factory, StaveNote, Formatter, Voice, TabNote, Accidental } = module;
@@ -100,33 +106,45 @@ const drawNotation = async (
 
   try {
     const factory = new Factory({
-      renderer: { elementId: host.id, width, height },
+      renderer: { elementId: host.id, width, height, background },
     });
     const context = factory.getContext();
     context.setFillStyle(ink.notes);
     context.setStrokeStyle(ink.staff);
 
+    const signature = keySignatureName(songKey);
+
     if (kind === 'staff') {
-      // The stave is no wider than the clef, the key and the chord need, and
-      // it is drawn low enough for the stems to have room above it.
-      const signature = keySignatureName(songKey);
+      // The stave is drawn low enough for the stems to have room above it.
       const stave = factory.Stave({
         x: 0,
         y: 30,
-        width: Math.min(width - 10, 100),
+        width,
         options: { spaceAboveStaffLn: 0 },
       });
-      stave.addClef('treble');
-      if (signature) stave.addKeySignature(signature);
+
+      if (showKey) {
+        stave.addClef('treble');
+        if (signature) stave.addKeySignature(signature);
+      }
+
       stave.setContext(context).draw();
 
-      const notes = notesOfChord(chord);
+      const notes = chords
+        .map((chord) => notesOfChord(chord))
+        .filter((chordNotes) => chordNotes.length > 0);
       if (notes.length === 0) return null;
 
       // The notes of a chord are one chord on the stave, not one note after
       // another, so they sit on top of each other with a single stem.
-      const voice = new Voice({ numBeats: 4, beatValue: 4 }).setMode(Voice.Mode.SOFT);
-      voice.addTickables([new StaveNote({ keys: notes.map((note) => note.key), duration: 'h' })]);
+      const voice = new Voice({ numBeats: notes.length * 2, beatValue: 4 }).setMode(
+        Voice.Mode.SOFT
+      );
+      voice.addTickables(
+        notes.map(
+          (chordNotes) => new StaveNote({ keys: chordNotes.map((n) => n.key), duration: 'h' })
+        )
+      );
 
       // The key signature says which sharps and flats are already in the
       // key, so only the notes that differ from it get an accidental.
@@ -135,39 +153,50 @@ const drawNotation = async (
       new Formatter().joinVoices([voice]).formatToStave([voice], stave);
       voice.draw(context, stave);
     } else {
-      const positions = tabPositionsOfShape(frets ?? []);
-      const played = positions.filter((position) => !position.muted);
-      if (played.length === 0) return null;
+      const positions = shapes.map((frets) => tabPositionsOfShape(frets));
+      if (positions.every((shape) => shape.every((position) => position.muted))) return null;
 
-      // The shape is one note played on several strings, so the frets are
-      // written in a column, the way tablature is written.
+      // The fret the shape starts at, so it is clear where on the neck it is.
+      const firstFret = positions
+        .flat()
+        .filter((position) => !position.muted)
+        .reduce((lowest, position) => Math.min(lowest, position.fret), 99);
+
+      // The fret the shape starts at only takes room when there is one.
+      const fretSpace = firstFret > 0 ? 22 : 2;
       const tab = factory.TabStave({
-        x: 22,
+        x: fretSpace,
         y: 8,
-        width: Math.min(width - 32, 78),
+        width: width - fretSpace,
         options: { spaceAboveStaffLn: 0 },
       });
       tab.setContext(context).draw();
 
-      const voice = new Voice({ numBeats: 4, beatValue: 4 }).setMode(Voice.Mode.SOFT);
-      voice.addTickables([
-        new TabNote({
-          positions: positions.map((position) => ({
-            str: position.str,
-            fret: position.muted ? 'X' : position.fret,
-          })),
-          duration: 'h',
-        }),
-      ]);
+      // Each shape is one note played on several strings, so the frets are
+      // written in a column, the way tablature is written.
+      const voice = new Voice({ numBeats: positions.length * 2, beatValue: 4 }).setMode(
+        Voice.Mode.SOFT
+      );
+      voice.addTickables(
+        positions.map(
+          (shape) =>
+            new TabNote({
+              positions: shape.map((position) => ({
+                str: position.str,
+                fret: position.muted ? 'X' : position.fret,
+              })),
+              duration: 'h',
+            })
+        )
+      );
+
       new Formatter().joinVoices([voice]).formatToStave([voice], tab);
       voice.draw(context, tab);
 
-      // The fret the shape starts at, so it is clear where on the neck it is.
-      const first = played.reduce((lowest, position) => Math.min(lowest, position.fret), 99);
-      if (first > 0) {
+      if (firstFret > 0) {
         context.setFont('Arial', 9);
         context.setFillStyle(ink.text);
-        context.fillText(`${first}fr`, 0, tab.getYForLine(0) - 4);
+        context.fillText(`${firstFret}fr`, 0, tab.getYForLine(0) - 4);
       }
     }
 
@@ -187,11 +216,14 @@ const drawNotation = async (
 
 export const ChordNotation: React.FC<ChordNotationProps> = ({
   kind,
-  chord,
+  chords,
+  shapes = [],
   songKey,
-  frets,
+  showKey = true,
   width = 160,
   height = 100,
+  background,
+  scale = 1,
 }) => {
   const theme = useTheme();
   const ink = inkOf(theme);
@@ -199,9 +231,11 @@ export const ChordNotation: React.FC<ChordNotationProps> = ({
   const hostRef = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
 
-  const key = `${kind}|${chord}|${songKey ?? ''}|${(frets ?? []).join(',')}|${width}|${height}|${
+  const paper = background ?? theme.palette.background.default;
+  const shapeKey = shapes.map((shape) => shape.join(',')).join('|');
+  const key = `${kind}|${chords.join(',')}|${shapeKey}|${songKey ?? ''}|${showKey}|${width}|${height}|${
     ink.notes
-  }|${ink.staff}`;
+  }|${ink.staff}|${paper}`;
 
   useEffect(() => {
     let cancelled = false;
@@ -213,7 +247,17 @@ export const ChordNotation: React.FC<ChordNotationProps> = ({
         return;
       }
 
-      const svg = await drawNotation(kind, chord, songKey, frets, width, height, ink);
+      const svg = await drawNotation(
+        kind,
+        chords,
+        shapes,
+        songKey,
+        showKey,
+        width,
+        height,
+        ink,
+        paper
+      );
       if (cancelled) return;
 
       if (!svg) {
@@ -238,10 +282,13 @@ export const ChordNotation: React.FC<ChordNotationProps> = ({
   return (
     <div
       id={id}
-      ref={hostRef}
       role="img"
-      aria-label={kind === 'staff' ? `${chord} on the stave` : `${chord} in tablature`}
-      style={{ width, height, lineHeight: 0 }}
-    />
+      aria-label={
+        kind === 'staff' ? `${chords.join(', ')} on the stave` : `${chords.join(', ')} in tablature`
+      }
+      style={{ width: width * scale, height: height * scale, lineHeight: 0 }}
+    >
+      <div ref={hostRef} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }} />
+    </div>
   );
 };

@@ -90,13 +90,23 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
           dividers
           sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}
         >
-          <Box sx={{ mb: 3, minHeight: 200, display: 'flex', alignItems: 'center' }}>
+          <Box
+            sx={{
+              mb: 3,
+              minHeight: 260,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <ChordNotation
               kind="staff"
-              chord={chordName}
+              chords={[chordName]}
               songKey={songKey}
-              width={200}
-              height={95}
+              width={110}
+              height={92}
+              scale={1.9}
+              background={theme.palette.background.paper}
             />
           </Box>
 
@@ -155,26 +165,38 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
         dividers
         sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}
       >
-        <Box sx={{ mb: 3, minHeight: 210, display: 'flex', alignItems: 'center' }}>
+        <Box
+          sx={{
+            mb: 3,
+            minHeight: 260,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           {written === 'diagram' && (
             <ChordDiagram variation={chord.variations[selectedVariation]} chordName={chord.name} />
           )}
           {written === 'tab' && (
             <ChordNotation
               kind="tab"
-              chord={chord.name}
-              frets={chord.variations[selectedVariation].frets}
-              width={215}
-              height={100}
+              chords={[chord.name]}
+              shapes={[chord.variations[selectedVariation].frets]}
+              width={36}
+              height={80}
+              scale={2.4}
+              background={theme.palette.background.paper}
             />
           )}
           {written === 'notes' && (
             <ChordNotation
               kind="staff"
-              chord={chord.name}
+              chords={[chord.name]}
               songKey={songKey}
-              width={230}
-              height={115}
+              width={100}
+              height={88}
+              scale={2.1}
+              background={theme.palette.background.paper}
             />
           )}
         </Box>

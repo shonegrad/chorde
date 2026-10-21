@@ -124,9 +124,12 @@ Milestone 4 (real notation) is done. The parts worth knowing:
   loaded only when a chord is written out, and the music font is cut down to the two dozen glyphs
   a chord needs and kept in the app, so the notation works offline. See
   `packages/web/public/fonts/README.md`.
-- The staves and the tablature are too big to sit over a word, so in a song they are written
-  along the top of the line and the words run underneath. In the chord reference they are as big
-  as they like.
+- The staves and the tablature are too big to sit over a word, so in a song each line of the
+  words is written on one stave above it, and the clef and the key signature are only drawn at
+  the start of the song. In the chord reference they are as big as they like.
+- VexFlow draws a white rectangle behind the numbers in a tablature, to hide the string under
+  them. The colour behind the writing is passed to it, so the gaps in the lines are the colour of
+  the page and not white.
 
 ## Things to know before you touch the code
 
