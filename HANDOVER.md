@@ -30,8 +30,8 @@ that is what the app is actually for.
 |                |                                                                |
 | -------------- | -------------------------------------------------------------- |
 | Built-in songs | 16, all public domain, checked by a test                       |
-| Unit tests     | 428 (353 web, 68 api, 7 shared)                                |
-| E2E tests      | 138, across Chromium, WebKit and a mobile viewport             |
+| Unit tests     | 522 (447 web, 68 api, 7 shared)                                |
+| E2E tests      | 171, across Chromium, WebKit and a mobile viewport             |
 | Deploy         | GitHub Pages, <https://shonegrad.github.io/chorde/>            |
 | API            | Not hosted. Online search is hidden in production until it is. |
 

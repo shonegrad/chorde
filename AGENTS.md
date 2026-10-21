@@ -126,7 +126,7 @@ The URL query string is the single source of truth for the library filter
 
 ## Testing
 
-- Unit tests: Vitest (`*.test.ts`, `*.test.tsx`). Around 430 of them.
+- Unit tests: Vitest (`*.test.ts`, `*.test.tsx`). Around 520 of them.
 - E2E tests: Playwright (`packages/web/e2e/app.spec.ts`) — runs against Chromium, WebKit and a
   mobile viewport. Playwright starts the dev server and the API itself.
 - Run `npm run test` for the unit tests — it runs once and stops. Run `npm run test:watch` to
