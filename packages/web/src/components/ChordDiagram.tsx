@@ -55,7 +55,12 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = React.memo(({ variation
   };
 
   return (
-    <svg width={width} height={height} style={{ display: 'block', margin: '0 auto' }}>
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      style={{ display: 'block', margin: '0 auto' }}
+    >
       {/* String markers at top (O for open, X for muted) */}
       {frets.map((fret, i) => {
         const x = paddingX + i * stringSpacing;

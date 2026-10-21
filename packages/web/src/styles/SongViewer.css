@@ -81,6 +81,26 @@
 }
 
 /*
+ * Two or more chords written over the same word. They sit together above the
+ * word, and take up no room of their own, so the words are not pushed apart.
+ */
+.chord-group {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  display: flex;
+  gap: 0.5em;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.chord-display--group {
+  position: static;
+  bottom: auto;
+  left: auto;
+}
+
+/*
  * Tab and notation artwork is far too large to sit over a word, so the chords
  * are written out along the top of the line and the words run underneath.
  */
@@ -131,6 +151,84 @@
   margin-top: 0;
   border-top: none;
   padding-top: 0;
+}
+
+/* A directive that is not words: a comment, a grid, a block of tablature. */
+.song-annotation {
+  font-size: 0.85em;
+  color: var(--text-muted);
+  margin: 0.5rem 0;
+}
+
+.song-annotation--comment {
+  font-style: italic;
+  padding-left: 0.8rem;
+  border-left: 3px solid var(--surface-hover);
+}
+
+.song-annotation--unknown {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.song-annotation-label {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+.song-annotation-text {
+  font-family: var(--font-mono);
+}
+
+.song-annotation--grid {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.song-grid-chord {
+  min-width: 80px;
+  text-align: center;
+}
+
+/* A grid of chords is a line of shapes, so they are kept small. */
+.song-grid-chord svg {
+  width: 84px;
+  height: auto;
+}
+
+.song-grid-chord-name {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.song-annotation--chords {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-weight: bold;
+  color: var(--text-primary, inherit);
+}
+
+.song-tab-block {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  line-height: 1.35;
+  white-space: pre;
+  overflow-x: auto;
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  background: var(--surface-hover);
+  border-radius: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {

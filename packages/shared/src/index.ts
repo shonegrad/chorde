@@ -29,7 +29,6 @@ export interface Song {
   format?: 'chordpro' | 'plaintext' | 'unknown';
   capo?: number;
   tags?: string[];
-  sections?: SongSection[];
   key?: string;
   bpm?: number;
   timeSignature?: string;
@@ -52,15 +51,40 @@ export interface SongSection {
   type: 'verse' | 'chorus' | 'bridge' | 'intro' | 'outro' | 'solo' | 'instrumental' | 'tab';
   label?: string;
   lineIndex: number;
-  isTab?: boolean;
+}
+
+/**
+ * A directive that is not a word and not a chord.
+ *
+ * A comment, a playing instruction, a chord grid, a block of tablature, or a
+ * directive the app does not know. An unknown directive is kept rather than
+ * dropped, so that nothing in a song disappears without saying so.
+ */
+export type AnnotationKind = 'comment' | 'grid' | 'tab' | 'chords' | 'unknown';
+
+export interface SongAnnotation {
+  kind: AnnotationKind;
+  /** The text of the directive, without the braces. */
+  text: string;
+  /** The chords of a chords-only block, or the chord of a grid. */
+  chords?: string[];
+  /** The source line, kept for a block of tablature. */
+  raw?: string;
 }
 
 export interface ParsedLine {
   items: Array<{
     lyric: string;
     chord?: string;
+    /**
+     * Where the item sits in the line, counted in the characters of the words.
+     * A chord is drawn at this place, which is where it was written.
+     */
+    column?: number;
   }>;
   section?: SongSection;
+  /** Set when the line carries a directive rather than words. */
+  annotation?: SongAnnotation;
 }
 
 export type DisplayMode = 'chords' | 'tabs' | 'notation' | 'nashville';
@@ -124,8 +148,6 @@ export interface Setlist {
   songs: SetlistSong[];
   /** The key the whole set is played in. */
   targetKey?: string;
-  /** A note for the set as a whole. */
-  notes?: string;
   createdAt: string;
   updatedAt: string;
 }

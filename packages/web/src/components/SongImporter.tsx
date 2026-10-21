@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Song, ImportSource, LicenseType } from '../types';
-import { extractMetadata } from '../lib/chordPro';
+import { extractMetadata, splitChordProSongs } from '../lib/chordPro';
+import { readDuration } from '../lib/duration';
 import { createId } from '../lib/id';
 import { isOnlineSearchEnabled } from '../lib/features';
 import { useNotification } from '../context/NotificationContext';
@@ -104,6 +105,7 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
       key: metadata.key,
       bpm: metadata.tempo,
       timeSignature: metadata.timeSignature ?? '4/4',
+      duration: readDuration(metadata.duration),
       attribution: {
         sourceName: source?.name ?? 'User Import',
         sourceUrl: source?.url ?? '',
@@ -129,25 +131,35 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
   /**
    * Import a single song.
    *
+   * A file that holds more than one song is imported as more than one song.
    * Public-domain material is imported straight away; anything else is queued
    * for a single rights confirmation.
    */
   const handleImportFromContent = async (content: string, source?: ImportSource) => {
     if (!content.trim()) return;
 
-    const song = buildSong(content, source);
+    const songs = splitChordProSongs(content).map((part) => buildSong(part, source));
 
-    if (!isPublicDomain(song.attribution.license)) {
-      setPendingSongs([song]);
+    if (songs.length === 0) return;
+
+    const needsConsent = songs.filter((song) => !isPublicDomain(song.attribution.license));
+    if (needsConsent.length > 0) {
+      setPendingSongs(needsConsent);
       return;
     }
 
     try {
-      await importSong(song);
-      notifySuccess(`Imported "${song.title}"`);
-      navigate(`/song/${song.id}`);
+      for (const song of songs) {
+        await importSong(song);
+      }
+      notifySuccess(
+        songs.length === 1
+          ? `Imported "${songs[0].title}"`
+          : `Imported ${songs.length} songs from the file`
+      );
+      navigate(`/song/${songs[0].id}`);
     } catch {
-      notifyError(`Failed to import "${song.title}"`);
+      notifyError(`Failed to import "${songs[0].title}"`);
     }
   };
 
@@ -162,9 +174,13 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
     let failed = 0;
     const queued: Song[] = [];
 
-    for (const content of contents) {
+    // A file can hold more than one song, so every file is split first.
+    const songs = contents.flatMap((content) =>
+      splitChordProSongs(content).map((part) => buildSong(part))
+    );
+
+    for (const song of songs) {
       try {
-        const song = buildSong(content);
         if (isPublicDomain(song.attribution.license)) {
           await importSong(song);
           added += 1;
@@ -176,7 +192,7 @@ export const SongImporter: React.FC<SongImporterProps> = ({ onImport, onCancel }
       }
     }
 
-    setImportSummary({ total: contents.length, added, pending: queued.length, failed });
+    setImportSummary({ total: songs.length, added, pending: queued.length, failed });
 
     if (queued.length > 0) {
       setPendingSongs(queued);

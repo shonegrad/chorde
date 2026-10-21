@@ -28,7 +28,7 @@ const renderImporter = (onImport = vi.fn()) => {
 const paste = (content: string) => {
   const textarea = screen.getByPlaceholderText(/paste chordpro text here/i);
   fireEvent.change(textarea, { target: { value: content } });
-  fireEvent.click(screen.getByRole('button', { name: /import song/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^import/i }));
 };
 
 describe('SongImporter', () => {
@@ -96,6 +96,36 @@ describe('SongImporter', () => {
     expect(song.attribution.copyright).toBe('Public domain 2026');
     expect(song.attribution.license).toBe('public-domain');
     expect(song.rightsStatus).toBe('open');
+  });
+
+  it('imports every song in a file that holds more than one', async () => {
+    const { onImport } = renderImporter();
+
+    paste(
+      '{title: First}\n{copyright: Public domain}\n[C]One\n{title: Second}\n{copyright: Public domain}\n[G]Two'
+    );
+
+    await waitFor(() => expect(onImport).toHaveBeenCalledTimes(2));
+    expect(onImport.mock.calls[0][0].title).toBe('First');
+    expect(onImport.mock.calls[1][0].title).toBe('Second');
+  });
+
+  it('keeps the length written in the file', async () => {
+    const { onImport } = renderImporter();
+
+    paste('{title: Test}\n{copyright: Public domain}\n{duration: 4:28}\n[C]Hello');
+
+    await waitFor(() => expect(onImport).toHaveBeenCalledTimes(1));
+    expect(onImport.mock.calls[0][0].duration).toBe('4:28');
+  });
+
+  it('leaves the length empty when the file has one we cannot read', async () => {
+    const { onImport } = renderImporter();
+
+    paste('{title: Test}\n{copyright: Public domain}\n{duration: a while}\n[C]Hello');
+
+    await waitFor(() => expect(onImport).toHaveBeenCalledTimes(1));
+    expect(onImport.mock.calls[0][0].duration).toBeUndefined();
   });
 
   it('hides the online search tab when online search is disabled', () => {

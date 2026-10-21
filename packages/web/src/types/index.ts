@@ -1,6 +1,8 @@
 export type {
   Song,
   SongSection,
+  SongAnnotation,
+  AnnotationKind,
   ParsedLine,
   DisplayMode,
   ViewMode,

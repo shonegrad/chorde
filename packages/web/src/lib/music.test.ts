@@ -215,7 +215,7 @@ describe('Music Library Functions', () => {
       const result = parseChordPro(content);
 
       expect(result).toHaveLength(1);
-      expect(result[0].items).toEqual([{ lyric: 'C Am F G' }]);
+      expect(result[0].items).toEqual([{ lyric: 'C Am F G', column: 0 }]);
     });
 
     it('should parse content with chords', () => {
@@ -223,7 +223,7 @@ describe('Music Library Functions', () => {
       const result = parseChordPro(content);
 
       expect(result).toHaveLength(1);
-      expect(result[0].items).toEqual([{ lyric: 'C Am F G C' }]);
+      expect(result[0].items).toEqual([{ lyric: 'C Am F G C', column: 0 }]);
     });
 
     it('should parse content with sections', () => {
