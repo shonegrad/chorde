@@ -100,14 +100,12 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**Printing.** "Print / save as PDF" is the browser's print dialog and a chord sheet. There is no
-chord chart of a whole song, no printout with the tablature or the notation, and no way to print a
-setlist with the songs in it. A musician who plays from a music stand needs a page they can trust.
+**The library.** It cannot be grouped by artist, key or tag, there is no bulk transposition, no
+sorting by length or tempo, and no way to find the songs whose details are missing. A songbook is
+arranged, and this one is a list.
 
 After that, the other things the app cannot do yet:
 
-- **The library.** No grouping by artist, key or tag; no bulk transposition; no sorting by length
-  or tempo; and no way to find the songs whose details are missing.
 - **The writing desk.** No live preview of what you are writing, and undo is one step per
   keystroke, so fifty steps is fifty characters rather than fifty edits.
 - **The chords you actually play.** A shape you draw in the chord browser is lost when you close
@@ -117,6 +115,18 @@ After that, the other things the app cannot do yet:
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+Printing is done. The parts worth knowing:
+
+- `lib/printSheet.ts` builds the page for a song: the song itself, or the changes of the song,
+  with the shapes of the chords it uses drawn at the foot of the page.
+- The shapes are drawn by `components/ChordDiagram.tsx` in the app, and the drawing is what is
+  printed, so that the page and the app agree about what a chord looks like. The print sheet
+  turns them black, because a page of paper is black and white.
+- `lib/printSetlist.ts` prints the running order, and with `includeSongs` the songs as well, one
+  to a page.
+- The chords sit exactly over their words. The printed page used to put the words after a chord
+  on the chord's own row, which read as a mistake.
 
 The performance view is done. The parts worth knowing:
 

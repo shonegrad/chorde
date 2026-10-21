@@ -33,6 +33,9 @@
 - **Performance View**: A setlist plays through on a full screen, with the size of the words, a
   tempo you can tap in, the sections to jump to, and the next song to come. The screen stays awake
   while the set is running.
+- **Printing**: Print the song as it is on the screen, or the changes of the song, with the shapes
+  of the chords it uses drawn at the foot of the page. A setlist can be printed with the songs in
+  it, one to a page.
 - **Collapsible Navigation**: Browse by Keys, Artists, and Genres with item count badges. The
   sidebar stays in view on a big screen, so every place in the app is one click away.
 - **A Page for Every Key**: The chords of the key, the songs that are in it, and the songs that

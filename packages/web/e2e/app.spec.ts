@@ -192,6 +192,30 @@ test.describe('Chorde E2E - Song Viewer', () => {
     await expect(keyChip).toHaveText(/from /);
   });
 
+  test('prints the song, and the changes of the song', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await clickSongControl(page, 'Print or save as PDF');
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'The song' })).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'The changes' })).toBeVisible();
+
+    // The song is printed on a page of its own.
+    const [popup] = await Promise.all([
+      page.waitForEvent('popup'),
+      dialog.getByRole('button', { name: 'Print', exact: true }).click(),
+    ]);
+
+    await expect(popup.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 10000 });
+    await popup.close();
+  });
+
   test('keeps the sidebar beside the song on a big screen', async ({ page }) => {
     // On a phone the sidebar is a drawer, so it is not beside the song.
     const size = page.viewportSize();

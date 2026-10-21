@@ -87,10 +87,12 @@ The URL query string is the single source of truth for the library filter
 - `packages/web/src/lib/useAutoScroll.ts` — The scrolling used by the reader and the performer
 - `packages/web/src/lib/songPlayback.ts` — Getting a song ready to play in a key
 - `packages/web/src/lib/printSetlist.ts` — The printable running order
+- `packages/web/src/lib/printSheet.ts` — The printable page for a song, and the changes of a song
 - `packages/web/src/lib/importFormats.ts` — The files the app can read, and the old `.crd` format
 - `packages/web/src/lib/zip.ts` — Reading a ZIP archive, with the browser's own inflater
 - `packages/web/src/components/SongBody.tsx` — Chord-over-lyric rendering
 - `packages/web/src/components/SongNote.tsx` — The note a song carries
+- `packages/web/src/components/PrintDialog.tsx` — What to print, and how big it is
 - `packages/web/src/components/SongEditor.tsx` — The writing desk
 - `packages/web/src/components/SongViewer.tsx` — Reading a song
 - `packages/web/src/components/SetlistPlayer.tsx` — Performing a setlist

@@ -1,6 +1,7 @@
 import type { Setlist } from '@chorde/shared';
 import type { Song } from '../types';
 import { describeRunningTime, runningTime } from './duration';
+import { buildPrintSheet, PRINT_CSS, type PrintOptions } from './printSheet';
 
 const escapeHtml = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -10,8 +11,16 @@ const escapeHtml = (value: string): string =>
  *
  * A sheet of paper is what you want when you are playing from a stand, and it
  * is the one thing a setlist cannot show you on a screen.
+ *
+ * With `includeSongs` the songs themselves are printed after the running
+ * order, one to a page, which is what a player needs when the screen is not
+ * in front of them.
  */
-export const printSetlist = (setlist: Setlist, songById: Map<string, Song>): void => {
+export const printSetlist = (
+  setlist: Setlist,
+  songById: Map<string, Song>,
+  options: { includeSongs?: boolean; print?: PrintOptions } = {}
+): boolean => {
   const rows = setlist.songs
     .map((entry, index) => {
       const song = songById.get(entry.songId);
@@ -48,8 +57,29 @@ export const printSetlist = (setlist: Setlist, songById: Map<string, Song>): voi
     .filter(Boolean)
     .join(' · ');
 
+  /*
+   * The songs themselves, each on its own page.
+   */
+  const songs = options.includeSongs
+    ? setlist.songs
+        .map((entry) => {
+          const song = songById.get(entry.songId);
+          if (!song) return '';
+          const sheet = buildPrintSheet(song, {
+            ...options.print,
+            transpose: entry.transpose ?? options.print?.transpose ?? 0,
+            capo: entry.capo ?? options.print?.capo ?? 0,
+          });
+          // The sheet is a whole document, and only its body is wanted here.
+          const body = sheet.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? '';
+          const size = options.print?.fontSize ?? 12;
+          return `<div class="song-page" style="font-size: ${size}pt">${body}</div>`;
+        })
+        .join('\n')
+    : '';
+
   const win = window.open('', '_blank');
-  if (!win) return;
+  if (!win) return false;
 
   win.document.write(`<!DOCTYPE html>
 <html>
@@ -66,15 +96,19 @@ export const printSetlist = (setlist: Setlist, songById: Map<string, Song>): voi
     .title { font-weight: 600; }
     .artist, .details, .note { color: #666; font-size: 0.9rem; }
     .details { text-align: right; white-space: nowrap; }
+    .song-page { break-before: page; page-break-before: always; }
     @media print { body { margin: 0; } }
+    ${PRINT_CSS}
   </style>
 </head>
 <body>
   <h1>${escapeHtml(setlist.name)}</h1>
   <p class="subtitle">${escapeHtml(subtitle)}</p>
   <table>${rows}</table>
+  ${songs}
   <script>window.onload = () => { window.print(); }</script>
 </body>
 </html>`);
   win.document.close();
+  return true;
 };

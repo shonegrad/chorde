@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import type { Song, SongSection, DisplayMode } from '../types';
 import { parseChordPro } from '../lib/chordPro';
-import { exportToChordPro, exportToPdf } from '../lib/export';
+import { exportToChordPro } from '../lib/export';
 import { transposeChord, transposeKey, keyPrefersFlats } from '../lib/music';
 import { detectKey } from '../lib/keyDetection';
 import { useAppSettings } from '../lib/settings';
@@ -24,6 +24,7 @@ import {
 } from '../lib/preferences';
 import { SongBody } from './SongBody';
 import { SongNote } from './SongNote';
+import { PrintDialog } from './PrintDialog';
 import { TagEditor } from './TagEditor';
 import { ChordModal } from './ChordModal';
 import { SectionNav } from './SectionNav';
@@ -131,6 +132,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [setlistOpen, setSetlistOpen] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
   const [playingProgression, setPlayingProgression] = useState<ProgressionChord[] | null>(null);
   const [moreAnchor, setMoreAnchor] = useState<HTMLElement | null>(null);
   const [currentChord, setCurrentChord] = useState<string | null>(null);
@@ -885,10 +887,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                 </Tooltip>
 
                 <Tooltip title="Print / save as PDF">
-                  <IconButton
-                    onClick={() => exportToPdf(song, { transpose, capo, preferFlats })}
-                    aria-label="Print or save as PDF"
-                  >
+                  <IconButton onClick={() => setPrintOpen(true)} aria-label="Print or save as PDF">
                     <PictureAsPdfIcon />
                   </IconButton>
                 </Tooltip>
@@ -1048,7 +1047,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
 
           <MenuItem
             onClick={() => {
-              exportToPdf(song, { transpose, capo, preferFlats });
+              setPrintOpen(true);
               setMoreAnchor(null);
             }}
             aria-label="Print or save as PDF"
@@ -1371,6 +1370,16 @@ export const SongViewer: React.FC<SongViewerProps> = ({
           <Button onClick={() => setSetlistOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Printing the song */}
+      <PrintDialog
+        song={song}
+        open={printOpen}
+        onClose={() => setPrintOpen(false)}
+        transpose={transpose}
+        capo={capo}
+        preferFlats={preferFlats}
+      />
 
       {/* Keyboard shortcuts */}
       <Dialog

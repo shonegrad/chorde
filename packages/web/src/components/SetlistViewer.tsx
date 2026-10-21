@@ -31,6 +31,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import PrintIcon from '@mui/icons-material/Print';
+import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -185,6 +186,17 @@ export const SetlistViewer: React.FC = () => {
               aria-label="Print the running order"
             >
               <PrintIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Print the running order and the songs">
+          <span>
+            <IconButton
+              onClick={() => printSetlist(setlist, songById, { includeSongs: true })}
+              disabled={entries.length === 0}
+              aria-label="Print the setlist with the songs"
+            >
+              <LibraryMusicIcon />
             </IconButton>
           </span>
         </Tooltip>

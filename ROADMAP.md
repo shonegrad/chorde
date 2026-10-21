@@ -141,14 +141,13 @@ requirement.
 
 ## Next
 
-Milestones 5 and 7 are done, and so is the performance view. What is next is asked of the app in
-the way [HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app cannot do
-yet.
+Milestones 5 and 7 are done, and so are the performance view and printing. What is next is asked
+of the app in the way [HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app
+cannot do yet.
 
-The clearest answer is printing. "Print / save as PDF" is the browser's print dialog and a chord
-sheet: there is no chord chart of a whole song, no printout with the tablature or the notation,
-and no way to print a setlist with the songs in it. After that comes the library, which cannot be
-grouped by artist, key or tag, and has no bulk transposition.
+The clearest answer is the library. It cannot be grouped by artist, key or tag, it has no bulk
+transposition, and it cannot be sorted by length or tempo. A songbook is arranged, and this one is
+a list.
 
 ## Not doing
 
