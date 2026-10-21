@@ -11,17 +11,18 @@ Chorde is a ChordPro songbook application monorepo with three packages:
 
 ## Common commands (run from repo root)
 
-| Command                | Purpose                                  |
-| ---------------------- | ---------------------------------------- |
-| `npm install`          | Install all workspace dependencies       |
-| `npm run dev:all`      | Start web + API dev servers concurrently |
-| `npm run dev`          | Start web frontend only                  |
-| `npm run dev:api`      | Start API only                           |
-| `npm run build`        | Build shared, then web, then the API     |
-| `npm run lint`         | Run ESLint across all workspaces         |
-| `npm run test`         | Run Vitest across all workspaces         |
-| `npm run format`       | Run Prettier across all packages         |
-| `npm run format:check` | Check Prettier formatting                |
+| Command                | Purpose                                    |
+| ---------------------- | ------------------------------------------ |
+| `npm install`          | Install all workspace dependencies         |
+| `npm run dev:all`      | Start web + API dev servers concurrently   |
+| `npm run dev`          | Start web frontend only                    |
+| `npm run dev:api`      | Start API only                             |
+| `npm run build`        | Build shared, then web, then the API       |
+| `npm run lint`         | Run ESLint across all workspaces           |
+| `npm run test`         | Run Vitest across all workspaces, once     |
+| `npm run test:watch`   | Run Vitest across all workspaces, watching |
+| `npm run format`       | Run Prettier across all packages           |
+| `npm run format:check` | Check Prettier formatting                  |
 
 Package-specific scripts live in each `packages/*/package.json` (e.g. `test:e2e` for Playwright in
 web, `verify:build` to check the built output).
@@ -64,7 +65,8 @@ The URL query string is the single source of truth for the library filter
 - `packages/web/src/store/libraryStore.ts` — Zustand library state (IndexedDB + seed songs)
 - `packages/web/src/store/setlistStore.ts` — Setlists, including how each song is played
 - `packages/web/src/lib/libraryStore.ts` — The IndexedDB store. Opens the database lazily
-- `packages/web/src/lib/chordPro.ts` — ChordPro parser
+- `packages/web/src/lib/chordPro.ts` — ChordPro parser: the directives, the sections, the
+  comments, the grids, the tablature, and the splitting of a file that holds several songs
 - `packages/web/src/lib/music.ts` — Chord and key transposition, with key-aware spelling
 - `packages/web/src/lib/keyDetection.ts` — Works out the key of a song from its chords
 - `packages/web/src/lib/guitar.ts` — Turns a chord shape into the notes it plays
@@ -85,7 +87,10 @@ The URL query string is the single source of truth for the library filter
 - `packages/web/src/lib/useAutoScroll.ts` — The scrolling used by the reader and the performer
 - `packages/web/src/lib/songPlayback.ts` — Getting a song ready to play in a key
 - `packages/web/src/lib/printSetlist.ts` — The printable running order
+- `packages/web/src/lib/importFormats.ts` — The files the app can read, and the old `.crd` format
+- `packages/web/src/lib/zip.ts` — Reading a ZIP archive, with the browser's own inflater
 - `packages/web/src/components/SongBody.tsx` — Chord-over-lyric rendering
+- `packages/web/src/components/SongNote.tsx` — The note a song carries
 - `packages/web/src/components/SongEditor.tsx` — The writing desk
 - `packages/web/src/components/SongViewer.tsx` — Reading a song
 - `packages/web/src/components/SetlistPlayer.tsx` — Performing a setlist
@@ -108,18 +113,22 @@ The URL query string is the single source of truth for the library filter
 ### Shared
 
 - `packages/shared/src/index.ts` — The types both packages use (Song, Setlist, SearchResult, …)
+- `packages/shared/src/onsong.ts` — Reading an OnSong file, for the app and the API alike
 
 ## Testing
 
-- Unit tests: Vitest (`*.test.ts`, `*.test.tsx`). Around 300 of them.
+- Unit tests: Vitest (`*.test.ts`, `*.test.tsx`). Around 430 of them.
 - E2E tests: Playwright (`packages/web/e2e/app.spec.ts`) — runs against Chromium, WebKit and a
   mobile viewport. Playwright starts the dev server and the API itself.
-- Run `npm run test` for the unit tests. Run `npm run test:e2e -w @chorde/web` for the E2E tests,
-  or `npx playwright test --project=chromium` for one browser.
+- Run `npm run test` for the unit tests — it runs once and stops. Run `npm run test:watch` to
+  watch. Run `npm run test:e2e -w @chorde/web` for the E2E tests, or
+  `npx playwright test --project=chromium` for one browser.
 - Tests that use the database need `fake-indexeddb`; import `fake-indexeddb/auto` at the top of the
   file.
 - Do not use `indexedDB.deleteDatabase` to reset between tests. A connection that is still closing
   blocks the delete and leaves the next test waiting. Empty the store instead.
+- jsdom has no `Blob.arrayBuffer`. `src/test/setup.ts` fills it in, because reading a ZIP archive
+  needs it.
 
 ## Lint
 

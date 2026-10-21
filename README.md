@@ -5,11 +5,15 @@
 ## ✨ Features
 
 - **ChordPro Support**: Parse and render songs with chord embedding.
+- **More Ways In**: Import ChordPro, OnSong and the old `.crd` format — from pasted text, from
+  files, from a folder you drop, or from a ZIP archive. A file that holds several songs is imported
+  as several songs. All of it happens on your device, with nothing sent anywhere.
 - **Writing Desk**: Write and transcribe your own songs with autosave, undo and redo, earlier
   versions, a chord palette that offers the chords of your key first, a metronome, and a key that
   is worked out from what you wrote. Your songs are kept separate from the built-in ones.
 - **Chords Over Lyrics**: Each chord sits directly above the word it belongs to, the way printed
-  chord sheets are laid out.
+  chord sheets are laid out. A chord written in the middle of a word keeps its place, and two
+  chords over the same word are both shown.
 - **Search-Based Import**: Search and import songs from public domain sources (OpenHymnal, etc.).
   The closest match comes first, the same song is never listed twice, and the writer and key are
   shown with each result. Hidden in production builds until a search API host is configured - see

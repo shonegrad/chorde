@@ -131,7 +131,10 @@ Fetches full song content.
 ### Possible later
 
 - **Public domain databases** - Folk, worship and traditional songs, fetched and cached.
-- **OnSong** files, imported from your own computer.
+
+OnSong files are read on your own computer, not through the API. The reader is in
+`packages/shared/src/onsong.ts`, and it is shared with the OpenHymnal adapter, so there is one set
+of rules.
 
 The Session was removed: it returns HTML rather than the JSON the adapter expected, it had no
 chords, and its notation could not be converted. An adapter that does not work should not be

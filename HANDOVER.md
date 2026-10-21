@@ -30,8 +30,8 @@ that is what the app is actually for.
 |                |                                                                |
 | -------------- | -------------------------------------------------------------- |
 | Built-in songs | 16, all public domain, checked by a test                       |
-| Unit tests     | 375 (304 web, 68 api, 3 shared)                                |
-| E2E tests      | 126, across Chromium, WebKit and a mobile viewport             |
+| Unit tests     | 428 (353 web, 68 api, 7 shared)                                |
+| E2E tests      | 138, across Chromium, WebKit and a mobile viewport             |
 | Deploy         | GitHub Pages, <https://shonegrad.github.io/chorde/>            |
 | API            | Not hosted. Online search is hidden in production until it is. |
 
@@ -39,11 +39,12 @@ that is what the app is actually for.
 
 - **Reading** — chords sit directly above their word. Transposition is key-aware, so a song in B♭
   keeps its flats. Capo shows the key it actually sounds in. Nashville numbers, tabs and notation
-  are available.
+  are available. A comment in a song is shown as a note, a chord grid is drawn, and a block of
+  tablature is kept as it was written.
 - **Writing** — a writing desk with autosave, undo and redo, earlier versions, a chord palette
   that offers the chords of your key first, key detection, a metronome, and transposition.
 - **Performing** — a setlist carries how each song is played, and the performance view plays
-  through them: count-in on the beat, auto-advance, printable running order. A setlist says how
+  through them: count-in on the beat, auto-advance, printable running order. A set says how
   long it takes.
 - **Organising** — favourites, tags, sorting, searching inside lyrics, bulk actions, "My Songs",
   backup and restore.
@@ -60,6 +61,9 @@ that is what the app is actually for.
   played from its diagram, and a scale can be played from the chord library. The tone is a guitar
   rather than a beep, and the volume, the tone and whether there is sound at all are set in the
   settings.
+- **Getting songs in** — ChordPro, OnSong and the old ChordPro format, from text, from files, from
+  a folder, from a ZIP archive, or from the search. A file that holds several songs is imported as
+  several songs.
 
 ### What is known to be wrong
 
@@ -68,6 +72,8 @@ that is what the app is actually for.
 - **The built-in songs have no length**, so a set of them cannot say how long it takes. A length
   comes from `{duration:}` in a ChordPro file, or from a song's details, and the app does not
   guess one: a set that is not fully timed says so.
+- **The performance view is the least controllable screen.** It has no full screen, no way to
+  change the size of the words, no tap tempo and no way to see what is coming next.
 
 ## The rules of this project
 
@@ -95,26 +101,57 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**Milestone 5 — the rest of ChordPro**, and then Milestone 7, the other ways in.
+**The performance view.** It is the screen a player looks at while the set is running, and it is
+the one with the fewest controls. It has no full screen, no way to change the size of the words,
+no tap tempo, no section navigation, and no way to see what is coming next. The reader has all of
+those.
 
-The work that is worth doing next, in the order it pays off:
+After that, the other things the app cannot do yet:
 
-- **The rest of ChordPro** (Milestone 5): comments and playing instructions (`{comment:}`,
-  `{gc:}`), `{define:}`, `{duration:}`, multi-song files, real tab blocks, and the original column
-  alignment so a chord written mid-word keeps its place.
-- **OnSong, legacy `.crd` and ZIP folders** (Milestone 7). MusicXML and Guitar Pro are
-  deliberately out of scope for now.
+- **Printing.** "Print / save as PDF" is the browser's print dialog and a chord sheet. There is no
+  chord chart of a whole song, no printout with tablature or notation, and no way to print a
+  setlist with the songs in it.
+- **The library.** No grouping by artist, key or tag; no bulk transposition; no sorting by length
+  or tempo; and no way to find the songs whose details are missing.
+- **The writing desk.** No live preview of what you are writing, and undo is one step per
+  keystroke, so fifty steps is fifty characters rather than fifty edits.
+- **The chords you actually play.** A shape you draw in the chord browser is lost when you close
+  the tab, and there is no list of the chords you use most.
 - **The API needs a host**, which is a decision rather than a piece of work: until it has one,
   online search is hidden in production.
 
-Two things from this list are done. A setlist says how long it takes, from the lengths on the
-songs (`lib/duration.ts`), and a key has a page of its own (`components/KeyView.tsx`) with the
-chords of the key, the songs that are in it, and the songs that could be played in it because
-every chord they use is a chord of the key (`lib/fit.ts`).
+The work should be asked of the app in the same way as before — what does a musician need that it
+cannot do yet.
 
-What the two of them have in common is that they answer a question the app could not answer
-before: how long is this, and what can I play in this key. The next work should be asked of the
-app in the same way — what does a musician need that it cannot do yet.
+Milestone 5 (the rest of ChordPro) is done. The parts worth knowing:
+
+- `lib/chordPro.ts` reads a directive before it reads anything else. Every directive is either
+  something the app knows or something it keeps, so that the reader can say "there is something
+  here I do not understand". Nothing is dropped: a line that carries a directive and some words
+  keeps its words.
+- A line that is not words carries an `annotation` (`SongAnnotation` in the shared package): a
+  comment, a chord grid, a block of tablature, a block of chords on lines of their own, or
+  something the app does not know. `components/SongBody.tsx` draws them.
+- `{define:}` gives a name to a chord or to a phrase. A chord under another name is played as the
+  chord it names; a word is put back into the words of the song.
+- `splitChordProSongs` splits a file that holds more than one song. The import screen calls it, so
+  a file of three songs is imported as three songs.
+- Every item of a line knows the column it sits in, counted in the characters of the words. A
+  chord is drawn at that place, which is where it was written. Two chords written over the same
+  word are both shown, side by side above the word.
+
+Milestone 7 (the other ways in) is done. The parts worth knowing:
+
+- `packages/shared/src/onsong.ts` reads an OnSong file. It lives in the shared package because the
+  search API needs it as well as the app, and there must be one set of rules.
+- `packages/web/src/lib/importFormats.ts` reads the old `.crd` format and holds the list of the
+  files the app can read. The old format has the chords in a line of their own, and they line up
+  with the words by their place in the line, so reading it is a question of columns.
+- `packages/web/src/lib/zip.ts` reads a ZIP archive. The browser can inflate a stream of
+  compressed data, so all that is left to do is find the files inside the archive. There is no
+  library for it, and none is needed.
+- A dropped folder is read with `webkitGetAsEntry`, and the folder picker is `webkitdirectory`.
+  Both were missing: a dropped folder used to yield nothing at all.
 
 Milestone 6 (sound) is done. The parts worth knowing:
 
@@ -180,6 +217,8 @@ Milestone 8 (a smarter library) is done. The parts worth knowing:
   setlists still work.
 - **The build check** (`npm run verify:build`) fails the build if `dist/404.html` is missing or a
   localhost address has crept into the bundle. Both mistakes have happened.
+- **jsdom has no `Blob.arrayBuffer`**, which every browser has. It is filled in by
+  `src/test/setup.ts`, because reading a ZIP archive needs it.
 
 ## Running it
 
@@ -192,7 +231,8 @@ The online search needs the API. Without it the "Search Online" tab is hidden in
 build and works in development.
 
 ```bash
-npm run test         # the unit tests
+npm run test         # the unit tests, once, and then it stops
+npm run test:watch   # the unit tests, watching for changes
 npm run test:e2e -w @chorde/web   # the end-to-end tests, all three browsers
 npx playwright test --project=chromium   # just one browser, while working
 ```

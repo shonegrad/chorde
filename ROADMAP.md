@@ -19,16 +19,18 @@ being worked on, and what is deliberately not being done.
 
 16 built-in songs, all public domain, plus whatever you import or write.
 
-Working today: ChordPro import from text, files, folders and the web; a chord-over-lyrics reader
-that puts each chord above its word; transposition with key-aware spelling; capo with the sounding
-key; Nashville numbers; a sidebar that stays in view on a big screen, so every place in the app is
-one click away, and controls that wrap instead of scrolling sideways; setlists that carry how each
-song is played and how long it takes, and a performance view that plays through them; the chords
-of a song played back with a guitar tone; chords written out on a stave and in tablature; a page
-for every key, with the songs that fit it; favourites; tags; sorting; searching inside lyrics;
-bulk actions; library backup and restore; light and dark themes; an offline installable app;
-keyboard control; navigation that works on a phone; a writing desk with autosave, undo and a chord
-palette; and key detection that works out the key of a song from its chords.
+Working today: ChordPro import from text, files, folders, archives and the web, in ChordPro, OnSong
+and the old ChordPro format; a chord-over-lyrics reader that puts each chord above its word, and
+shows the comments, the chord grids and the tablature a song carries; transposition with key-aware
+spelling; capo with the sounding key; Nashville numbers; a sidebar that stays in view on a big
+screen, so every place in the app is one click away, and controls that wrap instead of scrolling
+sideways; setlists that carry how each song is played and how long it takes, and a performance view
+that plays through them; the chords of a song played back with a guitar tone; chords written out
+on a stave and in tablature; a page for every key, with the songs that fit it; favourites; tags;
+sorting; searching inside lyrics; bulk actions; library backup and restore; light and dark themes;
+an offline installable app; keyboard control; navigation that works on a phone; a writing desk with
+autosave, undo and a chord palette; and key detection that works out the key of a song from its
+chords.
 
 ## Milestone 1 — Make it true ✅
 
@@ -83,11 +85,19 @@ window that opens when you click a chord — shows the diagram, the tab and the 
 The writing is too big to sit over a word, so in a song each line of the words is written on one
 stave above it, and the clef and the key signature are only drawn at the start of the song.
 
-## Milestone 5 — The rest of ChordPro
+## Milestone 5 — The rest of ChordPro ✅
 
-Comments and playing instructions (`{comment:}`, `{gc:}`), `{define:}`, `{duration:}`, multi-song
+_Comments and playing instructions (`{comment:}`, `{gc:}`), `{define:}`, `{duration:}`, multi-song
 files, Jazz Grilles chord grids, real tab blocks, and the original column alignment so a chord
-written mid-word keeps its place.
+written mid-word keeps its place._
+
+Done: the reader now understands `{comment:}` and `{c:}`, and a comment is shown as a note under
+the words. `{gc:}` draws the shape of the chord, and a row of them is a jazz grille. `{define:}`
+names a chord under another name, or a word that stands for a phrase. `{duration:}` is kept when a
+song is imported, so a set can say how long it takes. A file that holds several songs is imported
+as several songs. A block of tablature is kept as it was written, and a block of chords on lines
+of their own is shown as a row of chords. A chord keeps the place it was written in, and two
+chords written over the same word are both shown.
 
 ## Milestone 6 — Sound ✅
 
@@ -100,10 +110,15 @@ would use, the tone is a filtered sawtooth rather than a sine wave, and the volu
 whether there is any sound at all are set in the settings. The count-in and the metronome play
 through the same module, so they follow the same settings.
 
-## Milestone 7 — More ways in
+## Milestone 7 — More ways in ✅
 
-Import OnSong, legacy `.crd` and ZIP folders locally. MusicXML and Guitar Pro are deliberately out
-of scope for now.
+_Import OnSong, legacy `.crd` and ZIP folders locally. MusicXML and Guitar Pro are deliberately out
+of scope for now._
+
+Done: an OnSong file, a legacy `.crd` file and a ZIP archive of songs are all read on the device,
+with no server and nothing to install. A folder can be dropped on the import screen, and the files
+inside it are read. The old `.crd` format is read the way it was written: the chords are in a line
+of their own, and they line up with the words by their place in the line.
 
 ## Milestone 8 — A smarter library ✅
 
@@ -125,8 +140,12 @@ requirement.
 
 ## Next
 
-Milestone 5 (the rest of ChordPro) and then Milestone 7 (more ways in) are next. They are written
-up in [HANDOVER.md](./HANDOVER.md).
+Milestones 5 and 7 are done. What is next is asked of the app in the way
+[HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app cannot do yet.
+
+The clearest answer is the performance view. It is the screen a player looks at while the set is
+running, and it is the one with the fewest controls: no full screen, no way to change the size of
+the words, no tap tempo, and no way to see what is coming next.
 
 ## Not doing
 

@@ -2,7 +2,20 @@
 
 ## Overview
 
-This app supports ChordPro format for storing guitar chord sheets. You can import songs in several ways.
+This app supports ChordPro format for storing guitar chord sheets. You can import songs in several
+ways.
+
+## The formats the app can read
+
+| Format           | Extension                              | How it is read                           |
+| ---------------- | -------------------------------------- | ---------------------------------------- |
+| ChordPro         | `.cho`, `.chordpro`, `.chopro`, `.pro` | Read as it is                            |
+| Plain text       | `.txt`                                 | Read as ChordPro, as ChordPro always was |
+| OnSong           | `.onsong`, `.onsongpro`                | Turned into ChordPro                     |
+| The old ChordPro | `.crd`                                 | Turned into ChordPro                     |
+| A ZIP archive    | `.zip`                                 | Unpacked, and each song inside is read   |
+
+All of it is read on your device. Nothing is sent anywhere.
 
 ## ChordPro Format
 
@@ -13,6 +26,7 @@ ChordPro is a simple text format for guitar chords:
 {artist: Artist Name}
 {key: C}
 {capo: 0}
+{duration: 4:28}
 
 {start_of_verse}
 [C]Lyric with chord [G]above
@@ -24,6 +38,30 @@ ChordPro is a simple text format for guitar chords:
 [G]With [Am]chords
 {end_of_chorus}
 ```
+
+The app understands the sections (`{start_of_verse}` and the rest), a comment
+(`{comment: play quietly}`), a chord grid (`{gc: Am}`), a name for a chord or a phrase
+(`{define: Am A minor}`), a block of tablature (`{start_of_tab}`), and a block of chords on lines
+of their own (`{-`).
+
+A file that holds more than one song — several `{title:}` blocks, or `{new_song:}` between them —
+is imported as more than one song.
+
+## The old ChordPro format
+
+The old `.crd` format has no directives for its sections: they are plain lines that end in a
+colon. The chords are on a line of their own, above the words, and they line up with the words by
+their place in the line:
+
+```chordpro
+{title: Song Title}
+
+Verse 1:
+       C           G
+This is the lyric line
+```
+
+The app reads that, and puts the chords over the words they belong to.
 
 ## Method 1: Adding a song to the built-in library
 
@@ -65,6 +103,22 @@ honest about what is public domain.
 ## Method 2: User Import Feature (In-App)
 
 Users can paste ChordPro text directly in the app via the Import dialog (Paste/Drop tab).
+
+The "From Folder" tab takes files, whole folders, and ZIP archives. Dropping a folder reads every
+song inside it. The list of the files the app can read is in
+`packages/web/src/lib/importFormats.ts`, and it is used by both tabs, so the two never disagree
+about what can be read.
+
+## Method 3: Reading a file that is not ChordPro
+
+| Format         | Where it is read                        |
+| -------------- | --------------------------------------- |
+| OnSong         | `packages/shared/src/onsong.ts`         |
+| The old `.crd` | `packages/web/src/lib/importFormats.ts` |
+| A ZIP archive  | `packages/web/src/lib/zip.ts`           |
+
+The OnSong reader is in the shared package because the search API needs it as well as the app, and
+there must be one set of rules.
 
 ## Finding Songs
 
