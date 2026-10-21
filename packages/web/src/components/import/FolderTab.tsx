@@ -12,6 +12,8 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { SUPPORTED_EXTENSIONS, isSupportedFileName, readSongFile } from '../../lib/importFormats';
+import { readZip } from '../../lib/zip';
 
 type ImportStatus = 'ready' | 'added' | 'failed';
 
@@ -28,11 +30,62 @@ interface FolderTabProps {
   onCancel: () => void;
 }
 
-const supportedExtensions = ['.txt', '.cho', '.pro', '.chordpro'];
+/**
+ * Every file inside a dropped folder.
+ *
+ * A dropped folder is not a file, so the browser has to be asked for its
+ * contents, one folder at a time.
+ */
+const filesInDirectory = async (entry: FileSystemDirectoryEntry): Promise<File[]> => {
+  const reader = entry.createReader();
+  const files: File[] = [];
 
-const isSupportedFile = (file: File) => {
-  const lower = file.name.toLowerCase();
-  return supportedExtensions.some((ext) => lower.endsWith(ext));
+  // readEntries returns at most a hundred entries at a time.
+  for (;;) {
+    const entries = await new Promise<FileSystemEntry[]>((resolve) => {
+      reader.readEntries(resolve, () => resolve([]));
+    });
+    if (entries.length === 0) break;
+
+    for (const child of entries) {
+      if (child.isFile) {
+        const file = await new Promise<File | null>((resolve) => {
+          (child as FileSystemFileEntry).file(resolve, () => resolve(null));
+        });
+        if (file) files.push(file);
+      } else if (child.isDirectory) {
+        files.push(...(await filesInDirectory(child as FileSystemDirectoryEntry)));
+      }
+    }
+  }
+
+  return files;
+};
+
+/** Every file that was dropped, whether it is a file or a folder. */
+const droppedFiles = async (dataTransfer: DataTransfer): Promise<File[]> => {
+  const items = Array.from(dataTransfer.items ?? []);
+  const entries = items
+    .map((item) => (item.kind === 'file' ? item.webkitGetAsEntry?.() : null))
+    .filter((entry): entry is FileSystemEntry => entry !== null && entry !== undefined);
+
+  if (entries.length === 0) {
+    return Array.from(dataTransfer.files ?? []);
+  }
+
+  const files: File[] = [];
+  for (const entry of entries) {
+    if (entry.isFile) {
+      const file = await new Promise<File | null>((resolve) => {
+        (entry as FileSystemFileEntry).file(resolve, () => resolve(null));
+      });
+      if (file) files.push(file);
+    } else if (entry.isDirectory) {
+      files.push(...(await filesInDirectory(entry as FileSystemDirectoryEntry)));
+    }
+  }
+
+  return files;
 };
 
 export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
@@ -68,10 +121,10 @@ export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
     loadFiles(selected);
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragging(false);
-    const selected = Array.from(event.dataTransfer.files ?? []);
+    const selected = await droppedFiles(event.dataTransfer);
     loadFiles(selected);
   };
 
@@ -87,10 +140,42 @@ export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
 
     for (let index = 0; index < files.length; index += 1) {
       const file = files[index];
+      const id = `${file.name}-${index}`;
 
-      if (!isSupportedFile(file)) {
+      // An archive of songs is unpacked and each song inside it is imported.
+      if (file.name.toLowerCase().endsWith('.zip')) {
+        try {
+          const entries = await readZip(file);
+          let added = 0;
+
+          for (const entry of entries) {
+            if (!isSupportedFileName(entry.name)) continue;
+            const text = await entry.read();
+            if (!text.trim()) continue;
+            validContents.push(text);
+            added += 1;
+          }
+
+          if (added === 0) {
+            throw new Error('No songs in the archive');
+          }
+
+          nextItems.push({ id, name: file.name, size: file.size, status: 'added' });
+        } catch (err) {
+          nextItems.push({
+            id,
+            name: file.name,
+            size: file.size,
+            status: 'failed',
+            error: err instanceof Error ? err.message : 'Could not read the archive',
+          });
+        }
+        continue;
+      }
+
+      if (!isSupportedFileName(file.name)) {
         nextItems.push({
-          id: `${file.name}-${index}`,
+          id,
           name: file.name,
           size: file.size,
           status: 'failed',
@@ -100,21 +185,16 @@ export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
       }
 
       try {
-        const content = await file.text();
+        const content = await readSongFile(file);
         if (!content.trim()) {
           throw new Error('Empty file');
         }
 
         validContents.push(content);
-        nextItems.push({
-          id: `${file.name}-${index}`,
-          name: file.name,
-          size: file.size,
-          status: 'added',
-        });
+        nextItems.push({ id, name: file.name, size: file.size, status: 'added' });
       } catch (err) {
         nextItems.push({
-          id: `${file.name}-${index}`,
+          id,
           name: file.name,
           size: file.size,
           status: 'failed',
@@ -159,14 +239,27 @@ export const FolderTab: React.FC<FolderTabProps> = ({ onImport, onCancel }) => {
           Import from files
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Drop supported song files here or choose them manually.
+          Drop a folder of songs, a ZIP archive, or the files themselves here.
         </Typography>
-        <Button variant="contained" component="label">
-          Choose Files
-          <input hidden multiple type="file" onChange={handleInputChange} />
-        </Button>
+        <Stack direction="row" spacing={2} justifyContent="center">
+          <Button variant="contained" component="label">
+            Choose Files
+            <input hidden multiple type="file" onChange={handleInputChange} />
+          </Button>
+          <Button variant="outlined" component="label">
+            Choose a Folder
+            <input
+              hidden
+              multiple
+              type="file"
+              onChange={handleInputChange}
+              // @ts-expect-error - the folder picker is not in the type yet
+              webkitdirectory=""
+            />
+          </Button>
+        </Stack>
         <Typography variant="caption" display="block" sx={{ mt: 2 }}>
-          Supported: {supportedExtensions.join(', ')}
+          Supported: {SUPPORTED_EXTENSIONS.join(', ')}, .zip
         </Typography>
       </Paper>
 

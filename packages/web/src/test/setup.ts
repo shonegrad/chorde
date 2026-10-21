@@ -52,6 +52,21 @@ Object.defineProperty(window, 'localStorage', {
   configurable: true,
 });
 
+/*
+ * jsdom has no Blob.arrayBuffer, which every browser has. Reading a ZIP
+ * archive needs it, so it is filled in here.
+ */
+if (typeof Blob !== 'undefined' && typeof Blob.prototype.arrayBuffer !== 'function') {
+  Blob.prototype.arrayBuffer = function arrayBuffer(): Promise<ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as ArrayBuffer);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(this as Blob);
+    });
+  };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   Object.keys(store).forEach((k) => delete store[k]);

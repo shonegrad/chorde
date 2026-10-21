@@ -1,4 +1,14 @@
 import { test, expect, type Page } from '@playwright/test';
+import { buildZip } from './zip';
+
+/**
+ * Whether this build is meant to have online search.
+ *
+ * The app decides with the same rule. When the search is meant to be there
+ * and is not, the test fails rather than skipping, so that a broken build
+ * cannot hide behind a skip.
+ */
+const onlineSearchExpected = (): boolean => process.env.VITE_ENABLE_ONLINE_SEARCH !== 'false';
 
 /**
  * Click a control of a song, whether it is in the bar or in the menu.
@@ -435,6 +445,66 @@ test.describe('Chorde E2E - Organising the library', () => {
   });
 });
 
+test.describe('Chorde E2E - Importing songs', () => {
+  test('imports every song in a file that holds more than one', async ({ page }) => {
+    await page.goto('./import');
+    await page
+      .getByPlaceholder(/paste chordpro text here/i)
+      .fill(
+        '{title: First Song}\n{copyright: Public domain}\n[G]One\n' +
+          '{title: Second Song}\n{copyright: Public domain}\n[C]Two'
+      );
+
+    await page.getByRole('button', { name: /import 2 songs/i }).click();
+
+    await expect(page.getByText('Imported 2 songs from the file')).toBeVisible({ timeout: 15000 });
+  });
+
+  test('imports the songs inside a ZIP archive', async ({ page }) => {
+    await page.goto('./import');
+    await page.getByRole('tab', { name: /from folder/i }).click();
+
+    const archive = buildZip([
+      { name: 'one.cho', text: '{title: Zipped One}\n{copyright: Public domain}\n[G]One' },
+      { name: 'two.cho', text: '{title: Zipped Two}\n{copyright: Public domain}\n[C]Two' },
+    ]);
+
+    await page.setInputFiles('input[type="file"]', {
+      name: 'songs.zip',
+      mimeType: 'application/zip',
+      buffer: archive,
+    });
+
+    await page.getByRole('button', { name: /import all/i }).click();
+
+    await expect(page.getByText('Imported 2 songs')).toBeVisible({ timeout: 15000 });
+  });
+
+  test('reads a song in the old ChordPro format', async ({ page }) => {
+    await page.goto('./import');
+    await page.getByRole('tab', { name: /from folder/i }).click();
+
+    await page.setInputFiles('input[type="file"]', {
+      name: 'legacy.crd',
+      mimeType: 'text/plain',
+      buffer: Buffer.from(
+        [
+          '{title: Old Song}',
+          '{copyright: Public domain}',
+          '',
+          'Verse 1:',
+          '       C           G',
+          'This is the lyric line',
+        ].join('\n')
+      ),
+    });
+
+    await page.getByRole('button', { name: /import all/i }).click();
+
+    await expect(page.getByText('Imported 1 song')).toBeVisible({ timeout: 15000 });
+  });
+});
+
 test.describe('Chorde E2E - Online search', () => {
   test('finds the closest match first', async ({ page }) => {
     await page.goto('./import');
@@ -443,11 +513,13 @@ test.describe('Chorde E2E - Online search', () => {
     });
 
     const searchTab = page.getByRole('tab', { name: /search online/i });
-    // Online search is only available in a development build.
-    if (!(await searchTab.isVisible())) {
-      test.skip(true, 'Online search is disabled in this build.');
+    if (!onlineSearchExpected()) {
+      test.skip(true, 'Online search is switched off in this build.');
       return;
     }
+    // When the search is meant to be there and is not, that is a failure and
+    // not a reason to skip the test.
+    await expect(searchTab).toBeVisible();
 
     await searchTab.click();
     await page.getByPlaceholder(/search for a song/i).fill('amazing grace');
@@ -469,10 +541,11 @@ test.describe('Chorde E2E - Online search', () => {
     });
 
     const searchTab = page.getByRole('tab', { name: /search online/i });
-    if (!(await searchTab.isVisible())) {
-      test.skip(true, 'Online search is disabled in this build.');
+    if (!onlineSearchExpected()) {
+      test.skip(true, 'Online search is switched off in this build.');
       return;
     }
+    await expect(searchTab).toBeVisible();
 
     await searchTab.click();
     await expect(page.getByText('OpenHymnal')).toBeVisible({ timeout: 30000 });

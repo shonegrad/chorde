@@ -1,5 +1,6 @@
 import { BaseAdapter } from './base.js';
 import type { LicenseType, SearchResult, SongContent } from '@chorde/shared';
+import { convertOnSongToChordPro } from '@chorde/shared';
 
 interface HymnIndex {
   title: string;
@@ -181,7 +182,7 @@ export class OpenHymnalAdapter extends BaseAdapter {
       }
 
       const rawContent = await response.text();
-      const chordPro = this.convertOnSongToChordPro(rawContent, filename);
+      const chordPro = convertOnSongToChordPro(rawContent, filename);
       const metadata = this.extractMetadata(chordPro);
 
       return {
@@ -204,109 +205,5 @@ export class OpenHymnalAdapter extends BaseAdapter {
         sourceName: this.name,
       };
     }
-  }
-
-  private convertOnSongToChordPro(content: string, filename: string): string {
-    const lines = content.split('\n');
-    const chordProLines: string[] = [];
-    let inMetadata = true;
-    let title = '';
-    let artist = '';
-    let key = '';
-    let capo = '';
-    let currentSection = '';
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-
-      if (!trimmed) continue;
-
-      if (inMetadata) {
-        if (trimmed.startsWith('Title:')) {
-          title = trimmed.substring(6).trim();
-          continue;
-        }
-        if (trimmed.startsWith('Artist:')) {
-          artist = trimmed.substring(7).trim();
-          continue;
-        }
-        if (trimmed.startsWith('Key:')) {
-          key = trimmed.substring(4).trim().replace(/\[|\]/g, '');
-          continue;
-        }
-        if (trimmed.startsWith('Capo:')) {
-          capo = trimmed.substring(5).trim();
-          continue;
-        }
-        if (
-          trimmed.startsWith('CCLI:') ||
-          trimmed.startsWith('Original Key:') ||
-          trimmed.startsWith('Notes:') ||
-          trimmed.startsWith('Book:')
-        ) {
-          continue;
-        }
-
-        if (
-          trimmed.includes(':') &&
-          !trimmed.match(/\[.*\]/) &&
-          !trimmed.match(/^(Verse|Chorus|Bridge|Pre-Chorus|Intro|Outro|Interlude|Tag)\s*\d*:?/i)
-        ) {
-          continue;
-        }
-
-        if (trimmed.match(/\[.*\]/) || trimmed.match(/\w/)) {
-          inMetadata = false;
-        }
-      }
-
-      if (!inMetadata) {
-        if (trimmed.match(/^(Verse|Chorus|Bridge|Pre-Chorus|Intro|Outro|Interlude|Tag)\s*\d*:?/i)) {
-          const sectionMatch = trimmed.match(
-            /^(Verse|Chorus|Bridge|Pre-Chorus|Intro|Outro|Interlude|Tag)\s*(\d*)/i
-          );
-          if (sectionMatch) {
-            const sectionType = sectionMatch[1].toLowerCase().replace('-', '_');
-            const num = sectionMatch[2];
-
-            if (currentSection) {
-              chordProLines.push(`{end_of_${currentSection}}`);
-            }
-
-            currentSection = num ? `${sectionType}${num}` : sectionType;
-            chordProLines.push(`{start_of_${currentSection}}`);
-            continue;
-          }
-        }
-
-        const chordProLine = this.convertLine(trimmed);
-        if (chordProLine) {
-          chordProLines.push(chordProLine);
-        }
-      }
-    }
-
-    if (currentSection) {
-      chordProLines.push(`{end_of_${currentSection}}`);
-    }
-
-    const titleFromFilename = filename.replace(/\.(onsong|chordpro)$/, '').replace(/_/g, ' ');
-
-    const header: string[] = [];
-    header.push(`{title: ${title || titleFromFilename}}`);
-    if (artist) header.push(`{artist: ${artist}}`);
-    if (key) header.push(`{key: ${key}}`);
-    if (capo) header.push(`{capo: ${capo}}`);
-    header.push('');
-
-    return [...header, ...chordProLines].join('\n');
-  }
-
-  private convertLine(line: string): string {
-    if (!line.match(/\[.*?\]/)) {
-      return line;
-    }
-
-    return line.replace(/\[(.*?)\]/g, '[$1]');
   }
 }

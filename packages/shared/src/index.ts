@@ -163,3 +163,5 @@ export interface SourceAdapter {
    */
   enrichResults?(results: SearchResult[]): Promise<SearchResult[]>;
 }
+
+export { convertOnSongToChordPro } from './onsong';

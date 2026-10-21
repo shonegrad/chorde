@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, TextField, Typography, Stack, Divider, Button, Paper } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { extractMetadata } from '../../lib/chordPro';
+import { extractMetadata, splitChordProSongs } from '../../lib/chordPro';
+import { readSongFile, titleFromFileName } from '../../lib/importFormats';
 
 interface PasteTabProps {
   onImport: (content: string) => void;
@@ -15,6 +16,7 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
     artist: string;
     key?: string;
     capo?: number;
+    titles: string[];
   } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -25,7 +27,9 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
         return;
       }
       const metadata = extractMetadata(content);
-      setPreview(metadata);
+      // A file can hold more than one song, and the preview says so.
+      const titles = splitChordProSongs(content).map((part) => extractMetadata(part).title);
+      setPreview({ ...metadata, titles });
     };
     updatePreview();
   }, [content]);
@@ -62,12 +66,10 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
 
           const file = e.dataTransfer.files[0];
           if (file) {
-            let text = await file.text();
+            let text = await readSongFile(file);
             const metadata = extractMetadata(text);
             if (!metadata.title || metadata.title === 'Untitled Song') {
-              const filenameTitle = file.name
-                .replace(/\.(txt|cho|crd|chordpro)$/i, '')
-                .replace(/[-_]/g, ' ');
+              const filenameTitle = titleFromFileName(file.name);
               text = `{title: ${filenameTitle}}\n` + text;
             }
             setContent(text);
@@ -159,6 +161,20 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
                 <Typography variant="body1">{preview.capo || '-'}</Typography>
               </Box>
             </Stack>
+            {preview.titles.length > 1 && (
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  This file holds {preview.titles.length} songs
+                </Typography>
+                <Stack spacing={0.5} sx={{ mt: 0.5 }}>
+                  {preview.titles.map((title, index) => (
+                    <Typography key={`${title}-${index}`} variant="body2">
+                      {index + 1}. {title}
+                    </Typography>
+                  ))}
+                </Stack>
+              </Box>
+            )}
           </Stack>
         ) : (
           <Typography variant="body2" color="text.secondary" fontStyle="italic">
@@ -169,7 +185,9 @@ export const PasteTab: React.FC<PasteTabProps> = ({ onImport, onCancel }) => {
         <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
           <Button onClick={onCancel}>Cancel</Button>
           <Button variant="contained" onClick={handleImport} disabled={!content.trim()}>
-            Import Song
+            {preview && preview.titles.length > 1
+              ? `Import ${preview.titles.length} songs`
+              : 'Import Song'}
           </Button>
         </Box>
       </Paper>
