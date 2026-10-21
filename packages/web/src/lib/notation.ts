@@ -136,6 +136,39 @@ export const spellingOfChord = (chord: string): string =>
     .join(' ');
 
 /**
+ * How many sharps or flats the key signature has.
+ *
+ * It is how much room the key signature takes on the stave.
+ */
+export const accidentalsInKey = (key?: string): number => {
+  if (!key) return 0;
+
+  const fifths: Record<string, number> = {
+    C: 0,
+    G: 1,
+    D: 2,
+    A: 3,
+    E: 4,
+    B: 5,
+    'F#': 6,
+    'C#': 7,
+    F: -1,
+    Bb: -2,
+    Eb: -3,
+    Ab: -4,
+    Db: -5,
+    Gb: -6,
+    Cb: -7,
+  };
+
+  const match = key.trim().match(/^([A-G][#b]?)/);
+  if (!match) return 0;
+
+  const count = fifths[match[1]] ?? 0;
+  return Math.abs(count);
+};
+
+/**
  * Where a shape is played on the guitar, as tablature.
  *
  * The strings are numbered from the highest, so the low E is the sixth, the

@@ -127,6 +127,9 @@ Milestone 4 (real notation) is done. The parts worth knowing:
 - The staves and the tablature are too big to sit over a word, so in a song each line of the
   words is written on one stave above it, and the clef and the key signature are only drawn at
   the start of the song. In the chord reference they are as big as they like.
+- VexFlow draws the stems in black, whatever the theme, so a stem is invisible on a dark page.
+  The stems are put in the colour of the ink after the drawing, and the writing is given a margin
+  at the end so it is not cut off. There is a test for both.
 - VexFlow hides the string under each number in a tablature with a rectangle in the colour of the
   page. The rectangle is invisible, but it is still a shape on the page, and it shows up wherever
   the page is not the colour it was drawn for. The string is broken around the number instead, and

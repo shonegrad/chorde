@@ -29,6 +29,9 @@ interface ChordNotationProps {
   scale?: number;
 }
 
+/** The room left at the end of the writing, so it is not cut off. */
+const MARGIN = 16;
+
 /** The colours the notation is drawn in, so it follows the theme. */
 interface Ink {
   staff: string;
@@ -162,7 +165,7 @@ const drawNotation = async (
       const stave = factory.Stave({
         x: 0,
         y: 30,
-        width,
+        width: width - MARGIN,
         options: { spaceAboveStaffLn: 0 },
       });
 
@@ -210,7 +213,7 @@ const drawNotation = async (
       const tab = factory.TabStave({
         x: fretSpace,
         y: 8,
-        width: width - fretSpace,
+        width: width - fretSpace - MARGIN,
         options: { spaceAboveStaffLn: 0 },
       });
       tab.setContext(context).draw();
@@ -245,6 +248,16 @@ const drawNotation = async (
 
     const svg = host.querySelector('svg');
     if (!svg) return null;
+
+    /*
+     * VexFlow draws the stems in its own default colour, which is black, so
+     * a stem is invisible on a dark page. They are put in the colour of the
+     * note they belong to, and anything else that does not say what colour
+     * it is takes the colour of the ink.
+     */
+    svg.querySelectorAll('.vf-stem').forEach((stem) => stem.setAttribute('stroke', ink.notes));
+    svg.setAttribute('fill', ink.notes);
+    svg.setAttribute('stroke', ink.notes);
 
     /*
      * The numbers in a tablature are written over the strings, so VexFlow

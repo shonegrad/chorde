@@ -5,7 +5,7 @@ import { chordInKey } from '../lib/keyDetection';
 import { playStrummedChord, resumeAudioContext } from '../lib/audio';
 import { voicingForChord } from '../lib/voicings';
 import { ChordNotation } from './ChordNotation';
-import { spellingOfChord } from '../lib/notation';
+import { accidentalsInKey, spellingOfChord } from '../lib/notation';
 import { ChordDiagram } from './ChordDiagram';
 import {
   Dialog,
@@ -103,7 +103,7 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
               kind="staff"
               chords={[chordName]}
               songKey={songKey}
-              width={110}
+              width={90 + accidentalsInKey(songKey) * 10}
               height={92}
               scale={1.9}
               background={theme.palette.background.paper}
@@ -182,9 +182,9 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
               kind="tab"
               chords={[chord.name]}
               shapes={[chord.variations[selectedVariation].frets]}
-              width={36}
+              width={48}
               height={80}
-              scale={2.4}
+              scale={2}
               background={theme.palette.background.paper}
             />
           )}
@@ -193,9 +193,9 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
               kind="staff"
               chords={[chord.name]}
               songKey={songKey}
-              width={100}
+              width={90 + accidentalsInKey(songKey) * 10}
               height={88}
-              scale={2.1}
+              scale={2}
               background={theme.palette.background.paper}
             />
           )}

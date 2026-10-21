@@ -237,6 +237,16 @@ test.describe('Chorde E2E - Song Viewer', () => {
     // The numbers break the strings themselves, so there is no shape hiding
     // behind them in the colour of the page.
     await expect(tabs.locator('.vf-tabnote rect')).toHaveCount(0);
+
+    // Nothing is left in the colour VexFlow draws by default, which is black
+    // and disappears on a dark page.
+    const black = await page.evaluate(() => {
+      const svg = document.querySelector('.song-line-art-chords svg');
+      return [...svg.querySelectorAll('*')].filter(
+        (el) => el.getAttribute('stroke') === 'black' || el.getAttribute('fill') === 'black'
+      ).length;
+    });
+    expect(black).toBe(0);
   });
 
   test('offers the Nashville display mode', async ({ page }) => {
