@@ -110,15 +110,26 @@ const sharpToFlat = (note: string): string => SHARP_TO_FLAT[note] ?? note;
 /**
  * The chords to offer, best first.
  *
- * The chords of the key come first, then everything that starts with what has
- * been typed. With nothing typed and no key yet, the open shapes are offered,
- * which are the ones you reach for most.
+ * The chords the player reaches for most come first, because those are the
+ * ones they are reaching for. Then the chords of the key, and then everything
+ * that starts with what has been typed. With nothing typed and no key yet,
+ * the open shapes are offered, which are the ones you reach for most.
  */
-export const suggestChords = (query: string, key?: string, limit = 24): string[] => {
+export const suggestChords = (
+  query: string,
+  key?: string,
+  limit = 24,
+  frequent: string[] = []
+): string[] => {
   const trimmed = query.trim().toLowerCase();
   const inKey = chordsInKey(key ?? '');
 
-  if (!trimmed && inKey.length === 0) {
+  const matches = (name: string): boolean =>
+    !trimmed || name.toLowerCase().startsWith(trimmed) || name.toLowerCase().includes(trimmed);
+
+  const frequentFirst = frequent.filter(matches);
+
+  if (!trimmed && inKey.length === 0 && frequentFirst.length === 0) {
     return openChords().slice(0, limit);
   }
 
@@ -132,12 +143,12 @@ export const suggestChords = (query: string, key?: string, limit = 24): string[]
     else if (lower.includes(trimmed)) contains.push(name);
   }
 
-  const inKeyFirst = inKey.filter((chord) => {
-    const lower = chord.toLowerCase();
-    return !trimmed || lower.startsWith(trimmed) || lower.includes(trimmed);
-  });
+  const inKeyFirst = inKey.filter(matches);
 
-  return Array.from(new Set([...inKeyFirst, ...startsWith, ...contains])).slice(0, limit);
+  return Array.from(new Set([...frequentFirst, ...inKeyFirst, ...startsWith, ...contains])).slice(
+    0,
+    limit
+  );
 };
 
 /** The shapes that can be played without moving up the neck. */

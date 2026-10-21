@@ -5,6 +5,8 @@ import DialogContent from '@mui/material/DialogContent';
 import { CHORD_LIBRARY, type ChordVariation } from '../data/chordLibrary';
 import { chordsOfKey, notesOfScale, SCALE_KEYS } from '../lib/keyDetection';
 import { deleteCustomChord, saveCustomChord, useCustomChords } from '../lib/customChords';
+import { chordsByUse } from '../lib/frequentChords';
+import { useLibraryStore } from '../store/libraryStore';
 import { ChordDiagram } from './ChordDiagram';
 import { ChordDiagramEditor } from './ChordDiagramEditor';
 import { ChordModal } from './ChordModal';
@@ -73,6 +75,10 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
   // The shapes the player has drawn for themselves, which are kept between
   // visits.
   const customChords = useCustomChords();
+
+  // The chords the player reaches for most, from the songs they have played.
+  const songs = useLibraryStore((state) => state.songs);
+  const frequent = useMemo(() => chordsByUse(songs).slice(0, 12), [songs]);
 
   // Get all chords as array. A shape the player has drawn is the shape for
   // that chord, so it stands in for the library's own.
@@ -285,6 +291,29 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
           </Button>
         </Stack>
       </Box>
+
+      {/* The chords the player reaches for most */}
+      {frequent.length > 0 && (
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            The chords you reach for most
+          </Typography>
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ gap: 0.75 }}>
+            {frequent.map((usage) => (
+              <Chip
+                key={usage.chord}
+                label={`${usage.chord} · ${usage.count}`}
+                size="small"
+                color="primary"
+                variant="outlined"
+                onClick={() => setSelectedChord(usage.chord)}
+                clickable
+                sx={{ fontFamily: 'monospace', fontWeight: 600 }}
+              />
+            ))}
+          </Stack>
+        </Paper>
+      )}
 
       {/* Chord Grid */}
       <Grid container spacing={3}>

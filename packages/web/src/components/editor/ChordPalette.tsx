@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { Box, Chip, Stack, TextField, Typography } from '@mui/material';
 import { suggestChords } from '../../lib/chordSuggestions';
+import { frequentChordNames } from '../../lib/frequentChords';
+import { useLibraryStore } from '../../store/libraryStore';
 
 interface ChordPaletteProps {
   /** Called with the chord that was chosen. */
@@ -12,13 +14,19 @@ interface ChordPaletteProps {
 /**
  * A palette of chords to choose from while writing.
  *
- * The chords of the key come first, because those are the ones you are
- * probably reaching for.
+ * The chords the player reaches for most come first, because those are the
+ * ones they are reaching for, and then the chords of the key.
  */
 export const ChordPalette: React.FC<ChordPaletteProps> = ({ onPick, songKey }) => {
   const [query, setQuery] = useState('');
 
-  const chords = useMemo(() => suggestChords(query, songKey, query ? 40 : 16), [query, songKey]);
+  const songs = useLibraryStore((state) => state.songs);
+  const frequent = useMemo(() => frequentChordNames(songs), [songs]);
+
+  const chords = useMemo(
+    () => suggestChords(query, songKey, query ? 40 : 16, frequent),
+    [query, songKey, frequent]
+  );
 
   return (
     <Box aria-label="Chord palette">

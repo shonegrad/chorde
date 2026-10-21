@@ -317,6 +317,22 @@ test.describe('Chorde E2E - Chord reference', () => {
     await expect(page.getByRole('img', { name: /on the stave/i })).toBeVisible();
   });
 
+  test('shows the chords the player reaches for most', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    // Play a song, so that the app knows what the player reaches for.
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await page.goto('./chords');
+    await expect(page.getByRole('heading', { name: 'Chord Library' })).toBeVisible({
+      timeout: 15000,
+    });
+
+    await expect(page.getByText('The chords you reach for most')).toBeVisible();
+  });
+
   test('keeps the shape a player has drawn for themselves', async ({ page }) => {
     await page.goto('./chords');
     await expect(page.getByRole('heading', { name: 'Chord Library' })).toBeVisible({

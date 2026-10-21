@@ -50,7 +50,7 @@
 - **Favourites**: Star the songs you play most and find them again in one click.
 - **Play History**: The app remembers what was played and when, so you can sort by "Recently
   played" or "Most played". Mark the songs you have learned, and the library will tell you which
-  ones are still new.
+  ones are still new. The chords you reach for most are offered first when you write.
 - **Organise Your Library**: Add tags, sort by title, artist, key, length, tempo or capo, group the
   songs by artist, key or tag, and search inside the lyrics as well as the titles.
 - **Bulk Actions**: Select several songs at once to tag them, transpose them, add them to a

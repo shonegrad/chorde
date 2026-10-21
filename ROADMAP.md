@@ -142,13 +142,13 @@ requirement.
 ## Next
 
 Milestones 5 and 7 are done, and so are the performance view, printing, the arrangement of the
-library, the writing desk, the player's own chord shapes and the play history. What is next is
-asked of the app in the way [HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that
-the app cannot do yet.
+library, the writing desk, the player's own chord shapes, the play history and the list of the
+chords a player reaches for most. What is next is asked of the app in the way
+[HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app cannot do yet.
 
-The clearest answer is the chords a player reaches for most. The library knows what was played
-and when, but there is no list of the chords themselves, which is the list they would want in
-front of them.
+The clearest answer is the setlist. The songs are in the library and the sets are separate, and
+there is no way to say "the set I play on Sunday" and have the songs follow. A setlist cannot be
+written down and brought in either.
 
 ## Not doing
 

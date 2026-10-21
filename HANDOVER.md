@@ -100,17 +100,30 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**The chords you use most.** The shapes a player has drawn are kept, and the library knows what was
-played and when, but there is no list of the chords a player reaches for most, which is the list
-they would want in front of them.
+**The API needs a host.** It is a decision rather than a piece of work: until it has one, online
+search is hidden in production. Everything else in the app works without it.
 
-After that:
+What the app cannot do yet, and what a musician would notice:
 
-- **The API needs a host**, which is a decision rather than a piece of work: until it has one,
-  online search is hidden in production.
+- **A songbook is not a setlist.** The songs are in the library and the sets are separate, and
+  there is no way to say "the set I play on Sunday" and have the songs follow.
+- **There is no way to write a setlist down and bring it in.** The setlists live in the browser
+  only. A setlist could be exported as a file and read back on another device.
+- **A song cannot be shared.** There is no link to a song and no way to send one to someone else.
+- **Nothing is printed as a MIDI file**, and there is no way to send the chords of a song to
+  another program.
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+The chords a player reaches for most are done. The parts worth knowing:
+
+- `lib/frequentChords.ts` works the chords out of the songs that have been played. A chord is
+  counted once in a song, and the song counts as many times as it has been played.
+- A song that has never been played says nothing about what the player reaches for, so it does not
+  count.
+- The chord library shows the list, and the writing desk offers those chords first, before the
+  chords of the key.
 
 The library knows what was played. The parts worth knowing:
 
