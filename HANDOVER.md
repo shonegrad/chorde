@@ -30,8 +30,8 @@ that is what the app is actually for.
 |                |                                                                |
 | -------------- | -------------------------------------------------------------- |
 | Built-in songs | 16, all public domain, checked by a test                       |
-| Unit tests     | 347 (276 web, 68 api, 3 shared)                                |
-| E2E tests      | 117, across Chromium, WebKit and a mobile viewport             |
+| Unit tests     | 375 (304 web, 68 api, 3 shared)                                |
+| E2E tests      | 126, across Chromium, WebKit and a mobile viewport             |
 | Deploy         | GitHub Pages, <https://shonegrad.github.io/chorde/>            |
 | API            | Not hosted. Online search is hidden in production until it is. |
 
@@ -43,7 +43,8 @@ that is what the app is actually for.
 - **Writing** — a writing desk with autosave, undo and redo, earlier versions, a chord palette
   that offers the chords of your key first, key detection, a metronome, and transposition.
 - **Performing** — a setlist carries how each song is played, and the performance view plays
-  through them: count-in on the beat, auto-advance, printable running order.
+  through them: count-in on the beat, auto-advance, printable running order. A setlist says how
+  long it takes.
 - **Organising** — favourites, tags, sorting, searching inside lyrics, bulk actions, "My Songs",
   backup and restore.
 - **Getting about** — on a big screen a sidebar sits beside the music and stays in view, so every
@@ -53,7 +54,8 @@ that is what the app is actually for.
   song is set up. They wrap rather than scroll sideways, so nothing is ever out of reach. On a
   phone they are a short bar and a menu, so the song keeps the screen.
 - **Finding** — the key of a song is worked out from its chords, and every chord says where it sits
-  in the key.
+  in the key. A key has a page of its own: the chords of the key, the songs that are in it, and the
+  songs that could be played in it because every chord they use is a chord of the key.
 - **Hearing** — the chords of a song can be played in the reader and on stage, a chord can be
   played from its diagram, and a scale can be played from the chord library. The tone is a guitar
   rather than a beep, and the volume, the tone and whether there is sound at all are set in the
@@ -63,6 +65,9 @@ that is what the app is actually for.
 
 - **The API is not deployed**, so online search is hidden in production.
 - **The library holds 16 songs.** That is on purpose, but it is thin.
+- **The built-in songs have no length**, so a set of them cannot say how long it takes. A length
+  comes from `{duration:}` in a ChordPro file, or from a song's details, and the app does not
+  guess one: a set that is not fully timed says so.
 
 ## The rules of this project
 
@@ -107,6 +112,10 @@ songs (`lib/duration.ts`), and a key has a page of its own (`components/KeyView.
 chords of the key, the songs that are in it, and the songs that could be played in it because
 every chord they use is a chord of the key (`lib/fit.ts`).
 
+What the two of them have in common is that they answer a question the app could not answer
+before: how long is this, and what can I play in this key. The next work should be asked of the
+app in the same way — what does a musician need that it cannot do yet.
+
 Milestone 6 (sound) is done. The parts worth knowing:
 
 - `packages/web/src/lib/audio.ts` is the only place that makes a sound. It is a guitar tone: two
@@ -140,6 +149,18 @@ Milestone 4 (real notation) is done. The parts worth knowing:
   page. The rectangle is invisible, but it is still a shape on the page, and it shows up wherever
   the page is not the colour it was drawn for. The string is broken around the number instead, and
   the rectangles are taken out.
+
+Milestone 8 (a smarter library) is done. The parts worth knowing:
+
+- `lib/duration.ts` reads a length and adds lengths up. A length is written the way a duration is,
+  "4:28", and comes from `{duration:}` in a ChordPro file or from a song's details. Nothing is
+  guessed: a set that is not fully timed says how much of it is known.
+- `lib/fit.ts` decides whether a song belongs in a key. What matters is the note a chord is
+  built on, not every note in it, so a dominant seventh and a secondary dominant are chords of the
+  key, and a chord built on a note outside the key is not. The stricter rule — every note in the
+  scale — was tried first and rejected the V7 of every minor key.
+- `components/KeyView.tsx` is the page for a key. The keys in the sidebar lead to it rather than
+  filtering the library, and the library can still be filtered by key from there.
 
 ## Things to know before you touch the code
 

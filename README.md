@@ -26,7 +26,14 @@
   - Loop sections for practice.
   - Performance mode (fullscreen) for playing from a music stand.
   - Remembers your text size, display mode and per-song transposition.
-- **Collapsible Navigation**: Browse by Keys, Artists, and Genres with item count badges.
+- **Collapsible Navigation**: Browse by Keys, Artists, and Genres with item count badges. The
+  sidebar stays in view on a big screen, so every place in the app is one click away.
+- **A Page for Every Key**: The chords of the key, the songs that are in it, and the songs that
+  could be played in it because every chord they use is a chord of the key.
+- **Real Notation**: Chords are written out on a stave and in tablature, with the key signature
+  of the song and the notes spelled the way a musician writes them.
+- **Plays Like a Guitar**: The chords of a song can be played in the reader and on stage, with the
+  volume, the tone and whether there is sound at all set in the settings.
 - **Favourites**: Star the songs you play most and find them again in one click.
 - **Organise Your Library**: Add tags, sort by title, artist, key or date, and search inside the
   lyrics as well as the titles.
@@ -43,6 +50,8 @@
   viewer takes the whole screen for playing.
 - **Nashville Number System**: View songs in numbers for universal playability.
 - **Performance**: Lazy loading for large song libraries.
+- **Setlists Know How Long They Take**: A setlist adds up the lengths of its songs and says how
+  long it runs.
 - **Responsive Design**: Works great on desktop and tablets.
 
 ## 🏗️ Project Structure
