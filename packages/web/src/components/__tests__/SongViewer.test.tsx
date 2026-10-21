@@ -140,6 +140,21 @@ describe('SongViewer', () => {
     expect(screen.getByText('Play quietly here')).toBeInTheDocument();
   });
 
+  it('keeps the tempo of the song, so that it is there next time', () => {
+    const onUpdateSong = vi.fn();
+    renderViewer({ ...song, bpm: 100 }, { onUpdateSong });
+
+    fireEvent.click(screen.getByRole('button', { name: /details/i }));
+
+    const tempo = screen.getByLabelText('The tempo of the song');
+    expect(tempo).toHaveValue(100);
+
+    fireEvent.change(tempo, { target: { value: '120' } });
+    fireEvent.blur(tempo);
+
+    expect(onUpdateSong).toHaveBeenCalledWith(expect.objectContaining({ bpm: 120 }));
+  });
+
   it('shows no note when the song has none', () => {
     renderViewer(song);
 

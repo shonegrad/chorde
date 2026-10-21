@@ -7,20 +7,15 @@ const escapeHtml = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /**
- * Print the running order of a setlist.
+ * The page for a setlist.
  *
- * A sheet of paper is what you want when you are playing from a stand, and it
- * is the one thing a setlist cannot show you on a screen.
- *
- * With `includeSongs` the songs themselves are printed after the running
- * order, one to a page, which is what a player needs when the screen is not
- * in front of them.
+ * The running order, and with `includeSongs` the songs as well, one to a page.
  */
-export const printSetlist = (
+export const buildSetlistSheet = (
   setlist: Setlist,
   songById: Map<string, Song>,
   options: { includeSongs?: boolean; print?: PrintOptions } = {}
-): boolean => {
+): string => {
   const rows = setlist.songs
     .map((entry, index) => {
       const song = songById.get(entry.songId);
@@ -78,10 +73,7 @@ export const printSetlist = (
         .join('\n')
     : '';
 
-  const win = window.open('', '_blank');
-  if (!win) return false;
-
-  win.document.write(`<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -108,7 +100,28 @@ export const printSetlist = (
   ${songs}
   <script>window.onload = () => { window.print(); }</script>
 </body>
-</html>`);
+</html>`;
+};
+
+/**
+ * Print the running order of a setlist.
+ *
+ * A sheet of paper is what you want when you are playing from a stand, and it
+ * is the one thing a setlist cannot show you on a screen.
+ *
+ * With `includeSongs` the songs themselves are printed after the running
+ * order, one to a page, which is what a player needs when the screen is not
+ * in front of them.
+ */
+export const printSetlist = (
+  setlist: Setlist,
+  songById: Map<string, Song>,
+  options: { includeSongs?: boolean; print?: PrintOptions } = {}
+): boolean => {
+  const win = window.open('', '_blank');
+  if (!win) return false;
+
+  win.document.write(buildSetlistSheet(setlist, songById, options));
   win.document.close();
   return true;
 };

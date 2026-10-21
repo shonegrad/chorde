@@ -483,6 +483,18 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     });
   };
 
+  /*
+   * The tempo of a song is often not written down, and tapping it in is how
+   * you find out. It is kept with the song, so that it is there next time.
+   */
+  const handleTempoChange = () => {
+    onUpdateSong?.({
+      ...song,
+      bpm: bpm ?? undefined,
+      updatedAt: new Date().toISOString(),
+    });
+  };
+
   const handleTagsChange = (tags: string[]) => {
     onUpdateSong?.({ ...song, tags, updatedAt: new Date().toISOString() });
   };
@@ -1352,6 +1364,29 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                 handleDurationChange();
               }}
               onBlur={handleDurationChange}
+            />
+          </Box>
+
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Tempo
+            </Typography>
+            <TextField
+              size="small"
+              fullWidth
+              type="number"
+              placeholder="120"
+              value={bpm ?? ''}
+              onChange={(event) =>
+                setBpm(event.target.value === '' ? null : Number(event.target.value))
+              }
+              inputProps={{ 'aria-label': 'The tempo of the song' }}
+              helperText="The beats a minute. Tapping the tempo in the bar above puts it here, so that it is kept."
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter') return;
+                handleTempoChange();
+              }}
+              onBlur={handleTempoChange}
             />
           </Box>
 

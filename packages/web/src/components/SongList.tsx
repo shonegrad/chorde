@@ -91,6 +91,8 @@ interface SongListProps {
   onChordsNav: () => void;
   activeFilter?: SongFilter | null;
   onClearFilter?: () => void;
+  /** Choose a tag, or none. The tag is in the URL, so the back button undoes it. */
+  onTagFilter?: (tag: string | null) => void;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   onToggleFavorite?: (song: Song) => void;
@@ -111,6 +113,7 @@ export const SongList: React.FC<SongListProps> = ({
   onChordsNav,
   activeFilter,
   onClearFilter,
+  onTagFilter,
   viewMode,
   onViewModeChange,
   onToggleFavorite,
@@ -122,7 +125,6 @@ export const SongList: React.FC<SongListProps> = ({
   setlists = [],
 }) => {
   const [search, setSearch] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('title');
   const [groupBy, setGroupBy] = useState<GroupBy>('none');
   const [onlyIncomplete, setOnlyIncomplete] = useState(false);
@@ -163,9 +165,28 @@ export const SongList: React.FC<SongListProps> = ({
   // Every tag in the library, so a tag can be switched to without clearing
   // the current filter first.
   const allTags = useMemo(
-    () => Array.from(new Set((allSongs ?? songs).flatMap((s) => s.tags || []))).sort(),
+    () => Array.from(new Set((allSongs ?? songs).flatMap((s) => s.tags ?? []))).sort(),
     [allSongs, songs]
   );
+
+  /*
+   * The tag is in the URL, so that the back button takes back the tag and not
+   * the whole library.
+   */
+  const [localTag, setLocalTag] = useState<string | null>(null);
+  const selectedTag = onTagFilter
+    ? activeFilter?.type === 'tag'
+      ? activeFilter.value
+      : null
+    : localTag;
+
+  const chooseTag = (tag: string | null) => {
+    if (onTagFilter) {
+      onTagFilter(tag);
+      return;
+    }
+    setLocalTag(tag);
+  };
 
   const lyricsById = useMemo(() => {
     const map = new Map<string, string>();
@@ -725,7 +746,7 @@ export const SongList: React.FC<SongListProps> = ({
       <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap" useFlexGap>
         <Chip
           label="All Tags"
-          onClick={() => setSelectedTag(null)}
+          onClick={() => chooseTag(null)}
           color={!selectedTag ? 'primary' : 'default'}
           variant={!selectedTag ? 'filled' : 'outlined'}
           clickable
@@ -734,7 +755,7 @@ export const SongList: React.FC<SongListProps> = ({
           <Chip
             key={tag}
             label={tag}
-            onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+            onClick={() => chooseTag(selectedTag === tag ? null : tag)}
             color={selectedTag === tag ? 'primary' : 'default'}
             variant={selectedTag === tag ? 'filled' : 'outlined'}
             clickable

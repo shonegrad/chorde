@@ -214,7 +214,7 @@ function SongListView() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const { openNav } = useOutletContext<{ openNav: () => void }>();
 
-  const [activeFilter] = useLibraryFilter();
+  const [activeFilter, setFilter] = useLibraryFilter();
 
   const filteredSongs = useMemo(() => {
     if (!activeFilter) return songs;
@@ -329,6 +329,7 @@ function SongListView() {
         onChordsNav={() => navigate('/chords')}
         activeFilter={activeFilter}
         onClearFilter={() => navigate('/', { replace: true })}
+        onTagFilter={(tag) => setFilter(tag ? { type: 'tag', value: tag } : null)}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onToggleFavorite={handleToggleFavorite}

@@ -188,6 +188,30 @@ describe('SongList', () => {
     expect(onDuplicateSong).toHaveBeenCalledWith(mockSongs[1]);
   });
 
+  it('puts the tag in the URL, so that the back button takes it back', () => {
+    const onTagFilter = vi.fn();
+    renderWithTheme(<SongList {...defaultProps} onTagFilter={onTagFilter} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'rock' }));
+
+    expect(onTagFilter).toHaveBeenCalledWith('rock');
+  });
+
+  it('takes the tag back when the same tag is chosen again', () => {
+    const onTagFilter = vi.fn();
+    renderWithTheme(
+      <SongList
+        {...defaultProps}
+        onTagFilter={onTagFilter}
+        activeFilter={{ type: 'tag', value: 'rock' }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'rock' }));
+
+    expect(onTagFilter).toHaveBeenCalledWith(null);
+  });
+
   it('gathers the songs into groups', () => {
     renderWithTheme(<SongList {...defaultProps} />);
 
