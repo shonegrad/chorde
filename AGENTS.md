@@ -89,6 +89,7 @@ The URL query string is the single source of truth for the library filter
 - `packages/web/src/lib/printSetlist.ts` — The printable running order
 - `packages/web/src/lib/printSheet.ts` — The printable page for a song, and the changes of a song
 - `packages/web/src/lib/library.ts` — Grouping, sorting and transposing a library
+- `packages/web/src/lib/customChords.ts` — The shapes a player has drawn for themselves
 - `packages/web/src/lib/importFormats.ts` — The files the app can read, and the old `.crd` format
 - `packages/web/src/lib/zip.ts` — Reading a ZIP archive, with the browser's own inflater
 - `packages/web/src/components/SongBody.tsx` — Chord-over-lyric rendering

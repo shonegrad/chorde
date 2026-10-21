@@ -14,9 +14,11 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = React.memo(({ variation
   const theme = useTheme();
   const { frets, fingers, barres } = variation;
 
-  // Find the min/max fret to determine diagram position
+  // Find the min/max fret to determine diagram position. A shape with only
+  // open strings has no fret above the first one, and it starts at the first.
   const numericFrets = frets.filter((f) => typeof f === 'number') as number[];
-  const minFret = numericFrets.length > 0 ? Math.min(...numericFrets.filter((f) => f > 0)) : 1;
+  const aboveFirst = numericFrets.filter((f) => f > 0);
+  const minFret = aboveFirst.length > 0 ? Math.min(...aboveFirst) : 1;
   const startFret = minFret > 1 ? minFret : 1;
 
   const stringSpacing = 30;

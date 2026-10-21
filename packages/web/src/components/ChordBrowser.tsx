@@ -4,6 +4,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import { CHORD_LIBRARY, type ChordVariation } from '../data/chordLibrary';
 import { chordsOfKey, notesOfScale, SCALE_KEYS } from '../lib/keyDetection';
+import { deleteCustomChord, saveCustomChord, useCustomChords } from '../lib/customChords';
 import { ChordDiagram } from './ChordDiagram';
 import { ChordDiagramEditor } from './ChordDiagramEditor';
 import { ChordModal } from './ChordModal';
@@ -36,6 +37,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // Chord type categories
 const CHORD_TYPES = [
@@ -59,13 +61,6 @@ interface ChordBrowserProps {
   onBack?: () => void;
 }
 
-/** A chord shape the user drew themselves. */
-interface CustomChord {
-  chordName: string;
-  fullName: string;
-  variations: ChordVariation[];
-}
-
 export default function ChordBrowser({ onBack }: ChordBrowserProps) {
   const [selectedType, setSelectedType] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,19 +68,30 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
   const [editorOpen, setEditorOpen] = useState(false);
   const [scaleKey, setScaleKey] = useState('C');
   const [playingChord, setPlayingChord] = useState<string | null>(null);
-  const [customChords, setCustomChords] = useState<CustomChord[]>([]);
+  const [shapeName, setShapeName] = useState('');
 
-  // Get all chords as array
-  const allChords = useMemo(
-    () => [
-      ...Object.values(CHORD_LIBRARY).map((def) => ({
-        chordName: def.name,
-        ...def,
-      })),
-      ...customChords,
-    ],
-    [customChords]
-  );
+  // The shapes the player has drawn for themselves, which are kept between
+  // visits.
+  const customChords = useCustomChords();
+
+  // Get all chords as array. A shape the player has drawn is the shape for
+  // that chord, so it stands in for the library's own.
+  const allChords = useMemo(() => {
+    const library = Object.values(CHORD_LIBRARY).map((def) => ({
+      chordName: def.name,
+      ...def,
+    }));
+
+    const custom = customChords.map((chord) => ({
+      chordName: chord.name,
+      ...chord,
+    }));
+
+    if (custom.length === 0) return library;
+
+    const names = new Set(custom.map((chord) => chord.chordName));
+    return [...library.filter((definition) => !names.has(definition.name)), ...custom];
+  }, [customChords]);
 
   // Filter chords
   const filteredChords = useMemo(() => {
@@ -141,20 +147,30 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
   };
 
   const handleSaveCustomChord = (variation: ChordVariation) => {
-    const name = `Custom ${customChords.length + 1}`;
-    setCustomChords((prev) => [
-      ...prev,
-      { chordName: name, fullName: `${name} (your shape)`, variations: [variation] },
-    ]);
+    const name = shapeName.trim();
+    if (!name) return;
+    saveCustomChord(name, variation);
+    setShapeName('');
     setEditorOpen(false);
   };
 
   const editorDialog = (
     <Dialog open={editorOpen} onClose={() => setEditorOpen(false)} maxWidth="sm" fullWidth>
-      <DialogTitle>Custom Chord</DialogTitle>
+      <DialogTitle>Your own shape</DialogTitle>
       <DialogContent>
+        <TextField
+          autoFocus
+          fullWidth
+          size="small"
+          label="The chord"
+          placeholder="Fmaj7"
+          value={shapeName}
+          onChange={(event) => setShapeName(event.target.value)}
+          helperText="The chord this shape is for. The app will draw your shape for it from now on."
+          sx={{ mb: 2 }}
+        />
         <ChordDiagramEditor
-          chordName="Custom"
+          chordName={shapeName.trim() || 'your shape'}
           onSave={handleSaveCustomChord}
           onClose={() => setEditorOpen(false)}
         />
@@ -311,6 +327,15 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
                       <Typography variant="body2" color="text.secondary">
                         {chord.fullName}
                       </Typography>
+                      {customChords.some((entry) => entry.name === chord.chordName) && (
+                        <Chip
+                          label="Your shape"
+                          size="small"
+                          color="secondary"
+                          variant="outlined"
+                          sx={{ mt: 0.5 }}
+                        />
+                      )}
                     </Box>
                   </Box>
 
@@ -339,7 +364,20 @@ export default function ChordBrowser({ onBack }: ChordBrowserProps) {
 
               {/* The play button sits outside the action area, because a button
                   inside a button is not valid. */}
-              <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+              <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 0.5 }}>
+                {customChords.some((entry) => entry.name === chord.chordName) && (
+                  <Tooltip title="Take your shape away">
+                    <IconButton
+                      onClick={() => deleteCustomChord(chord.chordName)}
+                      color="error"
+                      size="small"
+                      aria-label={`Take your shape for ${chord.chordName} away`}
+                      sx={{ border: 1, borderColor: 'divider' }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
                 <IconButton
                   onClick={() => handlePlayChord(chord.chordName)}
                   disabled={playingChord === chord.chordName}

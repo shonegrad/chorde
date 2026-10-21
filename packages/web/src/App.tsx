@@ -20,6 +20,9 @@ import { MobileNav } from './components/MobileNav';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useLibraryFilter } from './lib/useLibraryFilter';
 import { transposeSong } from './lib/library';
+// The shapes a player has drawn for themselves, so that the app draws those
+// shapes for those chords from the start.
+import './lib/customChords';
 import type { Song } from './types';
 import { Box, IconButton, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';

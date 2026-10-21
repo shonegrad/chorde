@@ -316,6 +316,28 @@ test.describe('Chorde E2E - Chord reference', () => {
     await page.getByRole('button', { name: 'Notes' }).click();
     await expect(page.getByRole('img', { name: /on the stave/i })).toBeVisible();
   });
+
+  test('keeps the shape a player has drawn for themselves', async ({ page }) => {
+    await page.goto('./chords');
+    await expect(page.getByRole('heading', { name: 'Chord Library' })).toBeVisible({
+      timeout: 15000,
+    });
+
+    await page.getByRole('button', { name: /create custom chord/i }).click();
+    await page.getByLabel('The chord').fill('E Shape Of My Own');
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    // The shape is the player's own, and it is kept.
+    await page.getByPlaceholder(/search chords/i).fill('Shape Of My Own');
+    await expect(page.getByText('Your shape', { exact: true })).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByRole('heading', { name: 'Chord Library' })).toBeVisible({
+      timeout: 15000,
+    });
+    await page.getByPlaceholder(/search chords/i).fill('Shape Of My Own');
+    await expect(page.getByText('Your shape', { exact: true })).toBeVisible();
+  });
 });
 
 test.describe('Chorde E2E - Setlists', () => {

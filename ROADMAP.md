@@ -142,12 +142,12 @@ requirement.
 ## Next
 
 Milestones 5 and 7 are done, and so are the performance view, printing, the arrangement of the
-library and the writing desk. What is next is asked of the app in the way
-[HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app cannot do yet.
+library, the writing desk and the player's own chord shapes. What is next is asked of the app in
+the way [HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app cannot do
+yet.
 
-The clearest answer is the player's own chords. A shape you draw in the chord browser is lost when
-you close the tab, and there is no list of the chords you use most. A player has their own shapes,
-and the app has no place to keep them.
+The clearest answer is the library. There is no play history, so there is no "recently played" and
+no "most played", and a song cannot be marked as one you know well.
 
 ## Not doing
 

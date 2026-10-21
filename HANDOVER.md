@@ -100,19 +100,29 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**The chords you actually play.** A shape you draw in the chord browser is lost when you close the
-tab, and there is no list of the chords you use most. A player has their own shapes, and the app
-has no place to keep them.
+**The library.** No play history, so there is no "recently played" and no "most played", and a
+song cannot be marked as one you know well.
 
-After that, the other things the app cannot do yet:
+After that:
 
-- **The library.** No play history, so there is no "recently played" and no "most played", and a
-  song cannot be marked as one you know well.
+- **The chords you use most.** The shapes a player has drawn are kept now, but there is no list of
+  the chords they play most, which is the list they would want in front of them.
 - **The API needs a host**, which is a decision rather than a piece of work: until it has one,
   online search is hidden in production.
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+The player's own shapes are done. The parts worth knowing:
+
+- `lib/customChords.ts` keeps the shapes a player has drawn, on the device, and never sends them
+  anywhere. They survive a reload, which they did not before.
+- A shape is put into the library of chords (`data/chordLibrary.ts`), so every part of the app
+  draws the shape the player has for that chord: the diagram, the tablature, the stave.
+- A shape for a chord the library already has replaces the library's own shape, and taking the
+  player's shape away brings the library's shape back.
+- The chord library shows which shapes are the player's own, and they can be taken away.
+- A shape with only open strings used to be drawn with a fret number of infinity.
 
 The writing desk is done. The parts worth knowing:
 

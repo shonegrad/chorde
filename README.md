@@ -22,6 +22,8 @@
 - **Interactive Chord Library**:
   - Browse chords and view multiple finger positions (variations).
   - **Strumming Audio Preview**: Listen to realistic guitar strum playback with position-based timing.
+  - **Your Own Shapes**: Draw the shape you play a chord with, and the app draws that shape for
+    that chord from then on. Your shapes are kept on your device.
 - **Dynamic Transposition**: Instantly change the key of any song, with the new key shown by name
   and chords spelled to match the new key signature.
 - **Capo Support**: Shows the key the song actually sounds in for the selected capo.

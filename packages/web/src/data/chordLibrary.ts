@@ -1312,3 +1312,50 @@ const CHORD_INDEX: Record<string, ChordDefinition> = (() => {
 export function getChord(chordName: string): ChordDefinition | null {
   return CHORD_INDEX[normaliseChordName(chordName)] ?? null;
 }
+
+/*
+ * The shapes a player has drawn for themselves.
+ *
+ * The library of chords is read-only, but a player has their own shapes, and
+ * the app has to be able to find them: a shape the player has drawn is the
+ * shape that is shown for that chord.
+ */
+const customChords: Record<string, ChordDefinition> = {};
+
+/** The shape the library had for a chord, before the player changed it. */
+const replaced: Record<string, ChordDefinition | undefined> = {};
+
+/**
+ * Add a shape, so that the app draws this one for that chord.
+ */
+export function registerChord(definition: ChordDefinition): void {
+  const key = normaliseChordName(definition.name);
+  if (!(key in replaced)) {
+    replaced[key] = CHORD_INDEX[key];
+  }
+  customChords[key] = definition;
+  CHORD_INDEX[key] = definition;
+}
+
+/**
+ * Take a shape away, so that the app draws the library's own shape again.
+ */
+export function unregisterChord(chordName: string): void {
+  const key = normaliseChordName(chordName);
+  delete customChords[key];
+
+  const original = replaced[key];
+  if (original) {
+    CHORD_INDEX[key] = original;
+  } else {
+    delete CHORD_INDEX[key];
+  }
+  delete replaced[key];
+}
+
+/**
+ * The chords the player has a shape of their own for.
+ */
+export function customChordNames(): string[] {
+  return Object.values(customChords).map((definition) => definition.name);
+}
