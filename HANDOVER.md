@@ -45,7 +45,8 @@ that is what the app is actually for.
   that offers the chords of your key first, key detection, a metronome, and transposition.
 - **Performing** — a setlist carries how each song is played, and the performance view plays
   through them: count-in on the beat, auto-advance, printable running order. A set says how
-  long it takes.
+  long it takes. On stage the view has the whole screen, the size of the words, a tempo that can
+  be tapped in, the sections to jump to, and the next song to come.
 - **Organising** — favourites, tags, sorting, searching inside lyrics, bulk actions, "My Songs",
   backup and restore.
 - **Getting about** — on a big screen a sidebar sits beside the music and stays in view, so every
@@ -72,8 +73,6 @@ that is what the app is actually for.
 - **The built-in songs have no length**, so a set of them cannot say how long it takes. A length
   comes from `{duration:}` in a ChordPro file, or from a song's details, and the app does not
   guess one: a set that is not fully timed says so.
-- **The performance view is the least controllable screen.** It has no full screen, no way to
-  change the size of the words, no tap tempo and no way to see what is coming next.
 
 ## The rules of this project
 
@@ -101,16 +100,12 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**The performance view.** It is the screen a player looks at while the set is running, and it is
-the one with the fewest controls. It has no full screen, no way to change the size of the words,
-no tap tempo, no section navigation, and no way to see what is coming next. The reader has all of
-those.
+**Printing.** "Print / save as PDF" is the browser's print dialog and a chord sheet. There is no
+chord chart of a whole song, no printout with the tablature or the notation, and no way to print a
+setlist with the songs in it. A musician who plays from a music stand needs a page they can trust.
 
 After that, the other things the app cannot do yet:
 
-- **Printing.** "Print / save as PDF" is the browser's print dialog and a chord sheet. There is no
-  chord chart of a whole song, no printout with tablature or notation, and no way to print a
-  setlist with the songs in it.
 - **The library.** No grouping by artist, key or tag; no bulk transposition; no sorting by length
   or tempo; and no way to find the songs whose details are missing.
 - **The writing desk.** No live preview of what you are writing, and undo is one step per
@@ -122,6 +117,17 @@ After that, the other things the app cannot do yet:
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+The performance view is done. The parts worth knowing:
+
+- `components/SetlistPlayer.tsx` is the stage. The size of the words and the way they are written
+  are the same preferences the reader uses (`lib/preferences.ts`), so nothing is set twice.
+- The tempo of a song is often not written down, so it can be tapped in. The tapped tempo follows
+  the song: it is forgotten when the next song starts.
+- The screen is kept awake with `navigator.wakeLock`, and the lock is asked for again when the
+  page comes back, because the browser releases it when the page is hidden.
+- The sections are the ones the reader has (`components/SectionNav.tsx`), and the same scroll spy
+  works out where you are in the song.
 
 Milestone 5 (the rest of ChordPro) is done. The parts worth knowing:
 

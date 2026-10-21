@@ -619,6 +619,51 @@ test.describe('Chorde E2E - Performing a setlist', () => {
     await page.getByRole('button', { name: 'Next song' }).click();
     await expect(page.getByText('2 of 2')).toBeVisible();
   });
+
+  test('gives the player the controls it needs on stage', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    page.once('dialog', async (dialog) => {
+      await dialog.accept('E2E Stage Set');
+    });
+
+    await openNavigation(page);
+    await page.getByRole('button', { name: 'Setlists' }).click();
+    await page.getByRole('button', { name: 'New Setlist' }).click();
+
+    await page.getByRole('button', { name: 'Add Song' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.waitFor();
+    const addButtons = dialog.getByRole('button', { name: /^Add / });
+    await addButtons.nth(0).click();
+    await addButtons.nth(1).click();
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await expect(page.getByText('1 of 2')).toBeVisible({ timeout: 10000 });
+
+    // The whole screen, for a music stand. A phone is already the whole
+    // screen, so the button is only there on a bigger one.
+    const viewport = page.viewportSize();
+    if (!viewport || viewport.width >= 600) {
+      await expect(page.getByRole('button', { name: 'Full screen' })).toBeVisible();
+    }
+
+    // What is coming next.
+    await expect(page.getByText(/^Next: /)).toBeVisible();
+
+    // The size of the words.
+    await expect(page.getByLabel(/text size \d+ pixels/i)).toBeVisible();
+    await page.getByRole('button', { name: 'Increase text size' }).click();
+    await expect(page.getByLabel(/text size 22 pixels/i)).toBeVisible();
+
+    // And the other ways of writing them.
+    await page.getByRole('button', { name: 'Nashville' }).click();
+    await expect(
+      page.getByRole('button', { name: /— show chord diagram for/i }).first()
+    ).toBeVisible();
+  });
 });
 
 test.describe('Chorde E2E - Writing desk', () => {

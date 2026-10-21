@@ -123,6 +123,57 @@ describe('the performance view', () => {
     await waitFor(() => expect(screen.getByText('Play quietly here')).toBeInTheDocument());
   });
 
+  it('says what is coming next', async () => {
+    renderPlayer();
+
+    await waitFor(() => expect(screen.getByText('Next: Second Song')).toBeInTheDocument());
+  });
+
+  it('offers the other ways of writing the words', async () => {
+    renderPlayer();
+
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /show chord diagram for G/i })).toBeInTheDocument()
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nashville' }));
+
+    // The chord is written as a number, the way a Nashville number is written.
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: /1 — show chord diagram for G/i })
+      ).toBeInTheDocument()
+    );
+  });
+
+  it('changes the size of the words', async () => {
+    renderPlayer();
+
+    await waitFor(() => expect(screen.getByLabelText(/text size 20 pixels/i)).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: /increase text size/i }));
+
+    expect(screen.getByLabelText(/text size 22 pixels/i)).toBeInTheDocument();
+  });
+
+  it('shows the sections of the song, and where you are in it', async () => {
+    useLibraryStore.setState({
+      songs: [
+        { ...song, content: '{start_of_verse}\n[G]One\n{start_of_chorus}\n[C]Two' },
+        secondSong,
+      ],
+    });
+    renderPlayer();
+
+    const chorus = await screen.findByRole('button', { name: /chorus/i });
+    expect(chorus).toBeInTheDocument();
+
+    // Scrolling the song works out which section is on the screen.
+    fireEvent.scroll(screen.getByLabelText('The song'));
+
+    await waitFor(() => expect(chorus).toHaveAttribute('aria-current', 'true'));
+  });
+
   it('says so when a song is no longer in the library', async () => {
     useLibraryStore.setState({ songs: [secondSong] });
     renderPlayer();

@@ -30,6 +30,9 @@
   - Loop sections for practice.
   - Performance mode (fullscreen) for playing from a music stand.
   - Remembers your text size, display mode and per-song transposition.
+- **Performance View**: A setlist plays through on a full screen, with the size of the words, a
+  tempo you can tap in, the sections to jump to, and the next song to come. The screen stays awake
+  while the set is running.
 - **Collapsible Navigation**: Browse by Keys, Artists, and Genres with item count badges. The
   sidebar stays in view on a big screen, so every place in the app is one click away.
 - **A Page for Every Key**: The chords of the key, the songs that are in it, and the songs that

@@ -25,12 +25,13 @@ shows the comments, the chord grids and the tablature a song carries; transposit
 spelling; capo with the sounding key; Nashville numbers; a sidebar that stays in view on a big
 screen, so every place in the app is one click away, and controls that wrap instead of scrolling
 sideways; setlists that carry how each song is played and how long it takes, and a performance view
-that plays through them; the chords of a song played back with a guitar tone; chords written out
-on a stave and in tablature; a page for every key, with the songs that fit it; favourites; tags;
-sorting; searching inside lyrics; bulk actions; library backup and restore; light and dark themes;
-an offline installable app; keyboard control; navigation that works on a phone; a writing desk with
-autosave, undo and a chord palette; and key detection that works out the key of a song from its
-chords.
+that plays through them with the whole screen, the size of the words, a tapped tempo, the sections
+to jump to and the next song to come; the chords of a song played back with a guitar tone; chords
+written out on a stave and in tablature; a page for every key, with the songs that fit it;
+favourites; tags; sorting; searching inside lyrics; bulk actions; library backup and restore; light
+and dark themes; an offline installable app; keyboard control; navigation that works on a phone; a
+writing desk with autosave, undo and a chord palette; and key detection that works out the key of a
+song from its chords.
 
 ## Milestone 1 — Make it true ✅
 
@@ -140,12 +141,14 @@ requirement.
 
 ## Next
 
-Milestones 5 and 7 are done. What is next is asked of the app in the way
-[HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app cannot do yet.
+Milestones 5 and 7 are done, and so is the performance view. What is next is asked of the app in
+the way [HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app cannot do
+yet.
 
-The clearest answer is the performance view. It is the screen a player looks at while the set is
-running, and it is the one with the fewest controls: no full screen, no way to change the size of
-the words, no tap tempo, and no way to see what is coming next.
+The clearest answer is printing. "Print / save as PDF" is the browser's print dialog and a chord
+sheet: there is no chord chart of a whole song, no printout with the tablature or the notation,
+and no way to print a setlist with the songs in it. After that comes the library, which cannot be
+grouped by artist, key or tag, and has no bulk transposition.
 
 ## Not doing
 
