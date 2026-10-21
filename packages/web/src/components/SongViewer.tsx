@@ -47,6 +47,7 @@ import {
   Chip,
   Paper,
   Container,
+  TextField,
   Tooltip,
   useMediaQuery,
   useTheme,
@@ -442,11 +443,21 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     onUpdateSong?.({ ...song, favorite: !song.favorite, updatedAt: new Date().toISOString() });
   };
 
+  const handleDurationChange = () => {
+    const value = durationDraft.trim();
+    onUpdateSong?.({
+      ...song,
+      duration: value || undefined,
+      updatedAt: new Date().toISOString(),
+    });
+  };
+
   const handleTagsChange = (tags: string[]) => {
     onUpdateSong?.({ ...song, tags, updatedAt: new Date().toISOString() });
   };
 
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [durationDraft, setDurationDraft] = useState(song.duration ?? '');
 
   // Keyboard shortcuts, so a song can be played without touching the screen.
   useEffect(() => {
@@ -1133,7 +1144,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               ))}
               {onUpdateSong && (
                 <Chip
-                  label="Edit tags"
+                  label="Details"
                   size="small"
                   variant="outlined"
                   onClick={() => setDetailsOpen(true)}
@@ -1255,9 +1266,9 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         />
       )}
 
-      {/* Edit tags */}
+      {/* The details of the song */}
       <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Tags for {song.title}</DialogTitle>
+        <DialogTitle>Details for {song.title}</DialogTitle>
         <DialogContent>
           <TagEditor
             tags={song.tags ?? []}
@@ -1267,6 +1278,26 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             }}
             helperText="Tags are shared with the rest of your library, so you can find the song again."
           />
+
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Length
+            </Typography>
+            <TextField
+              size="small"
+              fullWidth
+              placeholder="4:28"
+              value={durationDraft}
+              onChange={(event) => setDurationDraft(event.target.value)}
+              inputProps={{ 'aria-label': 'The length of the song' }}
+              helperText="How long the song takes, as minutes and seconds. A setlist adds the lengths up."
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter') return;
+                handleDurationChange();
+              }}
+              onBlur={handleDurationChange}
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDetailsOpen(false)}>Close</Button>

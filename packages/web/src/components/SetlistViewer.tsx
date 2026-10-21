@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSetlistStore } from '../store/setlistStore';
 import { useLibraryStore } from '../store/libraryStore';
 import { printSetlist } from '../lib/printSetlist';
+import { describeRunningTime, runningTime } from '../lib/duration';
 import {
   Box,
   Button,
@@ -101,6 +102,9 @@ export const SetlistViewer: React.FC = () => {
   const songById = new Map(songs.map((song) => [song.id, song]));
   const entries = setlist.songs;
 
+  // How long the set takes, from the lengths the songs have.
+  const time = runningTime(entries.map((entry) => songById.get(entry.songId)?.duration));
+
   const availableToAdd = songs.filter((song) => !entries.some((entry) => entry.songId === song.id));
 
   const handleRename = () => {
@@ -150,6 +154,17 @@ export const SetlistViewer: React.FC = () => {
           </Typography>
         )}
         <Box sx={{ flexGrow: 1 }} />
+
+        {entries.length > 0 && (
+          <Chip
+            label={
+              time.known === 0 ? 'Length not known' : `Running time ${describeRunningTime(time)}`
+            }
+            size="small"
+            variant="outlined"
+            sx={{ whiteSpace: 'nowrap' }}
+          />
+        )}
 
         <Button
           startIcon={<PlayArrowIcon />}
@@ -287,6 +302,7 @@ export const SetlistViewer: React.FC = () => {
                               : null,
                             entry.capo ? `Capo ${entry.capo}` : null,
                             song.key ? `Key ${song.key}` : null,
+                            song.duration,
                             entry.note,
                           ]
                             .filter(Boolean)

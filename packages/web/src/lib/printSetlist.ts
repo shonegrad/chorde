@@ -1,5 +1,6 @@
 import type { Setlist } from '@chorde/shared';
 import type { Song } from '../types';
+import { describeRunningTime, runningTime } from './duration';
 
 const escapeHtml = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -38,6 +39,15 @@ export const printSetlist = (setlist: Setlist, songById: Map<string, Song>): voi
     })
     .join('\n');
 
+  // How long the set takes, which is what a stand needs to know.
+  const time = runningTime(setlist.songs.map((entry) => songById.get(entry.songId)?.duration));
+  const subtitle = [
+    setlist.targetKey ? `Played in ${setlist.targetKey}` : 'Running order',
+    setlist.songs.length > 0 ? `Running time ${describeRunningTime(time)}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
   const win = window.open('', '_blank');
   if (!win) return;
 
@@ -61,9 +71,7 @@ export const printSetlist = (setlist: Setlist, songById: Map<string, Song>): voi
 </head>
 <body>
   <h1>${escapeHtml(setlist.name)}</h1>
-  <p class="subtitle">${
-    setlist.targetKey ? `Played in ${escapeHtml(setlist.targetKey)}` : 'Running order'
-  }</p>
+  <p class="subtitle">${escapeHtml(subtitle)}</p>
   <table>${rows}</table>
   <script>window.onload = () => { window.print(); }</script>
 </body>

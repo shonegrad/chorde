@@ -301,6 +301,39 @@ test.describe('Chorde E2E - Setlists', () => {
   });
 });
 
+test.describe('Chorde E2E - The length of a set', () => {
+  test('adds up how long the songs take', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    // Say how long a song takes.
+    await page.getByRole('heading', { name: 'Amazing Grace' }).click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Details' }).click();
+    await page.getByLabel('The length of the song').fill('3:45');
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    // Put it in a set.
+    page.once('dialog', async (dialog) => {
+      await dialog.accept('E2E Set');
+    });
+
+    await page.getByRole('button', { name: 'Back to library' }).click();
+    await openNavigation(page);
+    await page.getByRole('button', { name: 'Setlists' }).click();
+    await page.getByRole('button', { name: 'New Setlist' }).click();
+    await page.getByRole('button', { name: 'Add Song' }).click();
+
+    const dialog = page.getByRole('dialog');
+    await dialog.waitFor();
+    await dialog.getByRole('button', { name: /^Add Amazing Grace/ }).click();
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    // The set says how long it takes.
+    await expect(page.getByText('Running time 3:45')).toBeVisible();
+  });
+});
+
 test.describe('Chorde E2E - Organising the library', () => {
   test('favourites a song and filters by favourites', async ({ page }) => {
     await page.goto('./');
