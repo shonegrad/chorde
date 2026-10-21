@@ -25,6 +25,7 @@ import {
 import { SongBody } from './SongBody';
 import { SongNote } from './SongNote';
 import { songLink } from '../lib/shareLink';
+import { downloadMidi } from '../lib/midi';
 import { PrintDialog } from './PrintDialog';
 import { TagEditor } from './TagEditor';
 import { ChordModal } from './ChordModal';
@@ -960,6 +961,15 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                   </IconButton>
                 </Tooltip>
 
+                <Tooltip title="Download the chords as a MIDI file">
+                  <IconButton
+                    onClick={() => downloadMidi(song, { capo, transpose })}
+                    aria-label="Download MIDI file"
+                  >
+                    <MusicNoteIcon />
+                  </IconButton>
+                </Tooltip>
+
                 <Tooltip title="Send this song to somebody else">
                   <IconButton onClick={handleShareLink} aria-label="Copy a link to this song">
                     <LinkIcon />
@@ -1136,6 +1146,19 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               <LinkIcon fontSize="small" />
             </ListItemIcon>
             Copy a link to this song
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              downloadMidi(song, { capo, transpose });
+              setMoreAnchor(null);
+            }}
+            aria-label="Download MIDI file"
+          >
+            <ListItemIcon>
+              <MusicNoteIcon fontSize="small" />
+            </ListItemIcon>
+            Download MIDI file
           </MenuItem>
 
           <MenuItem

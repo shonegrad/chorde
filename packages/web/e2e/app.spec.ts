@@ -216,6 +216,21 @@ test.describe('Chorde E2E - Song Viewer', () => {
     await popup.close();
   });
 
+  test('writes the chords of a song to a MIDI file', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      clickSongControl(page, 'Download MIDI file'),
+    ]);
+
+    expect(download.suggestedFilename()).toMatch(/\.mid$/);
+  });
+
   test('sends a song to somebody else in a link', async ({ page, context }) => {
     await page.goto('./');
     await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });

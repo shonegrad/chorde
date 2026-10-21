@@ -105,17 +105,26 @@ search is hidden in production. Everything else in the app works without it.
 
 What the app cannot do yet, and what a musician would notice:
 
-- **Nothing is printed as a MIDI file**, and there is no way to send the chords of a song to
-  another program.
 - **There is no way to play along with a recording.** The app plays the chords of a song, and there
   is no backing track and no way to keep to one.
 - **A song cannot be shared as a file of its own** in a way that keeps the words, the key and the
-  chords together. The ChordPro file does that, but it does not carry the notes.
+  chords together. The ChordPro file and the MIDI file each keep part of it.
 - **The library is not a catalogue of what you want to learn.** There is no place to say "I want to
-  learn this one".
+  learn this one", and so no list of what is left to learn.
+- **The player cannot see the shape of the chord and the words together** while playing, only one
+  or the other.
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+The chords of a song can be written to a MIDI file. The parts worth knowing:
+
+- `lib/midi.ts` writes a Standard MIDI File: a header, one track, the tempo, the time signature,
+  and the notes of each chord, one chord to a bar.
+- The chords are the shapes the library knows, so the file sounds the way the song is played, and
+  the notes are struck one after another, the way a hand strums.
+- The changes of the song are played, so the file is a loop of the progression to play along with.
+- A chord the app cannot work out is left out rather than guessed at.
 
 A song can be sent to somebody else. The parts worth knowing:
 

@@ -50,6 +50,8 @@
 - **Favourites**: Star the songs you play most and find them again in one click.
 - **Share a Song**: Send somebody else a link to a song. The link carries the song with it, so
   they can add it to their own library. Nothing is sent anywhere until they do.
+- **MIDI Export**: Write the chords of a song to a MIDI file, one chord to a bar, so you can play
+  along with it in another program.
 - **Play History**: The app remembers what was played and when, so you can sort by "Recently
   played" or "Most played". Mark the songs you have learned, and the library will tell you which
   ones are still new. The chords you reach for most are offered first when you write.

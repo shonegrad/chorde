@@ -94,6 +94,7 @@ The URL query string is the single source of truth for the library filter
 - `packages/web/src/lib/setlistFile.ts` — Writing a setlist down, and reading it back
 - `packages/web/src/lib/shareLink.ts` — A link that carries a song to somebody else
 - `packages/web/src/lib/deflate.ts` — Squeezing data down, with the browser's own tools
+- `packages/web/src/lib/midi.ts` — Writing the chords of a song to a MIDI file
 - `packages/web/src/lib/importFormats.ts` — The files the app can read, and the old `.crd` format
 - `packages/web/src/lib/zip.ts` — Reading a ZIP archive, with the browser's own inflater
 - `packages/web/src/components/SongBody.tsx` — Chord-over-lyric rendering

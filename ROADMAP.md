@@ -143,9 +143,9 @@ requirement.
 
 Milestones 5 and 7 are done, and so are the performance view, printing, the arrangement of the
 library, the writing desk, the player's own chord shapes, the play history, the list of the chords
-a player reaches for most, the setlist that can be written down, and the link that carries a song
-to somebody else. What is next is asked of the app in the way [HANDOVER.md](./HANDOVER.md) sets
-out: what does a musician need that the app cannot do yet.
+a player reaches for most, the setlist that can be written down, the link that carries a song to
+somebody else, and the MIDI file of a song. What is next is asked of the app in the way
+[HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app cannot do yet.
 
 The clearest answer is the API. The search is the one part of the app that needs a server, and it
 is hidden in production until there is one. Everything else works on the device alone.
