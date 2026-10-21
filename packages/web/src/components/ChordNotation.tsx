@@ -81,6 +81,49 @@ const loadVexflow = (): Promise<typeof import('vexflow/core')> => {
 };
 
 /**
+ * Break the strings of a tablature around the numbers.
+ *
+ * VexFlow hides the string under each number with a rectangle in the colour
+ * of the page. The rectangle does its job, but it is still a shape on the
+ * page, and it shows up wherever the page is not the colour it was drawn for.
+ * The string is broken around the number instead, which looks the same and
+ * leaves nothing behind.
+ */
+const breakTheStrings = (svg: SVGElement): void => {
+  const masks = [...svg.querySelectorAll('.vf-tabnote rect')].map((rect) => ({
+    x: Number(rect.getAttribute('x')),
+    y: Number(rect.getAttribute('y')),
+    width: Number(rect.getAttribute('width')),
+    height: Number(rect.getAttribute('height')),
+  }));
+
+  svg.querySelectorAll('.vf-stave path').forEach((path) => {
+    const line = path.getAttribute('d')?.match(/^M([\d.-]+) ([\d.-]+)L([\d.-]+) ([\d.-]+)$/);
+    if (!line) return;
+
+    const [, start, y, end] = line.map(Number);
+    const gaps = masks
+      .filter((mask) => Math.abs(mask.y + mask.height / 2 - y) < 1)
+      .map((mask) => [mask.x + 1, mask.x + mask.width - 1] as [number, number])
+      .sort((a, b) => a[0] - b[0]);
+
+    // Each piece of the string is a path of its own, with the numbers
+    // taken out of it.
+    let d = '';
+    let cursor = start;
+    for (const [from, to] of gaps) {
+      if (from > cursor) d += `M${cursor} ${y}L${from} ${y}`;
+      cursor = Math.max(cursor, to);
+    }
+    if (cursor < end) d += `M${cursor} ${y}L${end} ${y}`;
+
+    path.setAttribute('d', d);
+  });
+
+  svg.querySelectorAll('.vf-tabnote rect').forEach((rect) => rect.remove());
+};
+
+/**
  * Draw the chords and return the SVG of them.
  */
 const drawNotation = async (
@@ -202,6 +245,16 @@ const drawNotation = async (
 
     const svg = host.querySelector('svg');
     if (!svg) return null;
+
+    /*
+     * The numbers in a tablature are written over the strings, so VexFlow
+     * hides the string under each one with a rectangle in the colour of the
+     * page. The rectangle does its job, but it is still a shape on the page,
+     * and it shows up wherever the page is not the colour it was drawn for.
+     * The number is given a halo instead, which breaks the string in the
+     * same way without leaving anything behind.
+     */
+    if (kind === 'tab') breakTheStrings(svg);
 
     // A copy is kept, so the same drawing can be shown in more than one place.
     const copy = svg.cloneNode(true) as SVGElement;

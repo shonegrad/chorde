@@ -231,7 +231,12 @@ test.describe('Chorde E2E - Song Viewer', () => {
 
     // And the shapes are written in tablature.
     await page.getByRole('button', { name: 'Tabs' }).click();
-    await expect(page.locator('.song-line-art-chords svg').first()).toBeVisible();
+    const tabs = page.locator('.song-line-art-chords svg').first();
+    await expect(tabs).toBeVisible();
+
+    // The numbers break the strings themselves, so there is no shape hiding
+    // behind them in the colour of the page.
+    await expect(tabs.locator('.vf-tabnote rect')).toHaveCount(0);
   });
 
   test('offers the Nashville display mode', async ({ page }) => {
