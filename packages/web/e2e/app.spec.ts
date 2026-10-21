@@ -301,6 +301,25 @@ test.describe('Chorde E2E - Setlists', () => {
   });
 });
 
+test.describe('Chorde E2E - Songs in a key', () => {
+  test('shows the songs in a key and the songs that fit it', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await openNavigation(page);
+    await page.getByRole('button', { name: 'By Key' }).click();
+    await page.getByRole('button', { name: 'G', exact: true }).click();
+
+    // The chords of the key, and the songs that are in it.
+    await expect(page.getByText('G · I')).toBeVisible();
+    await expect(page.getByText('F#dim · vii')).toBeVisible();
+    await expect(page.getByText(/Songs in G \(/)).toBeVisible();
+
+    // And the songs that could be played in it.
+    await expect(page.getByText(/Songs that fit G \(/)).toBeVisible();
+  });
+});
+
 test.describe('Chorde E2E - The length of a set', () => {
   test('adds up how long the songs take', async ({ page }) => {
     await page.goto('./');

@@ -326,7 +326,10 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   key={key}
                   sx={{ pl: 7 }}
                   selected={activeFilter?.type === 'key' && activeFilter?.value === key}
-                  onClick={() => handleFilterClick('key', key)}
+                  onClick={() => {
+                    navigate(`/key/${encodeURIComponent(key)}`);
+                    closeIfMobile();
+                  }}
                 >
                   <ListItemText
                     primary={key}

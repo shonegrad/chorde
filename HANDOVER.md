@@ -94,12 +94,18 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 The work that is worth doing next, in the order it pays off:
 
-- **The chords of a key, and the notes of a song in one place.** The chord library knows the
-  shapes and the song view knows the chords, and nothing joins them up.
-- **A running time for a setlist.** The songs have durations and the setlist does not add them
-  up.
+- **The rest of ChordPro** (Milestone 5): comments and playing instructions (`{comment:}`,
+  `{gc:}`), `{define:}`, `{duration:}`, multi-song files, real tab blocks, and the original column
+  alignment so a chord written mid-word keeps its place.
 - **OnSong, legacy `.crd` and ZIP folders** (Milestone 7). MusicXML and Guitar Pro are
   deliberately out of scope for now.
+- **The API needs a host**, which is a decision rather than a piece of work: until it has one,
+  online search is hidden in production.
+
+Two things from this list are done. A setlist says how long it takes, from the lengths on the
+songs (`lib/duration.ts`), and a key has a page of its own (`components/KeyView.tsx`) with the
+chords of the key, the songs that are in it, and the songs that could be played in it because
+every chord they use is a chord of the key (`lib/fit.ts`).
 
 Milestone 6 (sound) is done. The parts worth knowing:
 

@@ -33,6 +33,9 @@ const SongImporter = React.lazy(() =>
   import('./components/SongImporter').then((m) => ({ default: m.SongImporter }))
 );
 const ChordBrowser = React.lazy(() => import('./components/ChordBrowser'));
+const KeyView = React.lazy(() =>
+  import('./components/KeyView').then((m) => ({ default: m.KeyView }))
+);
 const Settings = React.lazy(() =>
   import('./components/Settings').then((m) => ({ default: m.Settings }))
 );
@@ -343,6 +346,16 @@ function App() {
             <Route path="/" element={<SongListView />} />
             <Route path="/song/:id" element={<SongViewerRoute />} />
             <Route path="/import" element={<SongImporterRoute />} />
+            <Route
+              path="/key/:key"
+              element={
+                <ErrorBoundary>
+                  <Suspense fallback={LoadingFallback}>
+                    <KeyView />
+                  </Suspense>
+                </ErrorBoundary>
+              }
+            />
             <Route
               path="/chords"
               element={

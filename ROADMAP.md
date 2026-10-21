@@ -111,8 +111,9 @@ this key" view, and a setlist that knows the running time.
 
 Done: the key is worked out from the chords, the song viewer says so and offers to save it, every
 chord says what it is made of and where it sits in the key, and the chord library has a key
-reference. Still to do: a "songs in this key" view that also finds the songs you could transpose
-into it, and the running time on a setlist.
+reference. A key now has a page of its own: the chords of the key, the songs that are in it, and
+the songs that could be played in it because every chord they use is a chord of the key. A setlist
+says how long it takes.
 
 ## Milestone 9 — Cloud sync and accounts
 
