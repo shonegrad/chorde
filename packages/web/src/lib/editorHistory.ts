@@ -24,9 +24,21 @@ export interface EditorHistory {
   present: EditorSnapshot;
   /** The states that were undone. */
   future: EditorSnapshot[];
+  /** What the last change was, so that changes of the same thing group together. */
+  lastGroup?: string;
+  /** When the last change was made. */
+  lastAt?: number;
 }
 
 export const HISTORY_LIMIT = 50;
+
+/**
+ * How long two changes to the same thing count as one.
+ *
+ * Typing a word is a dozen changes, and taking them back one at a time is
+ * no use to anybody.
+ */
+export const MERGE_WINDOW_MS = 700;
 
 export const createHistory = (present: EditorSnapshot): EditorHistory => ({
   past: [],
@@ -37,20 +49,35 @@ export const createHistory = (present: EditorSnapshot): EditorHistory => ({
 /**
  * Record a change.
  *
- * Nothing is recorded while the user is still typing the same thing, so a
- * single word does not fill the history with a dozen steps.
+ * Changes to the same thing, made one after another without a pause, are
+ * recorded as one, so that undo takes back a thought and not a letter.
  */
 export const commit = (
   history: EditorHistory,
   next: EditorSnapshot,
-  limit = HISTORY_LIMIT
+  limit = HISTORY_LIMIT,
+  options: { group?: string; at?: number } = {}
 ): EditorHistory => {
   if (isSameSnapshot(history.present, next)) return history;
+
+  const group = options.group;
+  const at = options.at ?? Date.now();
+
+  const continues =
+    group !== undefined &&
+    group === history.lastGroup &&
+    at - (history.lastAt ?? 0) < MERGE_WINDOW_MS;
+
+  // The change continues the last one, so the last state is replaced rather
+  // than pushed onto the history.
+  if (continues) {
+    return { ...history, present: next, future: [], lastGroup: group, lastAt: at };
+  }
 
   const past = [...history.past, history.present];
   if (past.length > limit) past.shift();
 
-  return { past, present: next, future: [] };
+  return { past, present: next, future: [], lastGroup: group, lastAt: at };
 };
 
 export const canUndo = (history: EditorHistory): boolean => history.past.length > 0;
@@ -64,6 +91,9 @@ export const undo = (history: EditorHistory): EditorHistory => {
     past: history.past.slice(0, -1),
     present: previous,
     future: [history.present, ...history.future],
+    // What comes next is a new thought, not a continuation of the last one.
+    lastGroup: undefined,
+    lastAt: undefined,
   };
 };
 
@@ -75,6 +105,8 @@ export const redo = (history: EditorHistory): EditorHistory => {
     past: [...history.past, history.present],
     present: next,
     future: rest,
+    lastGroup: undefined,
+    lastAt: undefined,
   };
 };
 

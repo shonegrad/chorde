@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Song } from '../types';
 import { createId } from '../lib/id';
-import { extractMetadata } from '../lib/chordPro';
+import { extractMetadata, parseChordPro } from '../lib/chordPro';
 import { readDuration } from '../lib/duration';
 import { transposeChordProContent, keyPrefersFlats } from '../lib/music';
 import { keyShift } from '../lib/keys';
@@ -17,6 +17,7 @@ import {
   type EditorSnapshot,
 } from '../lib/editorHistory';
 import { TagEditor } from './TagEditor';
+import { SongBody } from './SongBody';
 import { ChordPalette } from './editor/ChordPalette';
 import { Metronome } from './editor/Metronome';
 import {
@@ -135,8 +136,17 @@ export const SongEditor: React.FC<SongEditorProps> = ({
 
   const draft = history.present;
 
+  /*
+   * A change to the song.
+   *
+   * The group says what was changed, so that typing a word is one change to
+   * undo rather than a dozen, and changing the title is a change of its own.
+   */
   const update = useCallback((changes: Partial<EditorSnapshot>) => {
-    setHistory((current) => commit(current, { ...current.present, ...changes }));
+    const group = Object.keys(changes).join(',');
+    setHistory((current) =>
+      commit(current, { ...current.present, ...changes }, undefined, { group })
+    );
   }, []);
 
   /*
@@ -316,6 +326,9 @@ export const SongEditor: React.FC<SongEditorProps> = ({
     [draft.content, draft.key]
   );
 
+  /* The song as it will read, so that writing is not writing blind. */
+  const previewLines = useMemo(() => parseChordPro(draft.content), [draft.content]);
+
   const suggestedKey = useMemo(() => {
     if (draft.key) return undefined;
     const chords = Array.from(draft.content.matchAll(/\[([^\]]+)\]/g)).map((match) => match[1]);
@@ -426,7 +439,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
             sx={{ minWidth: 170, flex: '1 1 170px' }}
             helperText={
               suggestedKey && !draft.key
-                ? `This looks like ${suggestedKey}`
+                ? `This looks like ${suggestedKey.key}`
                 : 'The key the song is in'
             }
           >
@@ -557,6 +570,31 @@ export const SongEditor: React.FC<SongEditorProps> = ({
               ))}
             </Paper>
           )}
+        </Box>
+
+        {/* The song as it will read, so that writing is not writing blind. */}
+        <Box>
+          <Typography variant="subtitle2" gutterBottom>
+            As it will read
+          </Typography>
+          <Box
+            sx={{
+              p: 2,
+              border: '1px dashed',
+              borderColor: 'divider',
+              borderRadius: 1,
+              minHeight: 120,
+              fontSize: '18px',
+            }}
+          >
+            {draft.content.trim() ? (
+              <SongBody lines={previewLines} displayMode="chords" songKey={draft.key ?? 'C'} />
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                The song will read like this as you write it.
+              </Typography>
+            )}
+          </Box>
         </Box>
 
         <Divider />

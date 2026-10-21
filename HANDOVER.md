@@ -100,14 +100,12 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**The writing desk.** There is no live preview of what you are writing, and undo is one step per
-keystroke, so fifty steps is fifty characters rather than fifty edits. A person writing a song is
-writing blind.
+**The chords you actually play.** A shape you draw in the chord browser is lost when you close the
+tab, and there is no list of the chords you use most. A player has their own shapes, and the app
+has no place to keep them.
 
 After that, the other things the app cannot do yet:
 
-- **The chords you actually play.** A shape you draw in the chord browser is lost when you close
-  the tab, and there is no list of the chords you use most.
 - **The library.** No play history, so there is no "recently played" and no "most played", and a
   song cannot be marked as one you know well.
 - **The API needs a host**, which is a decision rather than a piece of work: until it has one,
@@ -115,6 +113,16 @@ After that, the other things the app cannot do yet:
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+The writing desk is done. The parts worth knowing:
+
+- The song is read back as it is written, with the chords over the words, under "As it will read".
+  A person writing a song was writing blind.
+- `lib/editorHistory.ts` groups the changes to the same thing that are made one after another, so
+  that undo takes back a word and not a letter. The group is what was changed, and the changes
+  have to be within `MERGE_WINDOW_MS` of each other.
+- The key the editor thinks the song is in was shown as "[object Object]". It was the whole guess,
+  not the key in it.
 
 The library can now be arranged. The parts worth knowing:
 

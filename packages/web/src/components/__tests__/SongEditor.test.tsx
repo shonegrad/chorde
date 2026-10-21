@@ -45,6 +45,15 @@ describe('the writing desk', () => {
     expect(screen.getByLabelText('Song')).toHaveValue(song.content);
   });
 
+  it('shows the song as it will read', () => {
+    renderEditor(vi.fn(), song);
+
+    expect(screen.getByText('As it will read')).toBeInTheDocument();
+    // The chord is over the word it belongs to, the way it will be read.
+    const chord = screen.getByRole('button', { name: /show chord diagram for G/i });
+    expect(chord.closest('.chord-anchor')?.querySelector('.chord-word')?.textContent).toBe('Hello');
+  });
+
   it('saves without being asked, so nothing is lost', async () => {
     vi.useFakeTimers();
 

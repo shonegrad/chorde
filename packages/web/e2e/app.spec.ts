@@ -733,6 +733,42 @@ test.describe('Chorde E2E - Writing desk', () => {
     await expect(page.getByRole('heading', { name: 'A Song of My Own' })).toBeVisible();
   });
 
+  test('shows the song as it will read while it is written', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'New Song' }).click();
+    await expect(page.getByRole('heading', { name: 'New Song' })).toBeVisible();
+
+    const songBox = page.getByLabel('Song');
+    await songBox.click();
+    await songBox.type('[G]Hello there');
+
+    // The song is read back as it is written, with the chord over its word.
+    await expect(page.getByText('As it will read')).toBeVisible();
+    const preview = page.locator('.song-body').first();
+    await expect(preview.getByText('Hello')).toBeVisible();
+    await expect(preview.getByRole('button', { name: /show chord diagram for G/i })).toBeVisible();
+  });
+
+  test('takes back a whole word at a time', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'New Song' }).click();
+    await expect(page.getByRole('heading', { name: 'New Song' })).toBeVisible();
+
+    const songBox = page.getByLabel('Song');
+    await songBox.click();
+    await songBox.type('[G]Hello');
+    await page.waitForTimeout(800);
+
+    // One undo takes back the whole word, not one letter.
+    await page.getByRole('button', { name: /undo/i }).click();
+
+    await expect(songBox).toHaveValue('');
+  });
+
   test('offers the chords of the key first', async ({ page }) => {
     await page.goto('./');
     await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
