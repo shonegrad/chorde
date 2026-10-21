@@ -100,21 +100,33 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**The library.** It cannot be grouped by artist, key or tag, there is no bulk transposition, no
-sorting by length or tempo, and no way to find the songs whose details are missing. A songbook is
-arranged, and this one is a list.
+**The writing desk.** There is no live preview of what you are writing, and undo is one step per
+keystroke, so fifty steps is fifty characters rather than fifty edits. A person writing a song is
+writing blind.
 
 After that, the other things the app cannot do yet:
 
-- **The writing desk.** No live preview of what you are writing, and undo is one step per
-  keystroke, so fifty steps is fifty characters rather than fifty edits.
 - **The chords you actually play.** A shape you draw in the chord browser is lost when you close
   the tab, and there is no list of the chords you use most.
+- **The library.** No play history, so there is no "recently played" and no "most played", and a
+  song cannot be marked as one you know well.
 - **The API needs a host**, which is a decision rather than a piece of work: until it has one,
   online search is hidden in production.
 
 The work should be asked of the app in the same way as before — what does a musician need that it
 cannot do yet.
+
+The library can now be arranged. The parts worth knowing:
+
+- `lib/library.ts` groups the songs, sorts them, and transposes one for good.
+- The songs can be gathered into groups by artist, key or tag. A song with three tags is in three
+  groups, because that is what a tag is for, and a song with no key is in the group of the songs
+  that have no key.
+- The songs can be sorted by their length, their tempo or their capo, and a song that does not
+  have the thing being sorted by goes at the end.
+- "Missing details" finds the songs that do not say what key they are in, or how long they take.
+- Several songs can be transposed together. The chords are moved and the key each song says it is
+  in is moved with them, so the song still says the key it is in.
 
 Printing is done. The parts worth knowing:
 

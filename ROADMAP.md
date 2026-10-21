@@ -141,13 +141,13 @@ requirement.
 
 ## Next
 
-Milestones 5 and 7 are done, and so are the performance view and printing. What is next is asked
-of the app in the way [HANDOVER.md](./HANDOVER.md) sets out: what does a musician need that the app
-cannot do yet.
+Milestones 5 and 7 are done, and so are the performance view, printing and the arrangement of the
+library. What is next is asked of the app in the way [HANDOVER.md](./HANDOVER.md) sets out: what
+does a musician need that the app cannot do yet.
 
-The clearest answer is the library. It cannot be grouped by artist, key or tag, it has no bulk
-transposition, and it cannot be sorted by length or tempo. A songbook is arranged, and this one is
-a list.
+The clearest answer is the writing desk. There is no live preview of what you are writing, and
+undo is one step per keystroke, so fifty steps is fifty characters rather than fifty edits. A
+person writing a song is writing blind.
 
 ## Not doing
 

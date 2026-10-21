@@ -19,6 +19,7 @@ import { StorageWarning } from './components/StorageWarning';
 import { MobileNav } from './components/MobileNav';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useLibraryFilter } from './lib/useLibraryFilter';
+import { transposeSong } from './lib/library';
 import type { Song } from './types';
 import { Box, IconButton, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -273,6 +274,24 @@ function SongListView() {
     }
   };
 
+  const handleTransposeSongs = async (ids: string[], semitones: number) => {
+    if (semitones === 0) return;
+    try {
+      for (const id of ids) {
+        const song = songs.find((candidate) => candidate.id === id);
+        if (!song) continue;
+        await saveSong(transposeSong(song, semitones));
+      }
+      notifySuccess(
+        `Transposed ${ids.length} ${ids.length === 1 ? 'song' : 'songs'} by ${
+          semitones > 0 ? '+' : ''
+        }${semitones}`
+      );
+    } catch {
+      notifyError('Failed to transpose the songs');
+    }
+  };
+
   const handleAddToSetlist = (ids: string[], setlistId: string) => {
     ids.forEach((id) => addSongToSetlist(setlistId, id));
     const setlist = setlists.find((candidate) => candidate.id === setlistId);
@@ -305,6 +324,7 @@ function SongListView() {
         onDeleteSongs={handleDeleteSongs}
         onDuplicateSong={handleDuplicateSong}
         onTagSongs={handleTagSongs}
+        onTransposeSongs={handleTransposeSongs}
         onAddToSetlist={handleAddToSetlist}
         setlists={setlists.map((setlist) => ({ id: setlist.id, name: setlist.name }))}
       />

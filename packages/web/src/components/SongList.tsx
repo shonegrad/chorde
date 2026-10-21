@@ -48,15 +48,27 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import SwapCallsIcon from '@mui/icons-material/SwapCalls';
 
-export type SortOrder = 'title' | 'artist' | 'key' | 'recent' | 'favourite';
+import { groupSongs, sortSongs, type GroupBy, type SortOrder } from '../lib/library';
+import { parseDuration } from '../lib/duration';
 
 const SORT_OPTIONS: { value: SortOrder; label: string }[] = [
   { value: 'title', label: 'Title (A-Z)' },
   { value: 'artist', label: 'Artist (A-Z)' },
   { value: 'key', label: 'Key' },
+  { value: 'length', label: 'Length' },
+  { value: 'tempo', label: 'Tempo' },
+  { value: 'capo', label: 'Capo' },
   { value: 'recent', label: 'Recently added' },
   { value: 'favourite', label: 'Favourites first' },
+];
+
+const GROUP_OPTIONS: { value: GroupBy; label: string }[] = [
+  { value: 'none', label: 'No groups' },
+  { value: 'artist', label: 'By artist' },
+  { value: 'key', label: 'By key' },
+  { value: 'tag', label: 'By tag' },
 ];
 
 /** The plain lyrics of a song, with the ChordPro markup removed. */
@@ -82,6 +94,7 @@ interface SongListProps {
   onDeleteSongs?: (ids: string[]) => void;
   onDuplicateSong?: (song: Song) => void;
   onTagSongs?: (ids: string[], tag: string) => void;
+  onTransposeSongs?: (ids: string[], semitones: number) => void;
   onAddToSetlist?: (songIds: string[], setlistId: string) => void;
   setlists?: { id: string; name: string }[];
 }
@@ -101,12 +114,15 @@ export const SongList: React.FC<SongListProps> = ({
   onDeleteSongs,
   onDuplicateSong,
   onTagSongs,
+  onTransposeSongs,
   onAddToSetlist,
   setlists = [],
 }) => {
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('title');
+  const [groupBy, setGroupBy] = useState<GroupBy>('none');
+  const [onlyIncomplete, setOnlyIncomplete] = useState(false);
   const [searchLyrics, setSearchLyrics] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -116,6 +132,9 @@ export const SongList: React.FC<SongListProps> = ({
   const [tagDraft, setTagDraft] = useState('');
   const [setlistDialogOpen, setSetlistDialogOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [transposeDialogOpen, setTransposeDialogOpen] = useState(false);
+  const [transposeDraft, setTransposeDraft] = useState(0);
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
 
   // Every tag in the library, so a tag can be switched to without clearing
   // the current filter first.
@@ -140,39 +159,22 @@ export const SongList: React.FC<SongListProps> = ({
         s.artist.toLowerCase().includes(query) ||
         (searchLyrics && (lyricsById.get(s.id) ?? '').includes(query));
       const matchesTag = !selectedTag || (s.tags && s.tags.includes(selectedTag));
-      return matchesSearch && matchesTag;
+      // A song that is missing something can be found, because a songbook
+      // that does not say what key it is in is not finished.
+      const matchesComplete =
+        !onlyIncomplete || !s.key || !s.duration || parseDuration(s.duration) === undefined;
+      return matchesSearch && matchesTag && matchesComplete;
     });
 
-    const sorted = [...matches];
-    sorted.sort((a, b) => {
-      if (sortOrder === 'favourite') {
-        const favDiff = Number(Boolean(b.favorite)) - Number(Boolean(a.favorite));
-        if (favDiff !== 0) return favDiff;
-      }
-      if (sortOrder === 'recent') {
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() ||
-          a.title.localeCompare(b.title)
-        );
-      }
-      if (sortOrder === 'key') {
-        return (a.key ?? '~').localeCompare(b.key ?? '~') || a.title.localeCompare(b.title);
-      }
-      if (sortOrder === 'artist') {
-        return a.artist.localeCompare(b.artist) || a.title.localeCompare(b.title);
-      }
-      return a.title.localeCompare(b.title);
-    });
-
-    return sorted;
-  }, [songs, search, searchLyrics, selectedTag, sortOrder, lyricsById]);
+    return sortSongs(matches, sortOrder);
+  }, [songs, search, searchLyrics, selectedTag, sortOrder, lyricsById, onlyIncomplete]);
 
   const [visibleCount, setVisibleCount] = useState(12);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Show the first page again whenever the result set changes. Adjusting the
   // state during render avoids an extra pass of rendering.
-  const resultKey = `${search}|${searchLyrics}|${selectedTag}|${sortOrder}|${activeFilter?.type ?? ''}:${activeFilter?.value ?? ''}`;
+  const resultKey = `${search}|${searchLyrics}|${selectedTag}|${sortOrder}|${groupBy}|${onlyIncomplete}|${activeFilter?.type ?? ''}:${activeFilter?.value ?? ''}`;
   const [lastResultKey, setLastResultKey] = useState(resultKey);
   if (resultKey !== lastResultKey) {
     setLastResultKey(resultKey);
@@ -194,6 +196,20 @@ export const SongList: React.FC<SongListProps> = ({
   }, [filtered.length]);
 
   const visibleSongs = filtered.slice(0, visibleCount);
+
+  /*
+   * The songs in groups.
+   *
+   * A songbook is arranged, and a list of songs is not, so the songs can be
+   * gathered into groups by artist, key or tag.
+   */
+  const groups = useMemo(() => groupSongs(visibleSongs, groupBy), [visibleSongs, groupBy]);
+
+  const toggleGroup = (key: string) => {
+    setCollapsedGroups((current) =>
+      current.includes(key) ? current.filter((entry) => entry !== key) : [...current, key]
+    );
+  };
 
   const toggleSelected = (id: string) => {
     setSelectedIds((prev) =>
@@ -238,6 +254,13 @@ export const SongList: React.FC<SongListProps> = ({
     leaveSelectionMode();
   };
 
+  const transposeSelection = () => {
+    onTransposeSongs?.(selectedIds, transposeDraft);
+    setTransposeDialogOpen(false);
+    setTransposeDraft(0);
+    leaveSelectionMode();
+  };
+
   const renderCardActions = (song: Song) => (
     <Stack direction="row" spacing={0.5} alignItems="center">
       {onToggleFavorite && (
@@ -273,6 +296,190 @@ export const SongList: React.FC<SongListProps> = ({
       onClick={(event) => event.stopPropagation()}
       inputProps={{ 'aria-label': `Select ${song.title}` }}
     />
+  );
+
+  const renderCard = (song: Song) => {
+    const cardContent = (
+      <CardContent sx={{ width: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            mb: 1,
+            // Room for the action buttons, which sit on top.
+            pr: 7,
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
+            {selectionMode && renderSelectionCheckbox(song)}
+            <Typography variant="h5" component="h2" fontWeight="bold">
+              {song.title}
+            </Typography>
+          </Stack>
+        </Box>
+
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+          {song.artist}
+        </Typography>
+        <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+          {song.key && (
+            <Typography variant="body2" color="text.secondary">
+              Key: <strong>{song.key}</strong>
+            </Typography>
+          )}
+          {(song.capo || 0) > 0 && (
+            <Typography variant="body2" color="primary">
+              Capo: {song.capo}
+            </Typography>
+          )}
+        </Stack>
+
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ gap: 0.5 }}>
+          {song.tags?.map((tag) => (
+            <Chip
+              key={tag}
+              label={tag}
+              size="small"
+              variant="filled"
+              sx={{ borderRadius: 1, bgcolor: 'action.hover' }}
+            />
+          ))}
+        </Stack>
+      </CardContent>
+    );
+
+    return (
+      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={song.id}>
+        <Card
+          sx={{
+            height: '100%',
+            position: 'relative',
+            transition: 'all 0.2s',
+            '&:hover': { transform: 'translateY(-4px)' },
+          }}
+        >
+          {selectionMode ? (
+            // A plain box in selection mode, so the checkbox is not
+            // nested inside a button.
+            <Box
+              role="button"
+              tabIndex={0}
+              onClick={() => toggleSelected(song.id)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  toggleSelected(song.id);
+                }
+              }}
+              sx={{
+                height: '100%',
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'start',
+                flexDirection: 'column',
+                cursor: 'pointer',
+              }}
+            >
+              {cardContent}
+            </Box>
+          ) : (
+            <CardActionArea
+              onClick={() => onSelect(song)}
+              sx={{
+                height: '100%',
+                display: 'flex',
+                alignItems: 'start',
+                justifyContent: 'start',
+                flexDirection: 'column',
+              }}
+            >
+              {cardContent}
+            </CardActionArea>
+          )}
+
+          {/* Kept outside the action area so the buttons are not nested. */}
+          {!selectionMode && (
+            <Box sx={{ position: 'absolute', top: 8, right: 8 }}>{renderCardActions(song)}</Box>
+          )}
+        </Card>
+      </Grid>
+    );
+  };
+
+  const renderRow = (song: Song) => (
+    <Paper key={song.id} elevation={0} sx={{ mb: 1, borderRadius: 1, overflow: 'hidden' }}>
+      <ListItem disablePadding sx={{ position: 'relative' }}>
+        {selectionMode ? (
+          // A plain box in selection mode, so the checkbox is not
+          // nested inside a button.
+          <Box
+            role="button"
+            tabIndex={0}
+            onClick={() => toggleSelected(song.id)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleSelected(song.id);
+              }
+            }}
+            sx={{ py: 2, pr: 8, cursor: 'pointer' }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1.5 }}>
+              {renderSelectionCheckbox(song)}
+              <MusicNoteIcon color="action" />
+              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                <Typography variant="h6" fontWeight="bold" noWrap>
+                  {song.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" noWrap>
+                  {song.artist}
+                </Typography>
+              </Box>
+              <Stack direction="row" spacing={1} alignItems="center">
+                {song.key && <Chip label={song.key} size="small" variant="outlined" />}
+                {song.tags?.slice(0, 3).map((tag) => (
+                  <Chip key={tag} label={tag} size="small" sx={{ bgcolor: 'action.hover' }} />
+                ))}
+              </Stack>
+            </Box>
+          </Box>
+        ) : (
+          <ListItemButton onClick={() => onSelect(song)} sx={{ py: 2, pr: 8 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1.5 }}>
+              <MusicNoteIcon color="action" />
+              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                <Typography variant="h6" fontWeight="bold" noWrap>
+                  {song.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" noWrap>
+                  {song.artist}
+                </Typography>
+              </Box>
+              <Stack direction="row" spacing={1} alignItems="center">
+                {song.key && <Chip label={song.key} size="small" variant="outlined" />}
+                {(song.capo || 0) > 0 && (
+                  <Chip
+                    label={`Capo ${song.capo}`}
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                  />
+                )}
+                {song.tags?.slice(0, 3).map((tag) => (
+                  <Chip key={tag} label={tag} size="small" sx={{ bgcolor: 'action.hover' }} />
+                ))}
+              </Stack>
+            </Box>
+          </ListItemButton>
+        )}
+
+        {/* Kept outside the button so the buttons are not nested. */}
+        {!selectionMode && (
+          <Box sx={{ position: 'absolute', top: 12, right: 8 }}>{renderCardActions(song)}</Box>
+        )}
+      </ListItem>
+    </Paper>
   );
 
   return (
@@ -316,6 +523,15 @@ export const SongList: React.FC<SongListProps> = ({
                 onClick={() => setTagDialogOpen(true)}
               >
                 Tag
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<SwapCallsIcon />}
+                disabled={selectedIds.length === 0 || !onTransposeSongs}
+                onClick={() => setTransposeDialogOpen(true)}
+              >
+                Transpose
               </Button>
               <Button
                 variant="outlined"
@@ -434,6 +650,22 @@ export const SongList: React.FC<SongListProps> = ({
           </Select>
         </FormControl>
 
+        <FormControl variant="outlined" sx={{ minWidth: 150 }}>
+          <InputLabel id="group-by-label">Group by</InputLabel>
+          <Select
+            labelId="group-by-label"
+            label="Group by"
+            value={groupBy}
+            onChange={(event) => setGroupBy(event.target.value as GroupBy)}
+          >
+            {GROUP_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <ToggleButtonGroup
           value={viewMode}
           exclusive
@@ -469,7 +701,7 @@ export const SongList: React.FC<SongListProps> = ({
         ))}
       </Stack>
 
-      <Stack direction="row" spacing={1} sx={{ mb: 3 }} alignItems="center">
+      <Stack direction="row" spacing={1} sx={{ mb: 3 }} alignItems="center" flexWrap="wrap">
         <Chip
           label={searchLyrics ? 'Searching lyrics' : 'Titles and artists only'}
           color={searchLyrics ? 'primary' : 'default'}
@@ -479,236 +711,64 @@ export const SongList: React.FC<SongListProps> = ({
           role="button"
           aria-pressed={searchLyrics}
         />
+        <Chip
+          label="Missing details"
+          color={onlyIncomplete ? 'primary' : 'default'}
+          variant={onlyIncomplete ? 'filled' : 'outlined'}
+          onClick={() => setOnlyIncomplete((prev) => !prev)}
+          clickable
+          role="button"
+          aria-pressed={onlyIncomplete}
+          title="The songs that do not say what key they are in, or how long they take"
+        />
       </Stack>
 
-      {viewMode === 'grid' ? (
-        <Grid container spacing={3}>
-          {visibleSongs.map((song) => {
-            const cardContent = (
-              <CardContent sx={{ width: '100%' }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    mb: 1,
-                    // Room for the action buttons, which sit on top.
-                    pr: 7,
-                  }}
-                >
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
-                    {selectionMode && renderSelectionCheckbox(song)}
-                    <Typography variant="h5" component="h2" fontWeight="bold">
-                      {song.title}
-                    </Typography>
-                  </Stack>
-                </Box>
-
-                <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                  {song.artist}
-                </Typography>
-                <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-                  {song.key && (
-                    <Typography variant="body2" color="text.secondary">
-                      Key: <strong>{song.key}</strong>
-                    </Typography>
-                  )}
-                  {(song.capo || 0) > 0 && (
-                    <Typography variant="body2" color="primary">
-                      Capo: {song.capo}
-                    </Typography>
-                  )}
-                </Stack>
-
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ gap: 0.5 }}>
-                  {song.tags?.map((tag) => (
-                    <Chip
-                      key={tag}
-                      label={tag}
-                      size="small"
-                      variant="filled"
-                      sx={{ borderRadius: 1, bgcolor: 'action.hover' }}
-                    />
-                  ))}
-                </Stack>
-              </CardContent>
-            );
-
-            return (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={song.id}>
-                <Card
-                  sx={{
-                    height: '100%',
-                    position: 'relative',
-                    transition: 'all 0.2s',
-                    '&:hover': { transform: 'translateY(-4px)' },
-                  }}
-                >
-                  {selectionMode ? (
-                    // A plain box in selection mode, so the checkbox is not
-                    // nested inside a button.
-                    <Box
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => toggleSelected(song.id)}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                          event.preventDefault();
-                          toggleSelected(song.id);
-                        }
-                      }}
-                      sx={{
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        justifyContent: 'start',
-                        flexDirection: 'column',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {cardContent}
-                    </Box>
-                  ) : (
-                    <CardActionArea
-                      onClick={() => onSelect(song)}
-                      sx={{
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'start',
-                        justifyContent: 'start',
-                        flexDirection: 'column',
-                      }}
-                    >
-                      {cardContent}
-                    </CardActionArea>
-                  )}
-
-                  {/* Kept outside the action area so the buttons are not nested. */}
-                  {!selectionMode && (
-                    <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
-                      {renderCardActions(song)}
-                    </Box>
-                  )}
-                </Card>
-              </Grid>
-            );
-          })}
-
-          {visibleSongs.length < filtered.length && (
-            <div ref={loadMoreRef} style={{ width: '100%', height: '20px', margin: '20px 0' }} />
-          )}
-
-          {filtered.length === 0 && (
-            <Grid size={{ xs: 12 }}>
-              <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
-                <MusicNoteIcon sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
-                <Typography variant="h6">No songs found</Typography>
-                <Typography>Try adjusting your search query or filters.</Typography>
-              </Box>
-            </Grid>
-          )}
-        </Grid>
-      ) : (
-        <List sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
-          {visibleSongs.map((song) => (
-            <Paper key={song.id} elevation={0} sx={{ mb: 1, borderRadius: 1, overflow: 'hidden' }}>
-              <ListItem disablePadding sx={{ position: 'relative' }}>
-                {selectionMode ? (
-                  // A plain box in selection mode, so the checkbox is not
-                  // nested inside a button.
-                  <Box
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => toggleSelected(song.id)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        toggleSelected(song.id);
-                      }
-                    }}
-                    sx={{ py: 2, pr: 8, cursor: 'pointer' }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1.5 }}>
-                      {renderSelectionCheckbox(song)}
-                      <MusicNoteIcon color="action" />
-                      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                        <Typography variant="h6" fontWeight="bold" noWrap>
-                          {song.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" noWrap>
-                          {song.artist}
-                        </Typography>
-                      </Box>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        {song.key && <Chip label={song.key} size="small" variant="outlined" />}
-                        {song.tags?.slice(0, 3).map((tag) => (
-                          <Chip
-                            key={tag}
-                            label={tag}
-                            size="small"
-                            sx={{ bgcolor: 'action.hover' }}
-                          />
-                        ))}
-                      </Stack>
-                    </Box>
-                  </Box>
-                ) : (
-                  <ListItemButton onClick={() => onSelect(song)} sx={{ py: 2, pr: 8 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1.5 }}>
-                      <MusicNoteIcon color="action" />
-                      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                        <Typography variant="h6" fontWeight="bold" noWrap>
-                          {song.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" noWrap>
-                          {song.artist}
-                        </Typography>
-                      </Box>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        {song.key && <Chip label={song.key} size="small" variant="outlined" />}
-                        {(song.capo || 0) > 0 && (
-                          <Chip
-                            label={`Capo ${song.capo}`}
-                            size="small"
-                            color="primary"
-                            variant="outlined"
-                          />
-                        )}
-                        {song.tags?.slice(0, 3).map((tag) => (
-                          <Chip
-                            key={tag}
-                            label={tag}
-                            size="small"
-                            sx={{ bgcolor: 'action.hover' }}
-                          />
-                        ))}
-                      </Stack>
-                    </Box>
-                  </ListItemButton>
-                )}
-
-                {/* Kept outside the button so the buttons are not nested. */}
-                {!selectionMode && (
-                  <Box sx={{ position: 'absolute', top: 12, right: 8 }}>
-                    {renderCardActions(song)}
-                  </Box>
-                )}
-              </ListItem>
-            </Paper>
-          ))}
-
-          {visibleSongs.length < filtered.length && (
-            <div ref={loadMoreRef} style={{ width: '100%', height: '20px', margin: '20px 0' }} />
-          )}
-
-          {filtered.length === 0 && (
-            <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
-              <MusicNoteIcon sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
-              <Typography variant="h6">No songs found</Typography>
-              <Typography>Try adjusting your search query or filters.</Typography>
+      {groups.map((group) => (
+        <Box key={group.key} sx={{ mb: 4 }}>
+          {group.label && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+              <Typography
+                variant="h5"
+                component="h2"
+                fontWeight="bold"
+                sx={{ fontFamily: 'var(--font-mono)' }}
+              >
+                {group.label}
+              </Typography>
+              <Chip label={group.songs.length} size="small" variant="outlined" />
+              <Button
+                size="small"
+                onClick={() => toggleGroup(group.key)}
+                aria-label={`${collapsedGroups.includes(group.key) ? 'Open' : 'Close'} ${group.label}`}
+              >
+                {collapsedGroups.includes(group.key) ? 'Show' : 'Hide'}
+              </Button>
             </Box>
           )}
-        </List>
+
+          {!collapsedGroups.includes(group.key) &&
+            (viewMode === 'grid' ? (
+              <Grid container spacing={3}>
+                {group.songs.map(renderCard)}
+              </Grid>
+            ) : (
+              <List sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
+                {group.songs.map(renderRow)}
+              </List>
+            ))}
+        </Box>
+      ))}
+
+      {visibleSongs.length < filtered.length && (
+        <div ref={loadMoreRef} style={{ width: '100%', height: '20px', margin: '20px 0' }} />
+      )}
+
+      {filtered.length === 0 && (
+        <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
+          <MusicNoteIcon sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
+          <Typography variant="h6">No songs found</Typography>
+          <Typography>Try adjusting your search query or filters.</Typography>
+        </Box>
       )}
 
       {/* Per-song actions */}
@@ -771,6 +831,49 @@ export const SongList: React.FC<SongListProps> = ({
           <Button onClick={() => setTagDialogOpen(false)}>Cancel</Button>
           <Button variant="contained" onClick={applyTagToSelection}>
             Add tag
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Transpose the selection */}
+      <Dialog
+        open={transposeDialogOpen}
+        onClose={() => setTransposeDialogOpen(false)}
+        maxWidth="xs"
+      >
+        <DialogTitle>Transpose {selectedIds.length} songs</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2}>
+            <Typography variant="body2" color="text.secondary">
+              The chords of every selected song are moved, and the key each song says it is in is
+              moved with them.
+            </Typography>
+            <TextField
+              type="number"
+              size="small"
+              label="Semitones"
+              value={transposeDraft}
+              onChange={(event) => setTransposeDraft(Number(event.target.value))}
+              inputProps={{ 'aria-label': 'Semitones' }}
+              helperText="Up is positive, down is negative."
+            />
+            <Stack direction="row" spacing={1}>
+              <Button size="small" onClick={() => setTransposeDraft((value) => value - 1)}>
+                Down
+              </Button>
+              <Button size="small" onClick={() => setTransposeDraft((value) => value + 1)}>
+                Up
+              </Button>
+              <Button size="small" onClick={() => setTransposeDraft(0)}>
+                Back to the original
+              </Button>
+            </Stack>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTransposeDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={transposeSelection}>
+            Transpose
           </Button>
         </DialogActions>
       </Dialog>

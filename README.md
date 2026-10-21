@@ -45,9 +45,11 @@
 - **Plays Like a Guitar**: The chords of a song can be played in the reader and on stage, with the
   volume, the tone and whether there is sound at all set in the settings.
 - **Favourites**: Star the songs you play most and find them again in one click.
-- **Organise Your Library**: Add tags, sort by title, artist, key or date, and search inside the
-  lyrics as well as the titles.
-- **Bulk Actions**: Select several songs at once to tag them, add them to a setlist, or delete them.
+- **Organise Your Library**: Add tags, sort by title, artist, key, length, tempo or capo, group the
+  songs by artist, key or tag, and search inside the lyrics as well as the titles.
+- **Bulk Actions**: Select several songs at once to tag them, transpose them, add them to a
+  setlist, or delete them.
+- **Missing Details**: Find the songs that do not say what key they are in, or how long they take.
 - **Backup & Restore**: Export your whole library to a file and restore it on another device.
 - **Local Storage**: Your library is saved locally in your browser and works offline. Changes in
   another tab are picked up straight away.

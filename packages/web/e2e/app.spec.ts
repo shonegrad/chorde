@@ -420,6 +420,23 @@ test.describe('Chorde E2E - Organising the library', () => {
     expect(artists).toEqual(sorted);
   });
 
+  test('gathers the library into groups', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    const groupSelect = page.getByRole('combobox', { name: 'Group by' });
+    await groupSelect.click();
+    const option = page.getByRole('option', { name: 'By artist' });
+    await expect(option).toBeVisible();
+    await option.click();
+    await expect(groupSelect).toContainText('By artist');
+
+    // The songs are under a heading that says who wrote them.
+    await expect(
+      page.getByRole('heading', { level: 2, name: 'Traditional', exact: true })
+    ).toBeVisible();
+  });
+
   test('finds a song by its lyrics', async ({ page }) => {
     await page.goto('./');
     await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });

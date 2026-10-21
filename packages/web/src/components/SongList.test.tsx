@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { SongList } from './SongList';
 import theme from '../theme';
@@ -186,5 +186,49 @@ describe('SongList', () => {
     fireEvent.click(screen.getByRole('menuitem', { name: /duplicate/i }));
 
     expect(onDuplicateSong).toHaveBeenCalledWith(mockSongs[1]);
+  });
+
+  it('gathers the songs into groups', () => {
+    renderWithTheme(<SongList {...defaultProps} />);
+
+    fireEvent.mouseDown(screen.getByLabelText('Group by'));
+    fireEvent.click(screen.getByRole('option', { name: 'By artist' }));
+
+    expect(screen.getByRole('heading', { level: 2, name: /^Test Artist$/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 2, name: /^Different Artist$/ })
+    ).toBeInTheDocument();
+  });
+
+  it('finds the songs whose details are missing', () => {
+    const complete: Song = {
+      ...mockSongs[0],
+      id: 'test-complete',
+      title: 'A Complete Song',
+      key: 'C',
+      duration: '4:28',
+    };
+
+    renderWithTheme(<SongList {...defaultProps} songs={[complete, mockSongs[1]]} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /missing details/i }));
+
+    expect(screen.getByText('Another Song')).toBeInTheDocument();
+    expect(screen.queryByText('A Complete Song')).not.toBeInTheDocument();
+  });
+
+  it('transposes the selected songs', () => {
+    const onTransposeSongs = vi.fn();
+    renderWithTheme(<SongList {...defaultProps} onTransposeSongs={onTransposeSongs} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Select' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select Test Song One' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Transpose' }));
+
+    const input = screen.getByLabelText('Semitones');
+    fireEvent.change(input, { target: { value: '2' } });
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Transpose' }));
+
+    expect(onTransposeSongs).toHaveBeenCalledWith(['test-1'], 2);
   });
 });
