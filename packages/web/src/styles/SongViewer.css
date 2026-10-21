@@ -80,23 +80,35 @@
   font-weight: 700;
 }
 
-/* Tab and notation artwork is far too large to sit inline with the lyrics. */
+/*
+ * Tab and notation artwork is far too large to sit over a word, so the chords
+ * are written out along the top of the line and the words run underneath.
+ */
 .song-line-art {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.75rem;
   margin-bottom: 1.6rem;
 }
 
-.chord-anchor--art {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
+.song-line-art-chords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+/* The words run along the line, as they do in the other modes. */
+.song-line-art .chord-word {
+  display: inline;
 }
 
 .chord-display--art {
   cursor: pointer;
+  /*
+   * The artwork is the chord here, so it takes up room in the line instead of
+   * sitting above the word.
+   */
+  position: static;
+  bottom: auto;
 }
 
 .chord-display--art svg {

@@ -10,6 +10,7 @@
 
 import { getChord } from '../data/chordLibrary';
 import { notesOfShape, pitchClassOf } from './guitar';
+import { tonesOfQuality } from './chordTones';
 
 export interface VoicingNote {
   frequency: number;
@@ -21,60 +22,6 @@ export interface VoicingNote {
   order: number;
 }
 
-/**
- * The notes each chord is made of, in semitones from its root.
- *
- * The intervals are written out rather than folded into an octave, so a ninth
- * is really a ninth above the root and not a second.
- */
-const CHORD_TONES: Record<string, number[]> = {
-  '': [0, 4, 7],
-  '5': [0, 7],
-  m: [0, 3, 7],
-  dim: [0, 3, 6],
-  aug: [0, 4, 8],
-  sus2: [0, 2, 7],
-  sus4: [0, 5, 7],
-  '6': [0, 4, 7, 9],
-  maj6: [0, 4, 7, 9],
-  m6: [0, 3, 7, 9],
-  '7': [0, 4, 7, 10],
-  maj7: [0, 4, 7, 11],
-  m7: [0, 3, 7, 10],
-  mmaj7: [0, 3, 7, 11],
-  dim7: [0, 3, 6, 9],
-  m7b5: [0, 3, 6, 10],
-  '7sus4': [0, 5, 7, 10],
-  '7b5': [0, 4, 6, 10],
-  '7#5': [0, 4, 8, 10],
-  '7b9': [0, 4, 7, 10, 13],
-  '7b13': [0, 4, 7, 10, 20],
-  '7alt': [0, 4, 10],
-  '9': [0, 4, 7, 10, 14],
-  maj9: [0, 4, 7, 11, 14],
-  m9: [0, 3, 7, 10, 14],
-  '9sus4': [0, 5, 7, 10, 14],
-  add9: [0, 4, 7, 14],
-  '11': [0, 4, 7, 10, 14, 17],
-  m11: [0, 3, 7, 10, 14, 17],
-  '13': [0, 4, 7, 10, 14, 21],
-  maj13: [0, 4, 7, 11, 14, 21],
-};
-
-const QUALITY_ALIASES: Record<string, string> = {
-  min: 'm',
-  minor: 'm',
-  maj: '',
-  major: '',
-  o: 'dim',
-  '°': 'dim',
-  ø: 'm7b5',
-  '+': 'aug',
-  sus: 'sus4',
-  h5: 'm7b5',
-};
-
-/** The frequency of a note, from its MIDI number. */
 export const frequencyOfMidi = (midi: number): number => 440 * Math.pow(2, (midi - 69) / 12);
 
 /** The MIDI number of a note, from its pitch class and octave. */
@@ -105,29 +52,15 @@ const rootMidiFor = (pitchClass: number): number => {
   );
 };
 
-/** The notes of a chord, worked out from its name. */
-const tonesFor = (quality: string): number[] | null => {
-  const normalised = quality
-    .trim()
-    .toLowerCase()
-    .replace(/[\s()]/g, '');
-  const alias = QUALITY_ALIASES[normalised];
-  const key = alias !== undefined ? alias : normalised;
-
-  if (key in CHORD_TONES) return CHORD_TONES[key];
-
-  // A chord with an extra note in its name, such as "maj7#11", is played as
-  // the chord we do know.
-  const known = Object.keys(CHORD_TONES).sort((a, b) => b.length - a.length);
-  const match = known.find((candidate) => candidate !== '' && key.startsWith(candidate));
-  if (match) return CHORD_TONES[match];
-
-  return null;
-};
-
-interface ParsedChord {
+export interface ParsedChord {
+  /** The pitch class of the root. */
   root: number;
+  /** The root as it was written, for example "Bb". */
+  rootName: string;
+  /** The notes of the chord, in semitones from the root. */
   tones: number[];
+  /** How many letter steps above the root each note is. */
+  steps: number[];
   /** The note in the bass, for a chord such as D/F#. */
   bass?: number;
 }
@@ -147,7 +80,7 @@ export const parseChordName = (name: string): ParsedChord | null => {
   const root = pitchClassOf(match[1]);
   if (root < 0) return null;
 
-  const tones = tonesFor(match[2]);
+  const tones = tonesOfQuality(match[2]);
   if (!tones) return null;
 
   let bass: number | undefined;
@@ -156,7 +89,7 @@ export const parseChordName = (name: string): ParsedChord | null => {
     if (bassPitch >= 0) bass = bassPitch;
   }
 
-  return { root, tones, bass };
+  return { root, rootName: match[1], tones: tones.semitones, steps: tones.steps, bass };
 };
 
 /**

@@ -9,13 +9,37 @@ import {
 
 describe('reading a chord name', () => {
   it('reads the root and the quality', () => {
-    expect(parseChordName('Am7')).toEqual({ root: 9, tones: [0, 3, 7, 10], bass: undefined });
-    expect(parseChordName('C')).toEqual({ root: 0, tones: [0, 4, 7], bass: undefined });
-    expect(parseChordName('Bbmaj7')).toEqual({ root: 10, tones: [0, 4, 7, 11], bass: undefined });
+    expect(parseChordName('Am7')).toEqual({
+      root: 9,
+      rootName: 'A',
+      tones: [0, 3, 7, 10],
+      steps: [0, 2, 4, 6],
+      bass: undefined,
+    });
+    expect(parseChordName('C')).toEqual({
+      root: 0,
+      rootName: 'C',
+      tones: [0, 4, 7],
+      steps: [0, 2, 4],
+      bass: undefined,
+    });
+    expect(parseChordName('Bbmaj7')).toEqual({
+      root: 10,
+      rootName: 'Bb',
+      tones: [0, 4, 7, 11],
+      steps: [0, 2, 4, 6],
+      bass: undefined,
+    });
   });
 
   it('reads the note in the bass of a slash chord', () => {
-    expect(parseChordName('D/F#')).toEqual({ root: 2, tones: [0, 4, 7], bass: 6 });
+    expect(parseChordName('D/F#')).toEqual({
+      root: 2,
+      rootName: 'D',
+      tones: [0, 4, 7],
+      steps: [0, 2, 4],
+      bass: 6,
+    });
   });
 
   it('says so when a name is not a chord', () => {

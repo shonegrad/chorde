@@ -211,6 +211,23 @@ test.describe('Chorde E2E - Song Viewer', () => {
     expect(overflow).toBe(0);
   });
 
+  test('writes the chords out on a stave and in tablature', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    // The notes are written on a stave. On a phone the controls are in a menu.
+    await openMoreControls(page);
+    await page.getByRole('button', { name: 'Notes' }).click();
+    await expect(page.locator('.chord-display--art svg').first()).toBeVisible({ timeout: 20000 });
+
+    // And the shapes are written in tablature.
+    await page.getByRole('button', { name: 'Tabs' }).click();
+    await expect(page.locator('.chord-display--art svg').first()).toBeVisible();
+  });
+
   test('offers the Nashville display mode', async ({ page }) => {
     await page.goto('./');
     await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
@@ -224,6 +241,25 @@ test.describe('Chorde E2E - Song Viewer', () => {
       'aria-pressed',
       'true'
     );
+  });
+});
+
+test.describe('Chorde E2E - Chord reference', () => {
+  test('shows a chord as a diagram, a tab and notes', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: /songs/i })).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('heading', { level: 2 }).first().click();
+    await expect(page.getByRole('heading', { level: 3 })).toBeVisible({ timeout: 10000 });
+
+    await page.locator('.chord-display').first().click();
+    await expect(page.getByRole('group', { name: 'How the chord is written' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Tab' }).click();
+    await expect(page.getByRole('img', { name: /in tablature/i })).toBeVisible({ timeout: 20000 });
+
+    await page.getByRole('button', { name: 'Notes' }).click();
+    await expect(page.getByRole('img', { name: /on the stave/i })).toBeVisible();
   });
 });
 

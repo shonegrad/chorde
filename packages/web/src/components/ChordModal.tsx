@@ -4,6 +4,8 @@ import { chordToNotation } from '../lib/nashville';
 import { chordInKey } from '../lib/keyDetection';
 import { playStrummedChord, resumeAudioContext } from '../lib/audio';
 import { voicingForChord } from '../lib/voicings';
+import { ChordNotation } from './ChordNotation';
+import { spellingOfChord } from '../lib/notation';
 import { ChordDiagram } from './ChordDiagram';
 import {
   Dialog,
@@ -34,6 +36,7 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const chord = getChord(chordName);
   const [selectedVariation, setSelectedVariation] = useState(0);
+  const [written, setWritten] = useState<'diagram' | 'tab' | 'notes'>(chord ? 'diagram' : 'notes');
 
   const handleVariationChange = (_: React.MouseEvent<HTMLElement>, newVariation: number | null) => {
     if (newVariation !== null) {
@@ -83,9 +86,22 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent>
-          <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
-            No diagram available for this chord yet.
+        <DialogContent
+          dividers
+          sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}
+        >
+          <Box sx={{ mb: 3, minHeight: 200, display: 'flex', alignItems: 'center' }}>
+            <ChordNotation
+              kind="staff"
+              chord={chordName}
+              songKey={songKey}
+              width={200}
+              height={95}
+            />
+          </Box>
+
+          <Typography color="text.secondary" align="center">
+            No diagram for this chord yet, but here are the notes it is made of.
           </Typography>
         </DialogContent>
       </Dialog>
@@ -139,14 +155,53 @@ export const ChordModal: React.FC<ChordModalProps> = ({ chordName, onClose, song
         dividers
         sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}
       >
-        <Box sx={{ mb: 4, minHeight: 280, display: 'flex', alignItems: 'center' }}>
-          <ChordDiagram variation={chord.variations[selectedVariation]} chordName={chord.name} />
+        <Box sx={{ mb: 3, minHeight: 210, display: 'flex', alignItems: 'center' }}>
+          {written === 'diagram' && (
+            <ChordDiagram variation={chord.variations[selectedVariation]} chordName={chord.name} />
+          )}
+          {written === 'tab' && (
+            <ChordNotation
+              kind="tab"
+              chord={chord.name}
+              frets={chord.variations[selectedVariation].frets}
+              width={215}
+              height={100}
+            />
+          )}
+          {written === 'notes' && (
+            <ChordNotation
+              kind="staff"
+              chord={chord.name}
+              songKey={songKey}
+              width={230}
+              height={115}
+            />
+          )}
         </Box>
+
+        {/* How the chord is written out. */}
+        <ToggleButtonGroup
+          value={written}
+          exclusive
+          onChange={(_event, value) => {
+            if (value) setWritten(value);
+          }}
+          aria-label="How the chord is written"
+          size="small"
+          sx={{ mb: 3 }}
+        >
+          <ToggleButton value="diagram">Diagram</ToggleButton>
+          <ToggleButton value="tab">Tab</ToggleButton>
+          <ToggleButton value="notes">Notes</ToggleButton>
+        </ToggleButtonGroup>
 
         {/* What the chord is made of, and where it sits in the key. */}
         <Stack spacing={1} sx={{ mb: 3, alignItems: 'center' }}>
           <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
             {chordToNotation(chord.name)}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+            {spellingOfChord(chord.name)}
           </Typography>
           {songKey && (
             <Typography variant="body2" color="text.secondary">

@@ -61,9 +61,6 @@ that is what the app is actually for.
 
 ### What is known to be wrong
 
-- **The "Notes" and "Tabs" modes are not real notation.** The key signature is inverted for flat
-  keys (B♭ renders five sharps), chords are always spelled sharp, and 9th/11th/13th and ♭5 chords
-  render wrongly. Milestone 4 replaces this with VexFlow. **Do not trust the current output.**
 - **The API is not deployed**, so online search is hidden in production.
 - **The library holds 16 songs.** That is on purpose, but it is thin.
 
@@ -93,21 +90,16 @@ These are the ones that matter. Breaking them is how the last set of bugs happen
 
 ## The next thing to do
 
-**Milestone 4 — real notation** with VexFlow. The research is done and the decisions are made:
+**Milestone 5 — the rest of ChordPro**, and then Milestone 7, the other ways in.
 
-- `vexflow@5.0.0`, **pinned exactly** (there has been no npm release in 19 months).
-- Import from `vexflow/core` — 89 KB gzipped. The default entry is 676 KB and cannot be
-  tree-shaken.
-- **Never VexTab.** Its licence is non-commercial. Use `Factory.TabStave()` and `Factory.TabNote()`
-  from the MIT core for tablature.
-- React friction to plan for: the `Factory` needs a string element id (use `useId()`), `draw()` does
-  not clear the container (React's StrictMode double-invokes effects and stacks two SVGs), the
-  fonts must be awaited before the first draw, and the SVG cannot be themed with CSS so it has to
-  be redrawn when the theme changes.
-- VexFlow has no lyric engine, so the chord-over-lyrics view stays as it is. That is the right
-  answer, not a compromise.
-- Its SVG is not portable (it writes font codepoints, not paths), so the print sheet must keep
-  using our own renderer.
+The work that is worth doing next, in the order it pays off:
+
+- **The chords of a key, and the notes of a song in one place.** The chord library knows the
+  shapes and the song view knows the chords, and nothing joins them up.
+- **A running time for a setlist.** The songs have durations and the setlist does not add them
+  up.
+- **OnSong, legacy `.crd` and ZIP folders** (Milestone 7). MusicXML and Guitar Pro are
+  deliberately out of scope for now.
 
 Milestone 6 (sound) is done. The parts worth knowing:
 
@@ -120,6 +112,21 @@ Milestone 6 (sound) is done. The parts worth knowing:
   once; a chord that comes back later is kept, because that is what the song does.
 - The volume, the tone and whether there is any sound are set in the settings, and the old
   waveform preference is folded into the new tone rather than lost.
+
+Milestone 4 (real notation) is done. The parts worth knowing:
+
+- `lib/notation.ts` works out how a chord is written down. The seventh of a chord is the seventh
+  letter, so a minor seventh is a flattened seventh and not a sharpened sixth: that is why the
+  chord on B♭ is B♭, D and F, and never A♯, D and F. `lib/chordTones.ts` holds the notes of
+  every chord quality, in semitones and in letter steps, and both the notation and the guitar
+  voicings read from it.
+- `components/ChordNotation.tsx` draws the staves and the tablature with VexFlow. The library is
+  loaded only when a chord is written out, and the music font is cut down to the two dozen glyphs
+  a chord needs and kept in the app, so the notation works offline. See
+  `packages/web/public/fonts/README.md`.
+- The staves and the tablature are too big to sit over a word, so in a song they are written
+  along the top of the line and the words run underneath. In the chord reference they are as big
+  as they like.
 
 ## Things to know before you touch the code
 

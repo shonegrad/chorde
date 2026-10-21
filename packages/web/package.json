@@ -27,6 +27,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.14.1",
+    "vexflow": "5.0.0",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -46,6 +47,7 @@
     "fake-indexeddb": "^6.2.6",
     "globals": "^16.5.0",
     "jsdom": "^27.4.0",
+    "subset-font": "^2.3.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",

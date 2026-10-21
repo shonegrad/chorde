@@ -117,14 +117,73 @@ export const keyPrefersFlats = (key?: string): boolean => {
   return fifths < 0;
 };
 
+/** The letters of the scale, and how many semitones above C each one is. */
+const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const LETTER_SEMITONES = [0, 2, 4, 5, 7, 9, 11];
+
+/**
+ * How many letters a move of so many semitones takes.
+ *
+ * A tone takes one letter, a third two, a fourth three, a fifth four, and
+ * so on. A tritone is the odd one out: going up it is an augmented fourth
+ * and keeps the letter three steps along, and going down it is a diminished
+ * fifth and goes four.
+ */
+const letterSteps = (semitones: number): number => {
+  const steps = Math.abs(semitones);
+  if (steps <= 2) return 1;
+  if (steps <= 4) return 2;
+  if (steps === 5) return 3;
+  if (steps === 6) return semitones > 0 ? 3 : 4;
+  if (steps === 7) return 4;
+  if (steps <= 9) return 5;
+  if (steps <= 11) return 6;
+  return 7;
+};
+
+/**
+ * Move a note by so many semitones, keeping the spelling right.
+ *
+ * A note moves by the interval: the letter steps across and the accidental
+ * follows from the note it lands on. That is why C up a minor third is E
+ * flat and not D sharp, and why C down a tone is B flat and not A sharp.
+ *
+ * A semitone is the exception, because it can be an augmented first, which
+ * keeps the letter, or a minor second, which moves it. The key decides
+ * which, so a semitone keeps the old rule.
+ */
 const transposeNote = (note: string, semitones: number, preferFlats = false): string => {
   const index = SEMITONE_INDEX[note];
   if (index === undefined) return note;
 
   const newIndex = (((index + semitones) % 12) + 12) % 12;
 
-  const useFlats = FLAT_SPELLED.has(note) || (!SHARP_SPELLED.has(note) && preferFlats);
-  return useFlats ? FLAT_NAMES[newIndex] : SHARP_NAMES[newIndex];
+  if (Math.abs(semitones) === 1) {
+    const useFlats = FLAT_SPELLED.has(note) || (!SHARP_SPELLED.has(note) && preferFlats);
+    return useFlats ? FLAT_NAMES[newIndex] : SHARP_NAMES[newIndex];
+  }
+
+  if (semitones === 0) return note;
+
+  const letterIndex = LETTERS.indexOf(note[0].toUpperCase());
+  if (letterIndex < 0) return note;
+
+  const steps = letterSteps(semitones) * Math.sign(semitones);
+  const newLetterIndex = (((letterIndex + steps) % 7) + 7) % 7;
+  const newLetter = LETTERS[newLetterIndex];
+
+  let difference = newIndex - LETTER_SEMITONES[newLetterIndex];
+  if (difference > 6) difference -= 12;
+  if (difference < -6) difference += 12;
+
+  if (difference === 0) return newLetter;
+  if (difference === 1) return `${newLetter}#`;
+  if (difference === -1) return `${newLetter}b`;
+  if (difference === 2) return `${newLetter}##`;
+  if (difference === -2) return `${newLetter}bb`;
+
+  // A double accidental beyond that is written the other way round.
+  return difference > 0 ? `${newLetter}#`.repeat(difference) : `${newLetter}b`.repeat(-difference);
 };
 
 /**

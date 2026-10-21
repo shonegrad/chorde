@@ -17,7 +17,7 @@ describe('Music Library Functions', () => {
 
     it('should transpose major chord down by 2 semitones', () => {
       const result = transposeChord('C', -2);
-      expect(result).toBe('A#');
+      expect(result).toBe('Bb');
     });
 
     it('should transpose minor chord', () => {
@@ -47,7 +47,15 @@ describe('Music Library Functions', () => {
 
     it('should keep an explicitly sharp chord sharp', () => {
       expect(transposeChord('F#', 1)).toBe('G');
+    });
+
+    it('should spell the note by the interval it moves by', () => {
+      // The letter moves with the interval, and the accidental follows.
       expect(transposeChord('C#', 2)).toBe('D#');
+      expect(transposeChord('C', 3)).toBe('Eb');
+      expect(transposeChord('G', 3)).toBe('Bb');
+      expect(transposeChord('E', 3)).toBe('G');
+      expect(transposeChord('Bb', 3)).toBe('Db');
     });
 
     it('should spell natural chords with flats in a flat key', () => {

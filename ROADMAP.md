@@ -66,7 +66,7 @@ _A printable running order._
 
 **Done when** a setlist can be played from start to finish without touching the library.
 
-## Milestone 4 — Real notation
+## Milestone 4 — Real notation ✅
 
 _Replace the hand-rolled staff with VexFlow (MIT), so key signatures, clef, stems and pitches are
 right._
@@ -74,7 +74,13 @@ _Render real tablature from the chord shapes we already have._
 _Keep our own chord-over-lyrics layout — no library does it better, and it stays selectable and
 readable by a screen reader._
 
-**Done when** B♭ renders as two flats and the notes B♭ D F, and the tab view shows a fretboard.
+Done: the staves and the tablature are drawn by VexFlow, with a real treble clef, the key signature
+of the song, the notes spelled the way a musician writes them, and the shapes of the chords in
+tablature. B♭ in B♭ major renders as two flats and the notes B♭ D F. The chord reference — the
+window that opens when you click a chord — shows the diagram, the tab and the notes.
+
+The writing is too big to sit over a word, so in a song it is written along the top of the line and
+the words run underneath.
 
 ## Milestone 5 — The rest of ChordPro
 
@@ -117,7 +123,8 @@ requirement.
 
 ## Next
 
-Milestone 4 (real notation) is next. It is written up in [HANDOVER.md](./HANDOVER.md).
+Milestone 5 (the rest of ChordPro) and then Milestone 7 (more ways in) are next. They are written
+up in [HANDOVER.md](./HANDOVER.md).
 
 ## Not doing
 

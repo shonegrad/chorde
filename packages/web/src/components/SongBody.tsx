@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import type { DisplayMode, ParsedSong } from '../types';
 import { chordToNashville } from '../lib/nashville';
-import { ChordStaff } from './ChordStaff';
-import { ChordTab } from './ChordTab';
+import { ChordNotation } from './ChordNotation';
+import { shapeOfChord } from '../lib/notation';
 import '../styles/SongViewer.css';
 
 interface SongBodyProps {
@@ -84,8 +84,20 @@ export const SongBody: React.FC<SongBodyProps> = ({
     displayMode === 'nashville' ? chordToNashville(chord, songKey || 'C') : chord;
 
   const renderChord = (chord: string): React.ReactNode => {
-    if (isNotation) return <ChordStaff chord={chord} songKey={songKey} />;
-    if (isTabs) return <ChordTab chord={chord} showLabels={false} />;
+    // The chords are written out on the stave, which every chord has.
+    if (isNotation) {
+      return <ChordNotation kind="staff" chord={chord} songKey={songKey} width={112} height={80} />;
+    }
+
+    // The tab is the shape on the guitar, which only the chords the library
+    // knows about have. The others keep their name.
+    if (isTabs) {
+      const frets = shapeOfChord(chord);
+      if (frets) {
+        return <ChordNotation kind="tab" chord={chord} frets={frets} width={104} height={80} />;
+      }
+    }
+
     return chordLabel(chord);
   };
 
@@ -120,14 +132,17 @@ export const SongBody: React.FC<SongBodyProps> = ({
 
             {usesArtwork ? (
               <div className="song-line-art">
-                {tokens.map((token, tokenIndex) =>
-                  token.kind === 'text' ? (
-                    <span key={tokenIndex} className="lyric">
-                      {token.text}
-                    </span>
-                  ) : (
-                    <span key={tokenIndex} className="chord-anchor chord-anchor--art">
+                {/*
+                  The chords are written out along the top of the line, in the
+                  order they are played, and the words run underneath. The
+                  writing is too big to sit over a word without pushing the
+                  words apart.
+                */}
+                <div className="song-line-art-chords">
+                  {tokens.map((token, tokenIndex) =>
+                    token.kind === 'chord' ? (
                       <button
+                        key={tokenIndex}
                         type="button"
                         className="chord-display chord-display--art"
                         onClick={() => onChordClick?.(token.chord)}
@@ -135,10 +150,21 @@ export const SongBody: React.FC<SongBodyProps> = ({
                       >
                         {renderChord(token.chord)}
                       </button>
-                      <span className="chord-word">{token.word}</span>
-                    </span>
-                  )
-                )}
+                    ) : null
+                  )}
+                </div>
+
+                <div className="song-line-content">
+                  {tokens.map((token, tokenIndex) =>
+                    token.kind === 'text' ? (
+                      <React.Fragment key={tokenIndex}>{token.text}</React.Fragment>
+                    ) : (
+                      <React.Fragment key={tokenIndex}>
+                        <span className="chord-word">{token.word}</span>
+                      </React.Fragment>
+                    )
+                  )}
+                </div>
               </div>
             ) : (
               <div

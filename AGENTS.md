@@ -76,6 +76,8 @@ The URL query string is the single source of truth for the library filter
   and the audio preferences
 - `packages/web/src/lib/voicings.ts` — A chord name turned into the notes it plays
 - `packages/web/src/lib/progression.ts` — The chords of a song, in order
+- `packages/web/src/lib/chordTones.ts` — The notes of every chord quality, in semitones and steps
+- `packages/web/src/lib/notation.ts` — How a chord is written down, and where a shape is played
 - `packages/web/src/lib/features.ts` — Feature flags (online search)
 - `packages/web/src/lib/backup.ts` — Library backup format
 - `packages/web/src/lib/useAutoScroll.ts` — The scrolling used by the reader and the performer
@@ -86,6 +88,7 @@ The URL query string is the single source of truth for the library filter
 - `packages/web/src/components/SongViewer.tsx` — Reading a song
 - `packages/web/src/components/SetlistPlayer.tsx` — Performing a setlist
 - `packages/web/src/components/NavigationMenu.tsx` — The sidebar: every place in the app
+- `packages/web/src/components/ChordNotation.tsx` — The staves and the tablature, drawn by VexFlow
 - `packages/web/src/components/MobileNav.tsx` — Bottom navigation for small screens
 - `packages/web/src/components/editor/` — The chord palette and the metronome
 - `packages/web/src/context/ThemeModeContext.tsx` — Light and dark themes
